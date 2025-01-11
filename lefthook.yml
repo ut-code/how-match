@@ -1,0 +1,27 @@
+pre-commit:
+  parallel: true
+  commands:
+    # general/security
+    gitleaks:
+      glob: "*"
+      run: gitleaks git
+    # JS
+    biome-fmt:
+      tags: js style
+      glob: "*.{js,ts,jsx,tsx}"
+      run: biome format --fix {staged_files}
+      stage_fixed: true
+    biome-lint:
+      tags: js lint
+      glob: "*.{js,ts,jsx,tsx}"
+      run: biome lint {staged_files}
+    # Nix
+    alejandra:
+      tags: nix style
+      glob: "*.nix"
+      run: alejandra {staged_files}
+      stage_fixed: true
+    deadnix:
+      tags: nix lint
+      glob: "*.nix"
+      run: deadnix --fail {staged_files}

@@ -17,11 +17,23 @@
       in {
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            bun
+            # general
+            lefthook # precommit
+            gitleaks # secret leak detection
+
+            # JS
+            bun # runner / tester
+            biome # style checker / linter
+
             # Nix
-            alejandra
-            nil
+            alejandra # formatter
+            nil # langserver
+            deadnix # code analyzer (detects dead code)
           ];
+
+          shellHook = ''
+            lefthook install
+          '';
         };
         formatter = pkgs.alejandra;
       }
