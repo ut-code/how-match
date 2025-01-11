@@ -16,7 +16,12 @@
         pkgs = nixpkgs.legacyPackages.${system};
       in {
         devShells.default = pkgs.mkShell {
-          packages = with pkgs; [bun];
+          packages = with pkgs; [
+            bun
+            # Nix
+            alejandra
+            nil
+          ];
         };
         formatter = pkgs.alejandra;
       }

@@ -1,0 +1,4 @@
+[[language]]
+name = "nix"
+formatter.command = "alejandra"
+language-servers = ["nil"]
