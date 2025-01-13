@@ -20,10 +20,14 @@ access <https://todo.utcode.net>
 ### 技術スタック
 
 (todo)
-フロンドエンド:
-- HTML (probably)
-バックエンド:
-- SQL (probably)
-開発:
-- Nix
+- フロンドエンド:
+  - HTML (probably)
+
+- バックエンド:
+  - SQL (probably)
+
+- 開発:
+  - Nix
+  - Lefthook
+
 ...
