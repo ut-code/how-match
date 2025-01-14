@@ -15,6 +15,7 @@
       system: let
         pkgs = nixpkgs.legacyPackages.${system};
       in {
+        formatter = pkgs.alejandra;
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
             # general
@@ -35,7 +36,6 @@
             lefthook install
           '';
         };
-        formatter = pkgs.alejandra;
       }
     );
 }
