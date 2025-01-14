@@ -4,7 +4,7 @@ pre-commit:
     # general/security
     gitleaks:
       glob: "*"
-      run: gitleaks git
+      run: gitleaks git --verbose --staged
     # JS
     biome-fmt:
       tags: js style
