@@ -29,6 +29,7 @@
             # Nix
             alejandra # formatter
             nil # langserver
+            statix # nix linter
             deadnix # code analyzer (detects dead code)
           ];
 

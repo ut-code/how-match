@@ -25,3 +25,7 @@ pre-commit:
       tags: nix lint
       glob: "*.nix"
       run: deadnix --fail {staged_files}
+    statix:
+      tags: nix lint
+      glob: "*.nix"
+      run: statix check .
