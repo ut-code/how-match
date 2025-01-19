@@ -1,0 +1,25 @@
+# yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
+
+name: Static Checks
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  static-checks-nix:
+    name: with nix
+    runs-on: ubuntu-latest
+    steps: 
+      - run: actions/checkout@v4
+        # general/security
+      - uses: cachix/install-nix-action@v30
+      - run: nix run nixpkgs#gitleaks git --verbose --staged
+        # checking JS code
+      - run: nix run nixpkgs#biome format .
+      - run: nix run nixpkgs#biome lint .
+        # checking Nix code
+      - run: nix run nixpkgs#alejandra --check .
+      - run: nix run nixpkgs#deadnix --fail .
+      - run: nix run nixpkgs#statix check --fail .

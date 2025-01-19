@@ -1,3 +1,6 @@
+# NOTE:
+# please update `.github/workflows` when updating this file.
+
 pre-commit:
   parallel: true
   commands:
