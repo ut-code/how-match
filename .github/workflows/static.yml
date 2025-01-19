@@ -22,4 +22,4 @@ jobs:
         # checking Nix code
       - run: nix run nixpkgs#alejandra -- --check .
       - run: nix run nixpkgs#deadnix -- --fail .
-      - run: nix run nixpkgs#statix -- check --fail .
+      - run: nix run nixpkgs#statix -- check .
