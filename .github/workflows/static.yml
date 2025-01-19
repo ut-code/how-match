@@ -15,11 +15,11 @@ jobs:
       - uses: actions/checkout@v4
         # general/security
       - uses: cachix/install-nix-action@v30
-      - run: nix run nixpkgs#gitleaks git --verbose
+      - run: nix run nixpkgs#gitleaks git -- --verbose
         # checking JS code
-      - run: nix run nixpkgs#biome format .
-      - run: nix run nixpkgs#biome lint .
+      - run: nix run nixpkgs#biome -- format .
+      - run: nix run nixpkgs#biome -- lint .
         # checking Nix code
-      - run: nix run nixpkgs#alejandra --check .
-      - run: nix run nixpkgs#deadnix --fail .
-      - run: nix run nixpkgs#statix check --fail .
+      - run: nix run nixpkgs#alejandra -- --check .
+      - run: nix run nixpkgs#deadnix -- --fail .
+      - run: nix run nixpkgs#statix -- check --fail .
