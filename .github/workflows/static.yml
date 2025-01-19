@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
         # general/security
       - uses: cachix/install-nix-action@v30
-      - run: nix run nixpkgs#gitleaks git --verbose --staged
+      - run: nix run nixpkgs#gitleaks git --verbose
         # checking JS code
       - run: nix run nixpkgs#biome format .
       - run: nix run nixpkgs#biome lint .
