@@ -1,0 +1,17 @@
+{
+  "name": "worker",
+  "module": "src/app.ts",
+  "type": "module",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250124.3",
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.4.2",
+    "hono": "^4.6.18",
+    "zod": "^3.24.1"
+  }
+}
