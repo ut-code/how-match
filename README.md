@@ -23,3 +23,14 @@ b. Nix を使えない場合
 - lefthook
 - gitleaks
 - just
+
+### Just スクリプト
+
+just が導入されています。
+以下は、just で実行可能なスクリプトの例です。
+`just` または `just --list` でスクリプトの一覧が見れます。
+
+```sh
+just install # alias: `just i` - installs all package dependencies
+just build # alias: `just b` - builds all package
+```
