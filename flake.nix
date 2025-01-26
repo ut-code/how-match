@@ -21,6 +21,7 @@
             # general
             lefthook # precommit
             gitleaks # secret leak detection
+            just # task runner
 
             # JS
             bun # runner / tester
