@@ -1,9 +1,8 @@
 import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
-import { hc } from "hono/client";
 import { z } from "zod";
 
-const app = new Hono().get(
+export const app = new Hono().post(
   "/",
   zValidator(
     "json",
@@ -11,8 +10,10 @@ const app = new Hono().get(
       name: z.string(),
     }),
   ),
-  (c) => c.text("Hello World!"),
+  (c) => {
+    const name = c.req.valid("json").name;
+    return c.text(`Hello ${name}!`);
+  },
 );
 
 export type App = typeof app;
-export const client = hc<App>("http://localhost:3000");

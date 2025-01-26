@@ -5,7 +5,8 @@
   "scripts": {
     "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit migrate",
-    "db:studio": "drizzle-kit studio"
+    "db:studio": "drizzle-kit studio",
+    "dev": "bun run --watch ./surfaces/bun.ts"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250124.3",
