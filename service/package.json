@@ -1,6 +1,6 @@
 {
   "name": "service",
-  "module": "src/app.ts",
+  "module": "index.ts",
   "type": "module",
   "scripts": {
     "db:push": "drizzle-kit push",
