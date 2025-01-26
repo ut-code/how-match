@@ -1,33 +1,38 @@
-# How Match
+# sv
 
-## 使う
+Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
-(todo)
-access <https://todo.utcode.net>
+## Creating a project
 
-## 開発
+If you're seeing this, you've probably already done this step. Congrats!
 
-### 環境構築
+```bash
+# create a new project in the current directory
+npx sv create
 
-1. Nix をインストールします
-2. Direnv と Nix-Direnv をインストールします (任意/推奨)
-3. `direnv allow` または `nix develop` を実行して開発用シェルに入ります
+# create a new project in my-app
+npx sv create my-app
+```
 
-### デプロイ方法
+## Developing
 
-(todo)
+Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
 
-### 技術スタック
+```bash
+npm run dev
 
-(todo)
-- フロンドエンド:
-  - HTML (probably)
+# or start the server and open the app in a new browser tab
+npm run dev -- --open
+```
 
-- バックエンド:
-  - SQL (probably)
+## Building
 
-- 開発:
-  - Nix
-  - Lefthook
+To create a production version of your app:
 
-...
+```bash
+npm run build
+```
+
+You can preview the production build with `npm run preview`.
+
+> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
