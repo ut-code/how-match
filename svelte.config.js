@@ -1,7 +1,6 @@
-// import adapter from "@sveltejs/adapter-auto";
+// @ts-check
 import adapter from "@sveltejs/adapter-static";
 import { vitePreprocess } from "@sveltejs/vite-plugin-svelte";
-// @ts-check
 import { mdsvex } from "mdsvex";
 
 /** @type {import('@sveltejs/kit').Config} */
