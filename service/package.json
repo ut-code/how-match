@@ -1,5 +1,5 @@
 {
-  "name": "worker",
+  "name": "service",
   "module": "src/app.ts",
   "type": "module",
   "scripts": {

@@ -20,9 +20,11 @@
     "@tailwindcss/container-queries": "^0.1.1",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.16",
+    "@types/bun": "^1.2.0",
     "autoprefixer": "^10.4.20",
     "drizzle-kit": "^0.30.2",
     "mdsvex": "^0.12.3",
+    "service": "file:./service",
     "svelte": "^5.0.0",
     "svelte-check": "^4.0.0",
     "tailwindcss": "^3.4.17",
@@ -30,6 +32,7 @@
     "vite": "^6.0.0"
   },
   "dependencies": {
-    "@sveltejs/adapter-static": "^3.0.8"
+    "@sveltejs/adapter-static": "^3.0.8",
+    "hono": "^4.6.19"
   }
 }
