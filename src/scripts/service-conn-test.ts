@@ -1,7 +1,4 @@
-import { hc } from "hono/client";
-import type { App } from "../../service/src/app";
-
-export const client = hc<App>("http://localhost:3000");
+import { client } from "../api/client";
 
 const resp = await client.index.$post({
   json: {

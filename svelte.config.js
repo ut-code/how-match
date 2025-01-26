@@ -21,6 +21,9 @@ const config = {
     files: {
       assets: "./assets",
     },
+    alias: {
+      "~": "src",
+    },
   },
 
   extensions: [".svelte", ".svx"],
