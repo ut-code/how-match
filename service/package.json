@@ -6,20 +6,21 @@
     "db:push": "drizzle-kit push",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
-    "dev": "bun run --watch ./surfaces/bun.ts"
+    "dev": "bun run --watch ./cmd/dev.ts"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250124.3",
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "drizzle-kit": "^0.30.2"
   },
   "peerDependencies": {
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "hono": "^4.6.19",
-    "zod": "^3.24.1",
-    "drizzle-orm": "^0.38.4",
     "@hono/zod-validator": "^0.4.2",
-    "@libsql/client": "^0.14.0"
+    "@libsql/client": "^0.14.0",
+    "drizzle-orm": "^0.38.4",
+    "hono": "^4.6.19",
+    "zod": "^3.24.1"
   }
 }
