@@ -1,39 +1,41 @@
 {
-	"name": "how-match",
-	"private": true,
-	"version": "0.0.1",
-	"type": "module",
-	"scripts": {
-		"dev": "vite dev",
-		"build": "vite build",
-		"preview": "vite preview",
-		"prepare": "svelte-kit sync || echo ''",
-		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"db:push": "drizzle-kit push",
-		"db:migrate": "drizzle-kit migrate",
-		"db:studio": "drizzle-kit studio"
-	},
-	"devDependencies": {
-		"@fontsource/fira-mono": "^5.0.0",
-		"@neoconfetti/svelte": "^2.0.0",
-		"@sveltejs/adapter-cloudflare": "^5.0.1",
-		"@sveltejs/kit": "^2.16.0",
-		"@sveltejs/vite-plugin-svelte": "^5.0.0",
-		"@tailwindcss/container-queries": "^0.1.1",
-		"@tailwindcss/forms": "^0.5.10",
-		"@tailwindcss/typography": "^0.5.16",
-		"autoprefixer": "^10.4.20",
-		"drizzle-kit": "^0.30.2",
-		"mdsvex": "^0.12.3",
-		"svelte": "^5.0.0",
-		"svelte-check": "^4.0.0",
-		"tailwindcss": "^3.4.17",
-		"typescript": "^5.0.0",
-		"vite": "^6.0.0"
-	},
-	"dependencies": {
-		"@libsql/client": "^0.14.0",
-		"drizzle-orm": "^0.38.4"
-	}
+  "name": "how-match",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "prepare": "svelte-kit sync || echo ''",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "db:push": "drizzle-kit push",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio"
+  },
+  "devDependencies": {
+    "@fontsource/fira-mono": "^5.0.0",
+    "@neoconfetti/svelte": "^2.0.0",
+    "@sveltejs/adapter-cloudflare": "^5.0.1",
+    "@sveltejs/kit": "^2.16.0",
+    "@sveltejs/vite-plugin-svelte": "^5.0.0",
+    "@tailwindcss/container-queries": "^0.1.1",
+    "@tailwindcss/forms": "^0.5.10",
+    "@tailwindcss/typography": "^0.5.16",
+    "autoprefixer": "^10.4.20",
+    "drizzle-kit": "^0.30.2",
+    "mdsvex": "^0.12.3",
+    "svelte": "^5.0.0",
+    "svelte-check": "^4.0.0",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.0.0",
+    "vite": "^6.0.0"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.14.0",
+    "@sveltejs/adapter-auto": "^4.0.0",
+    "@sveltejs/adapter-static": "^3.0.8",
+    "drizzle-orm": "^0.38.4"
+  }
 }
