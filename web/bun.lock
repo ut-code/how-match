@@ -5,6 +5,7 @@
       "dependencies": {
         "@sveltejs/adapter-static": "^3.0.8",
         "hono": "^4.6.19",
+        "zod": "^3.24.1",
       },
       "devDependencies": {
         "@fontsource/fira-mono": "^5.1.1",
@@ -19,7 +20,7 @@
         "autoprefixer": "^10.4.20",
         "drizzle-kit": "^0.30.2",
         "mdsvex": "^0.12.3",
-        "service": "file:./service",
+        "service": "file:../service",
         "svelte": "^5.19.3",
         "svelte-check": "^4.1.4",
         "tailwindcss": "^3.4.17",
@@ -531,7 +532,7 @@
 
     "sade": ["sade@1.8.1", "", { "dependencies": { "mri": "^1.1.0" } }, "sha512-xal3CZX1Xlo/k4ApwCFrHVACi9fBqJ7V+mwhBsuf/1IOKbBy098Fex+Wa/5QMubw09pSZ/u8EY8PWgevJsXp1A=="],
 
-    "service": ["service@file:service", { "dependencies": { "@hono/zod-validator": "^0.4.2", "@libsql/client": "^0.14.0", "drizzle-orm": "^0.38.4", "hono": "^4.6.18", "zod": "^3.24.1" }, "devDependencies": { "@cloudflare/workers-types": "^4.20250124.3", "@types/bun": "latest" }, "peerDependencies": { "typescript": "^5.0.0" } }],
+    "service": ["service@file:../service", { "dependencies": { "@hono/zod-validator": "^0.4.2", "@libsql/client": "^0.14.0", "drizzle-orm": "^0.38.4", "hono": "^4.6.19", "zod": "^3.24.1" }, "devDependencies": { "@cloudflare/workers-types": "^4.20250124.3", "@types/bun": "latest" }, "peerDependencies": { "typescript": "^5.7.3" } }],
 
     "set-cookie-parser": ["set-cookie-parser@2.7.1", "", {}, "sha512-IOc8uWeOZgnb3ptbCURJWNjWUPcO3ZnTTdzsurqERrP6nPyv+paC55vJM0LpOlT2ne+Ix+9+CRG1MNLlyZ4GjQ=="],
 
