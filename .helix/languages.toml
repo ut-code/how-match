@@ -2,3 +2,16 @@
 name = "nix"
 formatter.command = "alejandra"
 language-servers = ["nil"]
+
+[[language]]
+name = "jsonc"
+language-servers = [
+  { name = "json-language-server", except-features = [
+    "format",
+  ] },
+  "biome",
+]
+
+[[language]]
+name = "svelte"
+language-servers = ["tailwindcss-ls", "svelteserver"]

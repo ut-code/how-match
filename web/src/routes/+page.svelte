@@ -1,7 +1,11 @@
 <script lang="ts">
+let a = $state("");
+$effect(() => {
+  document.title = a;
+});
 </script>
 
-<h1 class="text-2xl text-red-500">Hello!</h1>
+<h1 class="text-2xl text-red-800">Hello!</h1>
 <fieldset class="fieldset">
   <legend class="fieldset-legend">Email</legend>
   <label class="input validator">

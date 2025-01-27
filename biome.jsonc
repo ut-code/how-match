@@ -36,18 +36,21 @@
       "quoteStyle": "double",
     },
   },
-  "json": {
-    "parser": {
-      "allowTrailingCommas": true,
-    },
-    "formatter": {
-      // TODO: make the vscode-json-langserver not complain about trailing commas
-      // ^ https://github.com/microsoft/vscode/issues/102061
-      // NOTE: Bun package.json accepts trailing commas. not sure about tsconfig.json tho
-      "trailingCommas": "all",
-    },
-  },
   "overrides": [
+    {
+      "include": ["*.jsonc", "tsconfig.json"],
+      "json": {
+        "parser": {
+          "allowTrailingCommas": true,
+        },
+        "formatter": {
+          // TODO: make the vscode-json-langserver not complain about trailing commas
+          // ^ https://github.com/microsoft/vscode/issues/102061
+          // NOTE: Bun package.json accepts trailing commas. not sure about tsconfig.json tho
+          "trailingCommas": "all",
+        },
+      },
+    },
     {
       "include": ["*.svelte"],
       "linter": {
