@@ -1,9 +1,8 @@
-import { client } from "../api/client";
+import { client } from "../api/client.ts";
 
 const resp = await client.index.$post({
   json: {
     name: "aster-void and others",
   },
 });
-const res = await resp.text();
-console.log(res);
+const _res = await resp.text();

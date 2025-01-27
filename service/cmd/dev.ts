@@ -1,5 +1,7 @@
-import { init } from "..";
+import Bun from "bun";
+
 import { db } from "../db/local.ts";
+import { init } from "../index.ts";
 
 const app = init(db);
 

@@ -3,51 +3,65 @@
   "vcs": {
     "enabled": true,
     "clientKind": "git",
-    "useIgnoreFile": true
+    "useIgnoreFile": true,
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": []
+    "ignore": [],
   },
   "formatter": {
     "enabled": true,
     "indentStyle": "space",
-    "indentWidth": 2
+    "indentWidth": 2,
   },
   "organizeImports": {
-    "enabled": true
+    "enabled": true,
   },
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
+      "all": true,
       "correctness": {
         "noUnusedImports": "error",
-        "noUnnecessaryContinue": "error"
+        "noUnnecessaryContinue": "error",
+        "noUndeclaredDependencies": "off",
       },
       "suspicious": {
-        "noConstEnum": "error"
-      }
-    }
+        "noConstEnum": "error",
+      },
+    },
   },
   "javascript": {
     "formatter": {
-      "quoteStyle": "double"
-    }
+      "quoteStyle": "double",
+    },
+  },
+  "json": {
+    "parser": {
+      "allowTrailingCommas": true,
+    },
+    "formatter": {
+      // TODO: make the vscode-json-langserver not complain about trailing commas
+      // ^ https://github.com/microsoft/vscode/issues/102061
+      // NOTE: Bun package.json accepts trailing commas. not sure about tsconfig.json tho
+      "trailingCommas": "all",
+    },
   },
   "overrides": [
     {
-      "include": [
-        "*.svelte"
-      ],
+      "include": ["*.svelte"],
       "linter": {
         "rules": {
           "style": {
             "useConst": "off",
-            "useImportType": "off"
-          }
-        }
-      }
-    }
-  ]
+            "useImportType": "off",
+          },
+          "correctness": {
+            "noUnusedImports": "off", // biome can't see outside of script block.
+            "noUnusedVariables": "off", // biome can't see outside of script block.
+          },
+        },
+      },
+    },
+  ],
 }
