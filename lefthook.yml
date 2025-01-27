@@ -11,12 +11,12 @@ pre-commit:
     # JS
     biome-fmt:
       tags: js style
-      glob: "*.{js,ts,jsx,tsx}"
+      glob: "*.{js,ts,jsx,tsx,svelte}"
       run: biome format --fix {staged_files}
       stage_fixed: true
     biome-lint:
       tags: js lint
-      glob: "*.{js,ts,jsx,tsx}"
+      glob: "*.{js,ts,jsx,tsx,svelte}"
       run: biome lint {staged_files}
     # Nix
     alejandra:
