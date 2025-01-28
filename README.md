@@ -44,6 +44,18 @@ just fix # fix format and lint
 
 ## 技術スタック
 
+### フロントエンド
+
+- Svelte/Kit
+- Tailwind CSS
+- DaisyUI
+
+### バックエンド
+
+- serverless hosting (未定)
+- Hono
+- Drizzle
+
 ### 開発
 
 - Bun: ランタイム
