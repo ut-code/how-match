@@ -33,6 +33,9 @@ just が導入されています。 以下は、just で実行可能なスクリ
 ```sh
 just install # alias: `just i` - installs all package dependencies
 just build # alias: `just b` - builds all package
+
+just check # checks formatting and linting without mutating the code
+just fix # fix format and lint
 ```
 
 ## 技術スタック

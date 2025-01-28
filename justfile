@@ -14,6 +14,14 @@ build-worker:
     cd worker; bunx tsc
 
 format:
+    deno fmt --check .
+format-fix:
     deno fmt .
 lint:
     biome lint .
+lint-fix:
+    biome lint --fix .
+
+check: format lint
+fix: format-fix lint-fix
+
