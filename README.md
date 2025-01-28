@@ -43,4 +43,6 @@ just fix # fix format and lint
 ### 開発
 
 - Bun: ランタイム
-- Deno: フォーマッター・リンター
+- Biome: リンター
+- Deno: フォーマッター
+   (MEMO: Biome が HTML-ish な言語のサポートをするまでは Deno でフォーマットすることにする)
