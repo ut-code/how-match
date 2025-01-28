@@ -34,3 +34,15 @@ jobs:
       - run: nix run nixpkgs#alejandra -- --check .
       - run: nix run nixpkgs#deadnix -- --fail .
       - run: nix run nixpkgs#statix -- check .
+  svelte-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+      - run: bun install --frozen-lockfile
+        working-directory: web
+      - run: bun check
+        working-directory: web
