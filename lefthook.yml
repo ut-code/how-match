@@ -9,10 +9,10 @@ pre-commit:
       glob: "*"
       run: gitleaks git --verbose --staged
     # JS
-    biome-fmt:
+    deno-fmt:
       tags: js style
-      glob: "*.{js,ts,jsx,tsx,svelte}"
-      run: biome format --fix {staged_files}
+      glob: "*.{js,ts,svelte,html}"
+      run: deno fmt {staged_files}
       stage_fixed: true
     biome-lint:
       tags: js lint

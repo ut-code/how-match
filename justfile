@@ -12,3 +12,8 @@ build-svelte:
     bun run build
 build-worker:
     cd worker; bunx tsc
+
+format:
+    deno fmt .
+lint:
+    biome lint .

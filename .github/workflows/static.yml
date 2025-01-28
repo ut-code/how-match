@@ -11,7 +11,7 @@ jobs:
   static-checks-nix:
     name: with nix
     runs-on: ubuntu-latest
-    steps: 
+    steps:
       - uses: actions/checkout@v4
         # general/security
       - uses: cachix/install-nix-action@v30

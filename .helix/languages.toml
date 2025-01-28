@@ -6,7 +6,15 @@ language-servers = ["nil"]
 [[language]]
 name = "jsonc"
 language-servers = [
-  { name = "json-language-server", except-features = [
+  { name = "vscode-json-language-server", except-features = [
+    "format",
+  ] },
+  "biome",
+]
+[[language]]
+name = "json"
+language-servers = [
+  { name = "vscode-json-language-server", except-features = [
     "format",
   ] },
   "biome",

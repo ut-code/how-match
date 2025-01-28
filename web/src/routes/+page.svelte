@@ -1,8 +1,8 @@
 <script lang="ts">
-let a = $state("");
-$effect(() => {
-  document.title = a;
-});
+  let a = $state("");
+  $effect(() => {
+    document.title = a;
+  });
 </script>
 
 <h1 class="text-2xl text-red-800">Hello!</h1>
