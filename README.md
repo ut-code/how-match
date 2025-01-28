@@ -34,7 +34,11 @@ just が導入されています。 以下は、just で実行可能なスクリ
 just install # alias: `just i` - installs all package dependencies
 just build # alias: `just b` - builds all package
 
-just check # checks formatting and linting without mutating the code
+just check # checks:
+# formatting
+# linting
+# sveltekit static analysis
+# typescript types
 just fix # fix format and lint
 ```
 
@@ -44,5 +48,5 @@ just fix # fix format and lint
 
 - Bun: ランタイム
 - Biome: リンター
-- Deno: フォーマッター
-   (MEMO: Biome が HTML-ish な言語のサポートをするまでは Deno でフォーマットすることにする)
+- Deno: フォーマッター (MEMO: Biome が HTML-ish な言語のサポートをするまでは
+  Deno でフォーマットすることにする)

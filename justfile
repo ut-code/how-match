@@ -23,5 +23,7 @@ lint-fix:
     biome lint --fix .
 
 check: format lint
+    cd web; bun check
+    cd service; bun check
 fix: format-fix lint-fix
 
