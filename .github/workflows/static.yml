@@ -8,17 +8,28 @@ on:
       - main
 
 jobs:
-  static-checks-nix:
-    name: with nix
+  format:
+    name: Format JS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: biomejs/setup-biome@v2
+      - run: biome lint .
+  lint:
+    name: Lint JS
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+      - run: deno fmt --check
+  nix-checks:
+    name: Nix checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         # general/security
       - uses: cachix/install-nix-action@v30
       - run: nix run nixpkgs#gitleaks git -- --verbose
-        # checking JS code
-      - run: nix run nixpkgs#biome -- format .
-      - run: nix run nixpkgs#biome -- lint .
         # checking Nix code
       - run: nix run nixpkgs#alejandra -- --check .
       - run: nix run nixpkgs#deadnix -- --fail .
