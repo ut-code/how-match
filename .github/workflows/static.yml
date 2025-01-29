@@ -47,6 +47,8 @@ jobs:
         with:
           bun-version: latest
       - run: bun install --frozen-lockfile
+        working-directory: service # doesn't work without this
+      - run: bun install --frozen-lockfile
       - run: bun check
 
   nix-checks:
