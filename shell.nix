@@ -1,0 +1,26 @@
+{pkgs ? import <nixpkgs> {}}:
+pkgs.mkShell {
+  name = "How Match development";
+  packages = with pkgs; [
+    # general
+    lefthook # precommit
+    gitleaks # secret leak detection
+    just # task runner
+    litecli # sqlite CLI client with advanced features
+
+    # JS
+    bun # runner / tester
+    # biome # style checker / linter ... replaced by deno because biome doesn't support HTML and svelte
+    deno # used to format svelte
+
+    # Nix
+    alejandra # formatter
+    nil # langserver
+    statix # nix linter
+    deadnix # code analyzer (detects dead code)
+  ];
+
+  shellHook = ''
+    lefthook install
+  '';
+}
