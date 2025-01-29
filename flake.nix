@@ -22,6 +22,7 @@
             lefthook # precommit
             gitleaks # secret leak detection
             just # task runner
+            litecli # sqlite CLI client with advanced features
 
             # JS
             bun # runner / tester
