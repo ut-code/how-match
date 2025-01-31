@@ -7,5 +7,5 @@
     "@std/assert": "jsr:@std/assert@1"
   },
   "unstable": ["fmt-component"],
-  "fmt": {}
+  "fmt": { "lineWidth": 120 }
 }
