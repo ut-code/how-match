@@ -10,9 +10,8 @@ wip: 開発中です。
 
 a. Nix を使える場合
 
-1. Nix をインストールします。
-2. [nix-direnv](https://github.com/nix-community/nix-direnv) をインストールします。
-3. `direnv allow` と実行します。
+1. [Nix と nix-direnv をインストールします。](./docs/install-nix.md)
+2. `direnv allow` と実行します。
 
 b. Nix を使えない場合
 
