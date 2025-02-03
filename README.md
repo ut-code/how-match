@@ -1,10 +1,10 @@
 # How Match / ハマチ
 
-wip
+## 使い方
+
+wip: 開発中です。
 
 ## 開発
-
-開発中です。
 
 ### 環境構築
 
@@ -19,7 +19,8 @@ b. Nix を使えない場合
 以下のパッケージをインストールします。(予告なく変更される場合があります)
 
 - bun (>= v1.2)
-- biome
+- biome (for linting only)
+- deno (for formatting)
 - lefthook
 - gitleaks
 - just
@@ -46,12 +47,14 @@ just fix # fix format and lint
 ### フロントエンド
 
 - Svelte/Kit
+  - adapter: static
 - Tailwind CSS
 - DaisyUI
+- `hono/client`
 
 ### バックエンド
 
-- serverless hosting (未定)
+- serverless (未定)
 - Hono
 - Drizzle
 
