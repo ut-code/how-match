@@ -2,9 +2,9 @@
 
 ## Nix のインストール
 
-Nix 本体をインストールします。
-[公式から提供されているインストーラー](https://nixos.org/download/) でもいいですが、
-[DeterminateSystems が提供するインストーラー](https://github.com/DeterminateSystems/nix-installer) も色々便利らしいです。 
+Nix 本体をインストールします。 [公式から提供されているインストーラー](https://nixos.org/download/) でもいいですが、
+[DeterminateSystems が提供するインストーラー](https://github.com/DeterminateSystems/nix-installer)
+も色々便利らしいです。
 
 各ドキュメントを読めば難しいことはない、というかシェルスク一行のはずです。
 
@@ -28,9 +28,10 @@ NixOS は入れてないと思うので、 Standalone で入れましょう。
 
 ## Nix-Direnv のインストール
 
-Home Manager をインストールしたら、 `~/.config/home-manager/home.nix` が作成されていることと思います。
-そこに、`direnv` と `nix-direnv` の設定を追加しましょう。 <https://github.com/nix-community/nix-direnv?tab=readme-ov-file#via-home-manager>
-最終的には、`home.nix` はこんな感じになると思います。
+Home Manager をインストールしたら、 `~/.config/home-manager/home.nix` が作成されていることと思います。 そこに、`direnv`
+と `nix-direnv` の設定を追加しましょう。
+<https://github.com/nix-community/nix-direnv?tab=readme-ov-file#via-home-manager> 最終的には、`home.nix`
+はこんな感じになると思います。
 
 ```nix
 { pkgs, ... }: {
@@ -62,4 +63,5 @@ Nix 経由で direnv がインストールできたことを確認するため�
 $ readlink $(which direnv)
 /nix/store/id5qc6k2rh5micxhsxjard2ypp503zw0-direnv-2.35.0/bin/direnv
 ```
+
 上のように、`/nix/store` 以下にファイルがあると表示されれば成功です。

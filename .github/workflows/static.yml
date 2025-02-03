@@ -6,7 +6,6 @@ on:
   push:
     branches:
       - main
-
 jobs:
   format:
     name: Format JS
@@ -50,7 +49,6 @@ jobs:
         working-directory: service # doesn't work without this
       - run: bun install --frozen-lockfile
       - run: bun check
-
   nix-checks:
     name: Nix checks
     runs-on: ubuntu-latest

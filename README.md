@@ -11,7 +11,7 @@ wip: 開発中です。
 a. Nix を使える場合
 
 1. [Nix と nix-direnv をインストールします。](./docs/install-nix.md)
-2. `direnv allow` と実行します。
+1. `direnv allow` と実行します。
 
 b. Nix を使えない場合
 
