@@ -4,7 +4,7 @@ import { z } from "zod";
 import { cors } from "hono/cors";
 import { user } from "../db/schema.ts";
 import { db } from "../db/client.ts";
-import { env } from "utils/env.ts";
+import { env } from "../utils/env.ts";
 
 export const app = new Hono()
   .use(cors({

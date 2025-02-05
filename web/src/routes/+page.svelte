@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
   import type { SelectUser } from "service/db/schema";
   import { onMount } from "svelte";
   import { client } from "~/api/client.ts";
