@@ -1,1 +1,1 @@
-export type { InsertUser, SelectUser } from "service/db/schema.ts";
+export type * from "service/db/schema.ts";

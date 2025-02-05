@@ -3,12 +3,18 @@ default:
 
 i: install
 
-install: setup-local-db
-    lefthook install
+install: 
+    just pre-install
+    just install-bun
+    just post-install
+install-bun:
     cd web; bun install --frozen-lockfile
     cd service; bun install --frozen-lockfile
+pre-install:
+    lefthook install
+post-install: local-db
 
-setup-local-db:
+local-db:
     cd service; DATABASE_URL=file:./local.db bunx drizzle-kit push
 
 b: build
