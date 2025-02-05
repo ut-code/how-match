@@ -12,7 +12,7 @@ b: build
 build: build-svelte build-worker
 
 build-svelte:
-    bun run build
+    cd web; bun run build
 
 build-worker:
     cd worker; bunx tsc
