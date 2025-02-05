@@ -5,9 +5,11 @@ i: install
 
 install: 
     just pre-install
+    just install-bun
+    just post-install
+install-bun:
     cd web; bun install --frozen-lockfile
     cd service; bun install --frozen-lockfile
-    just post-install
 pre-install:
     lefthook install
 post-install: local-db
