@@ -17,6 +17,13 @@ build-svelte:
 build-service:
     cd service; bunx tsc
 
+dev:
+    (trap 'kill 0' EXIT; just dev-service & just dev-web & wait)
+dev-service:
+    cd service; bun dev
+dev-web:
+    cd web; bun dev
+
 format:
     deno fmt --check .
 
