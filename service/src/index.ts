@@ -47,3 +47,4 @@ console.log("running");
 
 // biome-ignore lint/style/noDefaultExport:
 export default app;
+export type App = typeof app;
