@@ -22,7 +22,8 @@
     "rules": {
       "all": true,
       "suspicious": {
-        "noConsole": "off"
+        "noConsole": "off",
+        "noConsoleLog": "off"
       }
     }
   },
