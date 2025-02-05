@@ -21,6 +21,9 @@
     "enabled": true,
     "rules": {
       "all": true,
+      "correctness": {
+        "noUndeclaredVariables": "off"
+      },
       "suspicious": {
         "noConsole": "off",
         "noConsoleLog": "off"
