@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/libsql";
-import { env } from "~utils/env";
-import { panic } from "~utils/panic";
+import { env } from "../utils/env.ts";
+import { panic } from "../utils/panic.ts";
 
 export const db = (() => {
   switch (env("DB_KIND")) {

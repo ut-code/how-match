@@ -1,5 +1,6 @@
 import Bun from "bun";
-const { app } = await import("~/app.ts");
+
+import { app } from "../index.ts";
 
 Bun.serve({
   fetch: app.fetch,

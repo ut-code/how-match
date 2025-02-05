@@ -1,5 +1,3 @@
-// is there really no other way to do this?
-import { init as _init } from "./src/app.ts";
-
-export const init = _init;
-export type App = ReturnType<typeof _init>;
+import { app as _app } from "./src/app.ts";
+export const app = _app;
+export type App = typeof _app;

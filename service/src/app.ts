@@ -1,5 +1,5 @@
 import { zValidator } from "@hono/zod-validator";
-import { db } from "~db/client";
+import { db } from "../db/client.ts";
 import { Hono } from "hono";
 import { z } from "zod";
 const _db = db;

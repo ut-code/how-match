@@ -1,4 +1,4 @@
-import { panic } from "~utils/panic";
+import { panic } from "./panic.ts";
 
 export function env(name: string): string {
   return process.env[name] ??
