@@ -1,7 +1,7 @@
 import { zValidator } from "@hono/zod-validator";
 import { type Context, Hono } from "hono";
 import { cors } from "hono/cors";
-import { participant } from "../db/schema.ts";
+import { account, match, participant, rating, role } from "../db/schema.ts";
 import { db } from "../db/client.ts";
 import { env } from "../utils/env.ts";
 
@@ -30,13 +30,16 @@ const app = new Hono()
       return c.text(`Hello ${name}!`);
     },
   )
-  .get("/participants", async (c) => {
-    return c.json(await db.select().from(participant).execute());
+  .get("/accounts", async (c) => {
+    return c.json(await db.select().from(account).execute());
   })
+  // .get("/participants", async (c) => {
+  //   return c.json(await db.select().from(participant).execute());
+  // })
   .post(
     "/participants",
     zValidator(
-      "form",
+      "json",
       z.object({
         account_id: z.coerce.number(),
         project_id: z.coerce.number(),
@@ -44,13 +47,107 @@ const app = new Hono()
       }),
     ),
     async (c) => {
-      const body = c.req.valid("form");
+      const body = c.req.valid("json");
       const resp = await db.insert(participant).values([
         {
-          participant_id: Number(crypto.randomUUID()),
+          id: 0, // uuid あとで
           account_id: body.account_id,
           project_id: body.project_id,
           is_admin: Number(body.is_admin),
+        },
+      ]);
+      console.log("added", resp);
+      return c.json(resp);
+    },
+  )
+  .post(
+    "/account",
+    zValidator(
+      "json",
+      z.object({
+        name: z.string(),
+      }),
+    ),
+    async (c) => {
+      const body = c.req.valid("json");
+      const resp = await db.insert(account).values([
+        {
+          id: 0, // uuid あとで
+          name: body.name,
+        },
+      ]);
+      console.log("added", resp);
+      return c.json(resp);
+    },
+  )
+  .post(
+    "/role",
+    zValidator(
+      "json",
+      z.object({
+        min: z.coerce.number(),
+        max: z.coerce.number(),
+        project_id: z.coerce.number(),
+      }),
+    ),
+    async (c) => {
+      const body = c.req.valid("json");
+      const resp = await db.insert(role).values([
+        {
+          id: 0, // uuid あとで
+          min: body.min,
+          max: body.max,
+          project_id: body.project_id,
+        },
+      ]);
+      console.log("added", resp);
+      return c.json(resp);
+    },
+  )
+  .post(
+    "/rating",
+    zValidator(
+      "json",
+      z.object({
+        participant_id: z.coerce.number(),
+        role_id: z.coerce.number(),
+        score: z.coerce.number(),
+        project_id: z.coerce.number(),
+      }),
+    ),
+    async (c) => {
+      const body = c.req.valid("json");
+      const resp = await db.insert(rating).values([
+        {
+          id: 0, // uuid あとで
+          participant_id: body.participant_id,
+          role_id: body.role_id,
+          score: body.score,
+          project_id: body.project_id,
+        },
+      ]);
+      console.log("added", resp);
+      return c.json(resp);
+    },
+  )
+  .post(
+    "/match",
+    zValidator(
+      "json",
+      z.object({
+        role_id: z.coerce.number(),
+        participant_id: z.coerce.number(),
+        project_id: z.coerce.number(),
+      }),
+    ),
+    async (c) => {
+      const body = c.req.valid("json");
+      const resp = await db.insert(match).values([
+        {
+          id: 0, // uuid あとで
+          role_id: body.role_id,
+          participant_id: body.participant_id,
+          project_id: body.project_id,
         },
       ]);
       console.log("added", resp);
