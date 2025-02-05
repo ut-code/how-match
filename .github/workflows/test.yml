@@ -17,3 +17,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: echo 'success!'
+
+  install:
+    name: "Lockfile doesn't have changes"
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: extractions/setup-just@v2
+      - uses: oven-sh/setup-bun@2
+      - run: just install
