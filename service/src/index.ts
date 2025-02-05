@@ -62,7 +62,7 @@ const app = new Hono()
     },
   )
   .post(
-    "/account",
+    "/accounts",
     zValidator(
       "json",
       z.object({

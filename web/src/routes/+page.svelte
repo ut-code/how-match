@@ -1,11 +1,11 @@
 <script lang="ts">
-  import type { SelectUser } from "service/db/schema";
+  import type { SelectAccount } from "service/db/schema";
   import { onMount } from "svelte";
   import { client } from "~/api/client.ts";
 
-  let promise: Promise<SelectUser[]> = $state(new Promise(() => {}));
+  let promise: Promise<SelectAccount[]> = $state(new Promise(() => {}));
   async function refetch() {
-    promise = client.users.$get().then((it) => it.json());
+    promise = client.accounts.$get().then((it) => it.json());
   }
   onMount(refetch);
 
@@ -14,10 +14,9 @@
 
   async function postUser() {
     console.log("posted");
-    await client.users.$post({
-      form: {
+    await client.accounts.$post({
+      json: {
         name,
-        age: age.toString(),
       },
     });
   }
