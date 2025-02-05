@@ -1,7 +1,10 @@
 "$schema" = "node_modules/wrangler/config-schema.json"
-name = "howmatche-service"
+name = "howmatch-service"
 main = "src/index.ts"
 compatibility_date = "2025-02-04"
 
 [observability]
 enabled = true
+
+[env.production.vars]
+CORS_ALLOW_ORIGINS = "https://howmatch.utcode.net,https://howmatch.pages.dev"

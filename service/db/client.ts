@@ -1,21 +1,24 @@
 import { drizzle } from "drizzle-orm/libsql";
 import { env } from "../utils/env.ts";
 import { panic } from "../utils/panic.ts";
+import type { Context } from "hono";
 
-export const db = (() => {
-  switch (env("DB_KIND")) {
-    case "local":
-      return drizzle("file:./local.db");
-    case "memory":
-      return drizzle(":memory:");
-    // case "turso":
-    //   return drizzle({
-    //     connection: {
-    //       url: env("TURSO_CONNECTION_URL"),
-    //       authToken: env("TURSO_AUTH_TOKEN"),
-    //     },
-    //   });
-    default:
-      return panic(`unknown DB_KIND: got ${env("DB_KIND")}`) as never;
+let cache: ReturnType<typeof drizzle>;
+export const db = (ctx: Context) => {
+  if (cache) {
+    return cache;
   }
-})();
+
+  switch (env(ctx, "DB_KIND")) {
+    case "local": {
+      cache = drizzle("file:./local.db");
+      return cache;
+    }
+    case "memory": {
+      cache = drizzle(":memory:");
+      return cache;
+    }
+    default:
+      panic(`unknown DB_KIND: got ${env(ctx, "DB_KIND")}`);
+  }
+};

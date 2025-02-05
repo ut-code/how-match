@@ -4,6 +4,7 @@ default:
 i: install
 
 install: setup-local-db
+    lefthook install
     cd web; bun install --frozen-lockfile
     cd service; bun install --frozen-lockfile
 
