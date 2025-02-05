@@ -4,6 +4,7 @@ import { cors } from "hono/cors";
 import { account, match, participant, rating, role } from "../db/schema.ts";
 import { db } from "../db/client.ts";
 import { env } from "../utils/env.ts";
+import { z } from "zod";
 
 const corsOptions = (c: Context) => ({
   origin: env(c, "CORS_ALLOW_ORIGINS").split(","),
@@ -31,10 +32,10 @@ const app = new Hono()
     },
   )
   .get("/accounts", async (c) => {
-    return c.json(await db.select().from(account).execute());
+    return c.json(await db(c).select().from(account).execute());
   })
   // .get("/participants", async (c) => {
-  //   return c.json(await db.select().from(participant).execute());
+  //   return c.json(await db(c).select().from(participant).execute());
   // })
   .post(
     "/participants",
@@ -48,7 +49,7 @@ const app = new Hono()
     ),
     async (c) => {
       const body = c.req.valid("json");
-      const resp = await db.insert(participant).values([
+      const resp = await db(c).insert(participant).values([
         {
           id: 0, // uuid あとで
           account_id: body.account_id,
@@ -70,7 +71,7 @@ const app = new Hono()
     ),
     async (c) => {
       const body = c.req.valid("json");
-      const resp = await db.insert(account).values([
+      const resp = await db(c).insert(account).values([
         {
           id: 0, // uuid あとで
           name: body.name,
@@ -92,7 +93,7 @@ const app = new Hono()
     ),
     async (c) => {
       const body = c.req.valid("json");
-      const resp = await db.insert(role).values([
+      const resp = await db(c).insert(role).values([
         {
           id: 0, // uuid あとで
           min: body.min,
@@ -117,7 +118,7 @@ const app = new Hono()
     ),
     async (c) => {
       const body = c.req.valid("json");
-      const resp = await db.insert(rating).values([
+      const resp = await db(c).insert(rating).values([
         {
           id: 0, // uuid あとで
           participant_id: body.participant_id,
@@ -142,7 +143,7 @@ const app = new Hono()
     ),
     async (c) => {
       const body = c.req.valid("json");
-      const resp = await db.insert(match).values([
+      const resp = await db(c).insert(match).values([
         {
           id: 0, // uuid あとで
           role_id: body.role_id,
