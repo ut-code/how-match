@@ -28,7 +28,11 @@
       "suspicious": {
         "noConsole": "off",
         "noConsoleLog": "off",
-        "noEmptyInterface": "off"
+        "noEmptyInterface": "off",
+        "noEmptyBlockStatements": "off"
+      },
+      "style": {
+        "useNamingConvention": "off"
       }
     }
   },

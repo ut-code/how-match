@@ -1,6 +1,6 @@
 import type { Context } from "hono";
-import { panic } from "./panic.ts";
 import { env as _env } from "hono/adapter";
+import { panic } from "./panic.ts";
 
 export function env(ctx: Context, name: string) {
   return _env(ctx)[name] ??

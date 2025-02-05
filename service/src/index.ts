@@ -1,9 +1,9 @@
 import { zValidator } from "@hono/zod-validator";
 import { type Context, Hono } from "hono";
-import { z } from "zod";
 import { cors } from "hono/cors";
-import { user } from "../db/schema.ts";
+import { z } from "zod";
 import { db } from "../db/client.ts";
+import { user } from "../db/schema.ts";
 import { env } from "../utils/env.ts";
 
 const corsOptions = (c: Context) => ({

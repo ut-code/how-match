@@ -1,7 +1,7 @@
 import { drizzle } from "drizzle-orm/libsql";
+import type { Context } from "hono";
 import { env } from "../utils/env.ts";
 import { panic } from "../utils/panic.ts";
-import type { Context } from "hono";
 
 let cache: ReturnType<typeof drizzle>;
 export const db = (ctx: Context) => {
