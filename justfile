@@ -23,7 +23,7 @@ build-service:
 dev:
     (trap 'kill 0' EXIT; just dev-service & just dev-web & wait)
 dev-service:
-    cd service; bun dev
+    cd service; DB_KIND=${DB_KIND:-local} bun dev
 dev-web:
     cd web; bun dev
 

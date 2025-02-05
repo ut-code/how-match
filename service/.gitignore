@@ -1,3 +1,11 @@
+node_modules
+
+# drizzle
+# 
 /local.db
-/node_modules
 /.drizzle
+
+# wrangler project
+
+.dev.vars
+.wrangler/

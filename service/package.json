@@ -3,22 +3,28 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "dev": "DB_KIND=local bun run --watch ./cmd/dev.ts",
+    "prepare": "bun run cf-typegen",
+    "deploy": "wrangler deploy",
+    "cf-typegen": "wrangler types",
+    "dev": "bun run --watch ./cmd/dev.ts",
+    "dev:local": "DB_KIND=local bun run --watch ./cmd/dev.ts",
     "dev:tmp": "DB_KIND=memory bun run --watch ./cmd/dev.ts",
     "dev:remote": "DB_KIND=turso bun run --watch ./cmd/dev.ts",
     "check": "bunx tsc",
     "db": "drizzle-kit"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250124.3",
+    "@cloudflare/workers-types": "^4.20250204.0",
     "@types/bun": "latest",
-    "drizzle-kit": "^0.30.2"
+    "drizzle-kit": "^0.30.2",
+    "wrangler": "^3.107.3",
+    "@cloudflare/vitest-pool-workers": "^0.6.4",
+    "@hono/zod-validator": "^0.4.2"
   },
   "peerDependencies": {
     "typescript": "^5.7.3"
   },
   "dependencies": {
-    "@hono/zod-validator": "^0.4.2",
     "@libsql/client": "^0.14.0",
     "drizzle-orm": "^0.38.4",
     "hono": "^4.6.19",

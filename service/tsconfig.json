@@ -24,5 +24,6 @@
     "noUnusedParameters": false,
     "noPropertyAccessFromIndexSignature": false,
     "baseUrl": "."
-  }
+  },
+  "include": ["src/**/*.ts", "worker-configuration.d.ts"]
 }

@@ -22,11 +22,13 @@
     "rules": {
       "all": true,
       "correctness": {
-        "noUndeclaredVariables": "off"
+        "noUndeclaredVariables": "off",
+        "noUndeclaredDependencies": "off"
       },
       "suspicious": {
         "noConsole": "off",
-        "noConsoleLog": "off"
+        "noConsoleLog": "off",
+        "noEmptyInterface": "off"
       }
     }
   },

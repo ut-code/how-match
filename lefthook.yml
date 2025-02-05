@@ -8,6 +8,11 @@ pre-commit:
     gitleaks:
       glob: "*"
       run: gitleaks git --verbose --staged
+    # wrangler - sync config
+    cf-typegen:
+      glob: "**/wrangler.toml"
+      run: cd service; bun run cf-typegen
+      stage_fixed: true
     # JS
     deno-fmt:
       tags: js style

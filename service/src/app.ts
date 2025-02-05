@@ -6,7 +6,7 @@ import { user } from "../db/schema.ts";
 import { db } from "../db/client.ts";
 import { env } from "../utils/env.ts";
 
-export const app = new Hono()
+const app = new Hono()
   .use(cors({
     origin: env("CORS_ALLOW_ORIGINS").split(","),
   }))
@@ -44,3 +44,6 @@ export const app = new Hono()
   );
 
 console.log("running");
+
+// biome-ignore lint/style/noDefaultExport:
+export default app;
