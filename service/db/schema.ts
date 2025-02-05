@@ -1,10 +1,11 @@
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { integer, sqliteTable, } from "drizzle-orm/sqlite-core";
 
-export const user = sqliteTable("user", {
-  id: integer("id").primaryKey(),
-  age: integer("age"),
-  name: text("name"),
+export const participant = sqliteTable("Participant", {
+  participant_id: integer().primaryKey(),
+  account_id: integer().notNull(),
+  project_id: integer().notNull(),
+  is_admin: integer().notNull(),
 });
 
-export type InsertUser = typeof user.$inferInsert;
-export type SelectUser = typeof user.$inferSelect;
+export type InsertParticipant = typeof participant.$inferInsert;
+export type SelectParticipant = typeof participant.$inferSelect;

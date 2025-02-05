@@ -1,9 +1,8 @@
 import { zValidator } from "@hono/zod-validator";
 import { type Context, Hono } from "hono";
 import { cors } from "hono/cors";
-import { z } from "zod";
+import { participant } from "../db/schema.ts";
 import { db } from "../db/client.ts";
-import { user } from "../db/schema.ts";
 import { env } from "../utils/env.ts";
 
 const corsOptions = (c: Context) => ({
@@ -31,24 +30,31 @@ const app = new Hono()
       return c.text(`Hello ${name}!`);
     },
   )
-  .get("/users", async (c) => {
-    return c.json(await db(c).select().from(user).execute());
+  .get("/participants", async (c) => {
+    return c.json(await db.select().from(participant).execute());
   })
   .post(
-    "/users",
+    "/participants",
     zValidator(
       "form",
       z.object({
-        name: z.string(),
-        age: z.coerce.number(),
+        account_id: z.coerce.number(),
+        project_id: z.coerce.number(),
+        is_admin: z.coerce.boolean(),
       }),
     ),
     async (c) => {
       const body = c.req.valid("form");
-      const resp = await db(c).insert(user).values([body]).returning()
-        .execute();
-      console.log("added", resp[0]);
-      return c.json(resp[0]);
+      const resp = await db.insert(participant).values([
+        {
+          participant_id: Number(crypto.randomUUID()),
+          account_id: body.account_id,
+          project_id: body.project_id,
+          is_admin: Number(body.is_admin),
+        },
+      ]);
+      console.log("added", resp);
+      return c.json(resp);
     },
   );
 

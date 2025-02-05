@@ -15,19 +15,25 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250204.0",
+    "@cloudflare/workers-types": "^4.20250124.3",
+    "@types/better-sqlite3": "^7.6.12",
     "@types/bun": "latest",
     "drizzle-kit": "^0.30.2",
     "wrangler": "^3.107.3",
     "@cloudflare/vitest-pool-workers": "^0.6.4",
-    "@hono/zod-validator": "^0.4.2"
+    "@hono/zod-validator": "^0.4.2",
+    "drizzle-kit": "^0.30.4"
   },
   "peerDependencies": {
     "typescript": "^5.7.3"
   },
   "dependencies": {
     "@libsql/client": "^0.14.0",
+    "better-sqlite3": "^11.8.1",
+    "dotenv": "^16.4.7",
     "drizzle-orm": "^0.38.4",
     "hono": "^4.6.19",
+    "sqlite3": "^5.1.7",
     "zod": "^3.24.1"
   }
 }
