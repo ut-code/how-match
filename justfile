@@ -9,13 +9,13 @@ install:
 
 b: build
 
-build: build-svelte build-worker
+build: build-svelte build-service
 
 build-svelte:
     cd web; bun run build
 
-build-worker:
-    cd worker; bunx tsc
+build-service:
+    cd service; bunx tsc
 
 format:
     deno fmt --check .
