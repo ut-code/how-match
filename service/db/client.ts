@@ -8,14 +8,14 @@ export const db = (() => {
       return drizzle("file:./local.db");
     case "memory":
       return drizzle(":memory:");
-    case "turso":
-      return drizzle({
-        connection: {
-          url: env("TURSO_CONNECTION_URL"),
-          authToken: env("TURSO_AUTH_TOKEN"),
-        },
-      });
+    // case "turso":
+    //   return drizzle({
+    //     connection: {
+    //       url: env("TURSO_CONNECTION_URL"),
+    //       authToken: env("TURSO_AUTH_TOKEN"),
+    //     },
+    //   });
     default:
-      panic(`unknown DB_KIND: got ${env("DB_KIND")}`);
+      return panic(`unknown DB_KIND: got ${env("DB_KIND")}`) as never;
   }
 })();

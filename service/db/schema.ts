@@ -5,3 +5,6 @@ export const user = sqliteTable("user", {
   age: integer("age"),
   name: text("name"),
 });
+
+export type InsertUser = typeof user.$inferInsert;
+export type SelectUser = typeof user.$inferSelect;

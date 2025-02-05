@@ -3,9 +3,12 @@ default:
 
 i: install
 
-install:
+install: setup-local-db
     cd web; bun install --frozen-lockfile
     cd service; bun install --frozen-lockfile
+
+setup-local-db:
+    cd service; DATABASE_URL=file:./local.db bunx drizzle-kit push
 
 b: build
 

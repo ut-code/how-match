@@ -27,3 +27,7 @@ language-servers = [
 [[language]]
 name = "svelte"
 language-servers = ["tailwindcss-ls", "svelteserver"]
+
+[[language]]
+name = "typescript"
+formatter = { command = "deno", args = ["fmt", "-"] }

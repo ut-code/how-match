@@ -21,13 +21,8 @@
     "enabled": true,
     "rules": {
       "all": true,
-      "correctness": {
-        "noUnusedImports": "error",
-        "noUnnecessaryContinue": "error",
-        "noUndeclaredDependencies": "off"
-      },
       "suspicious": {
-        "noConstEnum": "error"
+        "noConsole": "off"
       }
     }
   },
