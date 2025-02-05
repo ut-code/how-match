@@ -25,5 +25,5 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: extractions/setup-just@v2
-      - uses: oven-sh/setup-bun@2
+      - uses: oven-sh/setup-bun@v2
       - run: just install
