@@ -19,7 +19,8 @@ const config = {
       assets: "dist",
     }),
     files: {
-      assets: "./assets",
+      // https://stackoverflow.com/questions/71789244/where-to-put-images-with-sveltekit
+      assets: "./static",
     },
     alias: {
       "~": "src",
