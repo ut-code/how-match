@@ -17,7 +17,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: echo 'success!'
-
   install:
     name: "Lockfile doesn't have changes"
     runs-on: ubuntu-latest

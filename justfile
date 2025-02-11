@@ -3,15 +3,18 @@ default:
 
 i: install
 
-install: 
+install:
     just pre-install
     just install-bun
     just post-install
+
 install-bun:
     cd web; bun install --frozen-lockfile
     cd service; bun install --frozen-lockfile
+
 pre-install:
     lefthook install
+
 post-install: local-db
 
 local-db:
@@ -29,8 +32,10 @@ build-service:
 
 dev:
     (trap 'kill 0' EXIT; just dev-service & just dev-web & wait)
+
 dev-service:
     cd service; DB_KIND=${DB_KIND:-local} bun dev
+
 dev-web:
     cd web; bun dev
 
