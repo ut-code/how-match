@@ -3,7 +3,6 @@ pkgs.mkShell {
   name = "How Match development";
   packages = with pkgs; [
     # general
-    lefthook # precommit
     gitleaks # secret leak detection
     just # task runner
     litecli # sqlite CLI client with advanced features
@@ -19,8 +18,4 @@ pkgs.mkShell {
     statix # nix linter
     deadnix # code analyzer (detects dead code)
   ];
-
-  shellHook = ''
-    lefthook install
-  '';
 }

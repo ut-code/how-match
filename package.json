@@ -6,13 +6,14 @@
     "web"
   ],
   "scripts": {
-    "prepare": "trap 'kill 0' SIGINT; (cd service; bun run prepare) & (cd web; bun run prepare) & wait",
+    "prepare": "trap 'kill 0' SIGINT; (cd service; bun run prepare) & (cd web; bun run prepare) & (lefthook install) & wait",
     "dev": "trap 'kill 0' EXIT; (cd service; bun run dev) & (cd web; bun run dev) & wait",
     "check": "(cd web && bun check) && (cd service && bun check)",
     "db": "cd service; bun db"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "latest",
+    "lefthook": "^1.10.10"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
