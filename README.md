@@ -20,25 +20,22 @@ b. Nix を使えない場合
 - bun (>= v1.2)
 - biome (for linting only)
 - deno (for formatting)
-- lefthook
 - gitleaks
 - just
 
-### Just スクリプト
+### スクリプト
 
-just が導入されています。 以下は、just で実行可能なスクリプトの例です。 `just` または `just --list`
-でスクリプトの一覧が見れます。
+just と Bun Script で管理されています。以下は、just や bun で実行可能なスクリプトの例です。
+それぞれ `just --list`、`bun run --list` でスクリプトの一覧が見れます。
 
 ```sh
-just install # alias: `just i` - installs all package dependencies
-just build # alias: `just b` - builds all package
+# Just: 未導入
 
-just check # checks:
-# formatting
-# linting
-# sveltekit static analysis
-# typescript types
-just fix # fix format and lint
+bun dev # 開発用サーバーを立てます
+bun check # 型チェックを行います
+bun style # コードスタイル (フォーマットなど) を整えます
+bun style:check # コードスタイルが即しているかどうか確認します (書き込みはしません)。
+bun local-db # ローカルのデータベースをスキーマに同期します
 ```
 
 ## 技術スタック
