@@ -9,7 +9,7 @@ pkgs.mkShell {
 
     # JS
     bun # runner / tester
-    # biome # style checker / linter ... replaced by deno because biome doesn't support HTML and svelte
+    biome # style checker / linter ... replaced by deno because biome doesn't support HTML and svelte
     deno # used to format svelte
 
     # Nix
