@@ -25,8 +25,8 @@ b. Nix を使えない場合
 
 ### スクリプト
 
-just と Bun Script で管理されています。以下は、just や bun で実行可能なスクリプトの例です。
-それぞれ `just --list`、`bun run --list` でスクリプトの一覧が見れます。
+just と Bun Script で管理されています。以下は、just や bun で実行可能なスクリプトの例です。 それぞれ
+`just --list`、`bun run --list` でスクリプトの一覧が見れます。
 
 ```sh
 # Just: 未導入

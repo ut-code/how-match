@@ -16,7 +16,7 @@ pre-commit:
     # JS
     deno-fmt:
       tags: js style
-      glob: "*.{js,ts,svelte,html}"
+      glob: "*.{js,ts,svelte,html,md}"
       run: deno fmt {staged_files}
       stage_fixed: true
     biome-lint:
