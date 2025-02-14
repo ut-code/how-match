@@ -11,7 +11,7 @@ export const db = (c: Context<HonoOptions>) => {
     return cache;
   }
 
-  if (c.env.DB) {
+  if (c.env?.DB) {
     return d1(c.env.DB);
   }
 
