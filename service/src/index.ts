@@ -1,24 +1,12 @@
 import type { HonoOptions } from "./types.ts";
 import { zValidator } from "@hono/zod-validator";
-import { type Context, Hono } from "hono";
-import { cors } from "hono/cors";
+import { Hono } from "hono";
 import { account, match, participant, rating, role } from "../db/schema.ts";
 import { db } from "../db/client.ts";
-import { env } from "../utils/env.ts";
 import { z } from "zod";
-
-const corsOptions = (c: Context) => ({
-  origin: env(c, "CORS_ALLOW_ORIGINS").split(","),
-});
 
 const app = new Hono<HonoOptions>()
   .basePath("/api")
-  .use(async (c, next) => {
-    await cors(corsOptions(c))(
-      c,
-      next,
-    );
-  })
   .get("/", (c) => c.text("Hello from Hono!"))
   .post(
     "/",
