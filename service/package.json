@@ -3,14 +3,15 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "prepare": "bun run cf-typegen",
+    "prepare": "bun run sync",
+    "sync": "bun run cf-typegen",
     "deploy": "wrangler deploy",
     "cf-typegen": "wrangler types && if command -v deno >/dev/null; then deno fmt ./worker-configuration.d.ts; fi",
     "db": "drizzle-kit",
     "dev": "bun run --watch ./cmd/dev.ts",
     "dev:local": "DB_KIND=local bun run --watch ./cmd/dev.ts",
     "dev:tmp": "DB_KIND=memory bun run --watch ./cmd/dev.ts",
-    "dev:remote": "DB_KIND=turso bun run --watch ./cmd/dev.ts",
+    "dev:remote": "DB_KIND=remote bun run --watch ./cmd/dev.ts",
     "check": "bun run tsc"
   },
   "devDependencies": {
