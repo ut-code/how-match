@@ -4,6 +4,7 @@
     "": {
       "name": "how-match",
       "devDependencies": {
+        "@cloudflare/workers-types": "^4.20250204.0",
         "@types/bun": "latest",
         "lefthook": "^1.10.10",
       },
