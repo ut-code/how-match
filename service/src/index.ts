@@ -1,3 +1,4 @@
+import type { HonoOptions } from "./types.ts";
 import { zValidator } from "@hono/zod-validator";
 import { type Context, Hono } from "hono";
 import { cors } from "hono/cors";
@@ -10,7 +11,8 @@ const corsOptions = (c: Context) => ({
   origin: env(c, "CORS_ALLOW_ORIGINS").split(","),
 });
 
-const app = new Hono()
+const app = new Hono<HonoOptions>()
+  .basePath("/api")
   .use(async (c, next) => {
     await cors(corsOptions(c))(
       c,

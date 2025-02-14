@@ -12,7 +12,7 @@
     "dev": "bun --env-file=./.env run :dev",
     ":dev": "trap 'kill 0' EXIT; (cd service; bun run dev) & (cd web; bun run dev) & wait",
     "check": "(cd web && bun check) && (cd service && bun check)",
-    "local-db": "cd service; DATABASE_URL=file:./local.db bun db push",
+    "local-db": "cd service; DATABASE_URL=file:../local.db bun db push",
     "style": "deno fmt . && biome lint --fix .",
     "style:check": "deno fmt --check . && biome lint .",
     "build": "cd web; bun run build"

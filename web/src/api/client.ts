@@ -1,4 +1,8 @@
 import { hc } from "hono/client";
 import type { App } from "service/src";
 
-export const client = hc<App>("http://localhost:3000");
+// during development, use isolated server for better hot reload
+const baseUrl = import.meta.env.DEV ? "http://localhost:3000/" : "/";
+console.log(`[log] hono/client: baseUrl = ${import.meta.env.baseUrl}`);
+
+export const client = hc<App>(baseUrl).api;
