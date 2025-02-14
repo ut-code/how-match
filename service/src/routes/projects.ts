@@ -4,8 +4,9 @@ import { account, match, participant, project, rating, role } from "db/schema";
 import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import type { HonoOptions } from "src/types";
 
-export const projects = new Hono()
+export const projects = new Hono<HonoOptions>()
   .get("/:projectId", async (c) => {
     const projectId = c.req.param("projectId");
     const project_resp = await db(c).select().from(project).where(eq(project.id, projectId));
