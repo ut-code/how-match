@@ -1,2 +1,17 @@
 @import "tailwindcss";
 @plugin "daisyui";
+@plugin "daisyui/theme" {
+  /* biome-ignore lint: daisyUI's property */
+  name: "light";
+  /* biome-ignore lint: daisyUI's property */
+  default: true;
+  /* biome-ignore lint: daisyUI's property */
+  prefersdark: true; /* TODO: ダークテーマは余裕があれば実装 */
+  --color-primary: #17af00;
+  --color-secondary: teal;
+  --color-base-100: #ebfff2;
+}
+
+.btn {
+  font-weight: normal;
+}
