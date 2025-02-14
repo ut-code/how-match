@@ -1,6 +1,6 @@
 import { drizzle as libsql } from "drizzle-orm/libsql";
 import { drizzle as d1 } from "drizzle-orm/d1";
-import type { HonoOptions } from "src/types.ts";
+import type { HonoOptions } from "../src/types.ts";
 import type { Context } from "hono";
 import { env } from "../utils/env.ts";
 import { panic } from "../utils/panic.ts";
