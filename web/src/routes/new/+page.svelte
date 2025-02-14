@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import Header from "~/components/header.svelte";
 
   let inputs = [{ role: "", max: "", min: "" }];
@@ -6,7 +6,7 @@
   function addInput() {
     inputs = [...inputs, { role: "", max: "", min: "" }];
   }
-  function deleteInput(index) {
+  function deleteInput(index: number) {
     inputs = inputs.filter((_, i) => i !== index);
   }
 </script>
