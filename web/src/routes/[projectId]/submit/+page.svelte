@@ -5,13 +5,8 @@
 </script>
 
 <div>
-  <h1>希望の提出</h1>
-  <p>Project ID: {data.projectId}</p>
-</div>
-
-<div>
   <Header title="希望の提出" />
-  <div class="mt-1 h-full bg-base-100 p-6 flex flex-col gap-4">
+  <div class="mt-12 h-full bg-base-100 p-6 flex flex-col gap-4">
     <div class="rounded-lg bg-white p-6 flex flex-col gap-2">
       <h3>プロジェクト名</h3>
       <p class="text-sm">プロジェクトの説明</p>
