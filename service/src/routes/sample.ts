@@ -1,9 +1,9 @@
 import { zValidator } from "@hono/zod-validator";
-import { db } from "db/client";
-import { account } from "db/schema";
+import { account } from "../../db/schema.ts";
 import { Hono } from "hono";
-import type { HonoOptions } from "src/types";
+import type { HonoOptions } from "../types.ts";
 import { z } from "zod";
+import { db } from "../../db/client.ts";
 
 export const accounts = new Hono<HonoOptions>()
   .post(

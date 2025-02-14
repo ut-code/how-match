@@ -1,10 +1,10 @@
 import { zValidator } from "@hono/zod-validator";
-import { db } from "db/client";
-import { account, match, participant, project, rating, role } from "db/schema";
+import { db } from "../../db/client.ts";
+import { account, match, participant, project, rating, role } from "../../db/schema.ts";
 import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import type { HonoOptions } from "src/types";
+import type { HonoOptions } from "../types.ts";
 
 export const projects = new Hono<HonoOptions>()
   .get("/:projectId", async (c) => {
