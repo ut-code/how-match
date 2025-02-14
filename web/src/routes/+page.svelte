@@ -13,12 +13,12 @@
   let age = $state(0);
 
   async function postUser() {
-    console.log("posted");
     await client.accounts.$post({
       json: {
         name,
       },
     });
+    console.log("posted");
   }
 </script>
 

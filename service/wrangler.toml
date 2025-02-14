@@ -6,5 +6,7 @@ compatibility_date = "2025-02-04"
 [observability]
 enabled = true
 
-[env.production.vars]
-CORS_ALLOW_ORIGINS = "https://howmatch.utcode.net,https://howmatch.pages.dev"
+[[d1_databases]]
+binding = "DB"
+database_name = "how-match-dev"
+database_id = "9da85303-bfa3-49a8-b8e6-3e15d3a3c151"
