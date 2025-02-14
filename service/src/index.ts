@@ -11,6 +11,7 @@ const corsOptions = (c: Context) => ({
 });
 
 const app = new Hono()
+  .basePath("/api")
   .use(async (c, next) => {
     await cors(corsOptions(c))(
       c,
