@@ -11,7 +11,7 @@ export const db = (ctx: Context) => {
 
   switch (env(ctx, "DB_KIND")) {
     case "local": {
-      cache = drizzle("file:./local.db");
+      cache = drizzle("file:../local.db");
       return cache;
     }
     case "memory": {
