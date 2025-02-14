@@ -5,7 +5,7 @@
 
   let promise: Promise<SelectAccount[]> = $state(new Promise(() => {}));
   async function refetch() {
-    promise = client.accounts.$get().then((it) => it.json());
+    const a = client.accounts.$get().then((it) => it.json());
   }
   onMount(refetch);
 
