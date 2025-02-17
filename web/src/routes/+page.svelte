@@ -31,6 +31,9 @@
       <li>
         <a href="/new" class="link">new</a>
       </li>
+      <li>
+        created
+      </li>
     </ul>
   </div>
 </div>

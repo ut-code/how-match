@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
   import { client } from "~/api/client";
   import Header from "~/components/header.svelte";
 
@@ -18,25 +19,27 @@
       roles: inputs,
       description: "",
     };
-    await client.projects.$post({ json: project });
+    const response = await client.projects.$post({ json: project });
+    return response.json();
   }
 </script>
 
 <div>
   <Header title="プロジェクトの作成" />
-  <div class="mt-12 h-full bg-base-100 p-6 flex flex-col gap-4">
-    <form
-      method="POST"
-      onsubmit={async (e) => {
-        e.preventDefault();
-        await postProject();
-      }}
-    >
-      <div class="rounded-lg bg-white p-6 flex flex-col gap-2">
+  <form
+    method="POST"
+    onsubmit={async (e) => {
+      e.preventDefault();
+      const project = await postProject();
+      goto(`/created?projectId=${project.id}`);
+    }}
+  >
+    <div class="hm-blocks-container">
+      <div class="hm-block">
         <p>プロジェクト名</p>
         <input type="text" class="input bg-white" placeholder="プロジェクト名" bind:value={name} />
       </div>
-      <div class="rounded-lg bg-white p-6 flex flex-col gap-2">
+      <div class="hm-block">
         <p>設定する役職</p>
         {#each inputs as input, index}
           <div class="flex gap-2">
@@ -68,6 +71,6 @@
       <div class="flex justify-end">
         <button type="submit" class="btn btn-primary">作成</button>
       </div>
-    </form>
-  </div>
+    </div>
+  </form>
 </div>

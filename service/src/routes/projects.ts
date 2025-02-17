@@ -52,6 +52,7 @@ export const projects = new Hono<HonoOptions>()
         })),
       );
       return c.json({
+        id: project_id,
         name: body.name,
         description: body.description,
         role: body.roles,
