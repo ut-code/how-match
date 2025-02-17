@@ -24,8 +24,8 @@ export const projects = new Hono<HonoOptions>()
       "json",
       z.object({
         name: z.string(),
-        description: z.string(),
-        role: z.array(z.object({
+        description: z.string().nullable(),
+        roles: z.array(z.object({
           name: z.string(),
           min: z.number(),
           max: z.number(),
@@ -43,8 +43,9 @@ export const projects = new Hono<HonoOptions>()
         },
       ]);
       await db(c).insert(role).values(
-        body.role.map((r) => ({
+        body.roles.map((r) => ({
           id: crypto.randomUUID(),
+          name: r.name,
           min: r.min,
           max: r.max,
           project_id: project_id,
@@ -53,7 +54,7 @@ export const projects = new Hono<HonoOptions>()
       return c.json({
         name: body.name,
         description: body.description,
-        role: body.role,
+        role: body.roles,
       });
     },
   )
