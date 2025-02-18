@@ -1,6 +1,6 @@
 // +page.ts
 import { client } from "~/api/client";
-import type { PageLoad } from "./$types";
+import type { PageLoad } from "./$types.ts";
 
 async function validateProjectId(projectId: string) {
   const response = await client.projects[":projectId"].$get({ param: { projectId } });

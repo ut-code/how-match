@@ -47,7 +47,17 @@ const route = new Hono<HonoOptions>()
           description: body.description,
         },
       ]);
-      if (!browser_id) {
+      if (browser_id) {
+        const account_resp = await db(c).select().from(accounts).where(eq(accounts.browser_id, browser_id));
+        await db(c).insert(participants).values([
+          {
+            id: crypto.randomUUID(),
+            account_id: account_resp[0].id,
+            project_id: project_id,
+            is_admin: 1,
+          },
+        ]);
+      } else {
         const new_browser_id = crypto.randomUUID();
         const account_id = crypto.randomUUID();
         await db(c).insert(accounts).values([
@@ -66,16 +76,6 @@ const route = new Hono<HonoOptions>()
           },
         ]);
         setCookie(c, "browser_id", new_browser_id);
-      } else {
-        const account_resp = await db(c).select().from(accounts).where(eq(accounts.browser_id, browser_id));
-        await db(c).insert(participants).values([
-          {
-            id: crypto.randomUUID(),
-            account_id: account_resp[0].id,
-            project_id: project_id,
-            is_admin: 1,
-          },
-        ]);
       }
 
       await db(c).insert(roles).values(

@@ -12,6 +12,9 @@
     const response = await client.projects[":projectId"].$get({
       param: { projectId: data.projectId },
     });
+    if (!response.ok) {
+      return null;
+    }
     return await response.json();
   }
 
@@ -36,38 +39,45 @@
   {#await project}
     <span class="loading loading-infinity"></span>
   {:then project}
-    <div class="mt-12 h-full bg-base-100 p-6 flex flex-col gap-4">
-      <div class="rounded-lg bg-white p-6 flex flex-col gap-2">
-        <h3>{project.name}</h3>
-        <p class="text-sm">{project.description}</p>
-      </div>
-    </div>
-    <form
-      method="POST"
-      onsubmit={async (e) => {
-        e.preventDefault();
-        const preference = await postPreference();
-      }}
-    >
-      <div class="h-full bg-base-100 p-6 flex flex-col gap-4">
+    {#if project === null}
+      <div>プロジェクトが見つかりませんでした</div>
+    {:else}
+      <div class="mt-12 h-full bg-base-100 p-6 flex flex-col gap-4">
         <div class="rounded-lg bg-white p-6 flex flex-col gap-2">
-          <h3>名前</h3>
-          <input type="text" class="input bg-white" placeholder="回答を入力" bind:value={participantName} />
+          <h3>{project.name}</h3>
+          <p class="text-sm">{project.description}</p>
         </div>
       </div>
-
-      {#each project.role as role, roleIndex}
-        {@render ratingSelector(role.name, roleIndex)}
-      {/each}
-
-      <div class="h-full bg-base-100 p-6 flex flex-col gap-4">
-        <div class="flex justify-end">
-          <button type="submit" class="btn btn-primary">
-            送信
-          </button>
+      <form
+        method="POST"
+        onsubmit={async (e) => {
+          e.preventDefault();
+          const preference = await postPreference();
+        }}
+      >
+        <div class="h-full bg-base-100 p-6 flex flex-col gap-4">
+          <div class="rounded-lg bg-white p-6 flex flex-col gap-2">
+            <h3>名前</h3>
+            <input
+              type="text"
+              class="input bg-white"
+              placeholder="回答を入力"
+              bind:value={participantName}
+            />
+          </div>
         </div>
-      </div>
-    </form>
+
+        {#each project.role as role, roleIndex}
+          {@render ratingSelector(role.name, roleIndex)}
+        {/each}
+
+        <div class="h-full bg-base-100 p-6 flex flex-col gap-4">
+          <div class="flex justify-end">
+            <button type="submit" class="btn btn-primary">送信</button>
+          </div>
+        </div>
+      </form>
+    {/if}
   {/await}
 </div>
 
@@ -102,7 +112,7 @@
                 type="radio"
                 class="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-slate-400 transition-all"
                 id="{roleName}-{radioIndex}"
-              >
+              />
               <span
                 class="absolute bg-slate-800 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
               >
