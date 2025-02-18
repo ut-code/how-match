@@ -1,11 +1,11 @@
 import { zValidator } from "@hono/zod-validator";
-import { account } from "../../db/schema.ts";
+import { accounts } from "../../db/schema.ts";
 import { Hono } from "hono";
 import type { HonoOptions } from "../types.ts";
 import { z } from "zod";
 import { db } from "../../db/client.ts";
 
-export const accounts = new Hono<HonoOptions>()
+const route = new Hono<HonoOptions>()
   .post(
     "/",
     zValidator(
@@ -16,7 +16,7 @@ export const accounts = new Hono<HonoOptions>()
     ),
     async (c) => {
       const body = c.req.valid("json");
-      const resp = await db(c).insert(account).values([
+      const resp = await db(c).insert(accounts).values([
         {
           id: Math.random().toString(), // uuid あとで
           name: body.name,
@@ -27,6 +27,7 @@ export const accounts = new Hono<HonoOptions>()
     },
   )
   .get("/", async (c) => {
-    const resp = await db(c).select().from(account).execute();
+    const resp = await db(c).select().from(accounts);
     return c.json(resp);
   });
+export default route;

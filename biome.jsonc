@@ -32,7 +32,8 @@
         "noEmptyBlockStatements": "off"
       },
       "style": {
-        "useNamingConvention": "off"
+        "useNamingConvention": "off",
+        "noDefaultExport": "off"
       }
     }
   },
