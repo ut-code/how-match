@@ -1,7 +1,7 @@
 import type { HonoOptions } from "./types.ts";
 import { Hono } from "hono";
-import { projects } from "./routes/projects.ts";
-import { accounts } from "./routes/sample.ts";
+import projects from "./routes/projects.ts";
+import accounts from "./routes/sample.ts";
 import { cors } from "hono/cors";
 
 const app = new Hono<HonoOptions>()
@@ -18,6 +18,5 @@ const app = new Hono<HonoOptions>()
 
 console.log("running");
 
-// biome-ignore lint/style/noDefaultExport:
 export default app;
 export type App = typeof app;
