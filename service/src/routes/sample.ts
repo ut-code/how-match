@@ -1,17 +1,16 @@
-import { zValidator } from "@hono/zod-validator";
-import { accounts } from "../../db/schema.ts";
 import { Hono } from "hono";
 import type { HonoOptions } from "../types.ts";
-import { z } from "zod";
+import * as v from "valibot";
+import { accounts } from "../../db/schema.ts";
 import { db } from "../../db/client.ts";
+import { json } from "../../validator/hono.ts";
 
 const route = new Hono<HonoOptions>()
   .post(
     "/",
-    zValidator(
-      "json",
-      z.object({
-        name: z.string(),
+    json(
+      v.object({
+        name: v.pipe(v.string(), v.minLength(3)),
       }),
     ),
     async (c) => {
@@ -30,4 +29,5 @@ const route = new Hono<HonoOptions>()
     const resp = await db(c).select().from(accounts);
     return c.json(resp);
   });
+
 export default route;
