@@ -6,7 +6,7 @@ import { cors } from "hono/cors";
 
 const app = new Hono<HonoOptions>()
   .basePath("/api")
-  .use("/*", cors({ origin: process.env.CORS_ORIGIN || "http://localhost:5173" }))
+  .use("/*", cors({ origin: process.env.CORS_ORIGIN || "http://localhost:5173", credentials: true }))
   .get("/", (c) => c.text("Hello from Hono!"))
   .route("/projects", projects)
   .route("/accounts", accounts);

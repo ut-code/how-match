@@ -4,6 +4,7 @@ import { account, match, participant, project, rating, role } from "../../db/sch
 import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { deleteCookie, getCookie, getSignedCookie, setCookie, setSignedCookie } from "hono/cookie";
 import type { HonoOptions } from "../types.ts";
 
 export const projects = new Hono<HonoOptions>()
@@ -33,8 +34,29 @@ export const projects = new Hono<HonoOptions>()
       }),
     ),
     async (c) => {
-      const body = c.req.valid("json");
+      const session_id = getCookie(c, "session_id");
       const project_id = crypto.randomUUID();
+      if (!session_id) {
+        const new_session_id = crypto.randomUUID();
+        const account_id = crypto.randomUUID();
+        await db(c).insert(account).values([
+          {
+            id: account_id,
+            session_id: new_session_id,
+            name: "anonymous",
+          },
+        ]);
+        await db(c).insert(participant).values([
+          {
+            id: crypto.randomUUID(),
+            account_id: account_id,
+            project_id: project_id,
+            is_admin: 1,
+          },
+        ]);
+        setCookie(c, "session_id", new_session_id);
+      }
+      const body = c.req.valid("json");
       await db(c).insert(project).values([
         {
           id: project_id,
@@ -68,6 +90,20 @@ export const projects = new Hono<HonoOptions>()
       }),
     ),
     async (c) => {
+      const session_id = getCookie(c, "session_id");
+      if (!session_id) {
+        return c.json({ message: "Unauthorized" }, 401);
+      }
+      const account_resp = await db(c).select().from(account).where(eq(account.session_id, session_id));
+      if (account_resp.length === 0) {
+        return c.json({ message: "Unauthorized" }, 401);
+      }
+      const participant_resp = await db(c).select().from(participant)
+        .where(eq(participant.account_id, account_resp[0].id) && eq(participant.project_id, c.req.param("projectId")));
+      if (participant_resp.length === 0 || participant_resp[0].is_admin === 0) {
+        return c.json({ message: "Unauthorized" }, 401);
+      }
+
       await db(c).update(project).set({
         closed_at: new Date().toISOString(),
       }).where(eq(project.id, c.req.param("projectId")));

@@ -9,6 +9,7 @@ export const participant = sqliteTable("Participant", {
 
 export const account = sqliteTable("Account", {
   id: text().notNull().primaryKey(),
+  session_id: text(),
   name: text().notNull(),
 });
 
