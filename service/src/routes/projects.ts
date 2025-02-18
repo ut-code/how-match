@@ -19,7 +19,7 @@ const route = new Hono<HonoOptions>()
       id: project_resp[0].id,
       name: project_resp[0].name,
       description: project_resp[0].description,
-      role: role_resp,
+      roles: role_resp,
     });
   })
   .post(
@@ -52,6 +52,7 @@ const route = new Hono<HonoOptions>()
         await db(c).insert(participants).values([
           {
             id: crypto.randomUUID(),
+            name: "anonymous admin",
             account_id: account_resp[0].id,
             project_id: project_id,
             is_admin: 1,
@@ -70,6 +71,7 @@ const route = new Hono<HonoOptions>()
         await db(c).insert(participants).values([
           {
             id: crypto.randomUUID(),
+            name: "anonymous admin",
             account_id: account_id,
             project_id: project_id,
             is_admin: 1,
@@ -91,7 +93,7 @@ const route = new Hono<HonoOptions>()
         id: project_id,
         name: body.name,
         description: body.description,
-        role: body.roles,
+        roles: body.roles,
       });
     },
   )
@@ -106,12 +108,10 @@ const route = new Hono<HonoOptions>()
     async (c) => {
       const browser_id = getCookie(c, "browser_id");
       if (!browser_id) {
-        console.log("browser_id not found");
         return c.json({ message: "Unauthorized" }, 401);
       }
       const account_resp = await db(c).select().from(accounts).where(eq(accounts.browser_id, browser_id));
       if (account_resp.length === 0) {
-        console.log("account not found");
         return c.json({ message: "Unauthorized" }, 401);
       }
       const participant_resp = await db(c).select().from(participants)
@@ -119,7 +119,6 @@ const route = new Hono<HonoOptions>()
           eq(participants.account_id, account_resp[0].id) && eq(participants.project_id, c.req.param("projectId")),
         );
       if (participant_resp.length === 0 || participant_resp[0].is_admin === 0) {
-        console.log("participant not found or not admin");
         return c.json({ message: "Unauthorized" }, 401);
       }
 
@@ -137,7 +136,6 @@ const route = new Hono<HonoOptions>()
     zValidator(
       "json",
       z.object({
-        accountId: z.string().nullable(),
         participantName: z.string(),
         ratings: z.array(z.object({
           roleId: z.string(),
@@ -146,36 +144,84 @@ const route = new Hono<HonoOptions>()
       }),
     ),
     async (c) => {
+      const browserId = getCookie(c, "browser_id");
+      const projectId = c.req.param("projectId");
       const body = c.req.valid("json");
-      const new_account_id = crypto.randomUUID();
-      const participant_id = crypto.randomUUID();
-      await db(c).insert(ratings).values(
-        body.ratings.map((r) => ({
-          id: crypto.randomUUID(),
-          participant_id: participant_id,
-          role_id: r.roleId,
-          score: r.score,
-          project_id: c.req.param("projectId"),
-        })),
-      );
 
-      if (body.accountId === null) {
-        await db(c).insert(accounts).values([
-          {
-            id: new_account_id,
-            name: body.participantName,
-          },
-        ]);
+      if (!browserId) {
+        await db(c).transaction(async (tx) => {
+          const account = (await tx.insert(accounts).values(
+            {
+              id: crypto.randomUUID(),
+              browser_id: crypto.randomUUID(),
+              name: "anonymous",
+            },
+          ).returning())[0];
+
+          const participant = (await tx.insert(participants).values(
+            {
+              id: crypto.randomUUID(),
+              name: body.participantName,
+              account_id: account.id,
+              project_id: projectId,
+              is_admin: 0,
+            },
+          ).returning())[0];
+
+          await tx.insert(ratings).values(
+            body.ratings.map((r) => ({
+              id: crypto.randomUUID(),
+              participant_id: participant.id,
+              role_id: r.roleId,
+              score: r.score,
+              project_id: projectId,
+            })),
+          );
+
+          setCookie(c, "browser_id", account.browser_id);
+          return c.json({}, 201);
+        });
+      } else {
+        // TODO: findUnique をしたい感じ。もう少しうまくやりたい
+        const accountsResult = await db(c).select().from(accounts).where(eq(accounts.browser_id, browserId)).limit(1);
+        if (accountsResult.length === 0) {
+          return c.json({ message: "Unauthorized" }, 401);
+        }
+        const account = accountsResult[0];
+
+        const participantResult = await db(c).select().from(participants).where(
+          eq(participants.account_id, accountsResult[0].id) && eq(participants.project_id, projectId),
+        ).limit(1);
+
+        if (participantResult.length !== 0) {
+          // TODO: 管理者も参加者として希望を出す場合には未対応
+          return c.json({ message: "すでに希望を提出済です" }, 400);
+        }
+
+        await db(c).transaction(async (tx) => {
+          const participant = (await tx.insert(participants).values(
+            {
+              id: crypto.randomUUID(),
+              name: body.participantName,
+              account_id: account.id,
+              project_id: projectId,
+              is_admin: 0,
+            },
+          ).returning())[0];
+
+          await tx.insert(ratings).values(
+            body.ratings.map((r) => ({
+              id: crypto.randomUUID(),
+              name: body.participantName,
+              participant_id: participant.id,
+              role_id: r.roleId,
+              score: r.score,
+              project_id: projectId,
+            })),
+          );
+          return c.json({}, 201);
+        });
       }
-      await db(c).insert(participants).values(
-        {
-          id: participant_id,
-          account_id: body.accountId ?? new_account_id,
-          project_id: c.req.param("projectId"),
-          is_admin: 0,
-        },
-      );
-      return c.json({}, 201);
     },
   )
   .get(

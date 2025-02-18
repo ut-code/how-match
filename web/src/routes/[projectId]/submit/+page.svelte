@@ -1,6 +1,5 @@
 <script lang="ts">
   import Header from "~/components/header.svelte";
-  import { goto } from "$app/navigation";
   import { client } from "~/api/client";
   import type { PageProps } from "./$types.ts";
   let { data }: PageProps = $props();
@@ -22,7 +21,6 @@
 
   async function postPreference() {
     const preference = {
-      accountId: null,
       participantName: participantName,
       ratings: ratings,
     };
@@ -37,17 +35,15 @@
 <div>
   <Header title="希望の提出" />
   {#await project}
-    <span class="loading loading-infinity"></span>
+    <div class="hm-blocks-container">
+      <span class="loading loading-infinity"></span>
+    </div>
   {:then project}
     {#if project === null}
-      <div>プロジェクトが見つかりませんでした</div>
-    {:else}
-      <div class="mt-12 h-full bg-base-100 p-6 flex flex-col gap-4">
-        <div class="rounded-lg bg-white p-6 flex flex-col gap-2">
-          <h3>{project.name}</h3>
-          <p class="text-sm">{project.description}</p>
-        </div>
+      <div class="hm-blocks-container">
+        <p>プロジェクトが見つかりませんでした</p>
       </div>
+    {:else}
       <form
         method="POST"
         onsubmit={async (e) => {
@@ -55,8 +51,14 @@
           const preference = await postPreference();
         }}
       >
-        <div class="h-full bg-base-100 p-6 flex flex-col gap-4">
-          <div class="rounded-lg bg-white p-6 flex flex-col gap-2">
+        <div class="hm-blocks-container">
+          <div class="hm-block">
+            <h3>{project.name}</h3>
+            {#if project.description}
+              <p class="text-sm">{project.description}</p>
+            {/if}
+          </div>
+          <div class="hm-block">
             <h3>名前</h3>
             <input
               type="text"
@@ -65,13 +67,9 @@
               bind:value={participantName}
             />
           </div>
-        </div>
-
-        {#each project.role as role, roleIndex}
-          {@render ratingSelector(role.name, roleIndex)}
-        {/each}
-
-        <div class="h-full bg-base-100 p-6 flex flex-col gap-4">
+          {#each project.roles as role, roleIndex}
+            {@render ratingSelector(role.name, roleIndex)}
+          {/each}
           <div class="flex justify-end">
             <button type="submit" class="btn btn-primary">送信</button>
           </div>
@@ -82,8 +80,8 @@
 </div>
 
 {#snippet ratingSelector(roleName: string, roleIndex: number)}
-  <div class="h-full bg-base-100 p-6 flex flex-col gap-4">
-    <div class="rounded-lg bg-white p-6 flex flex-col gap-2">
+  <div class="hm-block">
+    <div>
       <h3>役職：{roleName}</h3>
       <div class="gap-2 grid grid-cols-7 justify-items-center text-sm">
         <div></div>
@@ -112,6 +110,8 @@
                 type="radio"
                 class="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-slate-400 transition-all"
                 id="{roleName}-{radioIndex}"
+                value={radioIndex}
+                bind:group={ratings[roleIndex].score}
               />
               <span
                 class="absolute bg-slate-800 w-3 h-3 rounded-full opacity-0 peer-checked:opacity-100 transition-opacity duration-200 top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"

@@ -2,6 +2,7 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const participants = sqliteTable("participants", {
   id: text("id").notNull().primaryKey(),
+  name: text().notNull(),
   account_id: text("account_id").references(() => accounts.id).notNull(),
   project_id: text("project_id").references(() => projects.id).notNull(),
   is_admin: integer("is_admin").notNull(),
@@ -9,7 +10,7 @@ export const participants = sqliteTable("participants", {
 
 export const accounts = sqliteTable("accounts", {
   id: text().notNull().primaryKey(),
-  browser_id: text(),
+  browser_id: text().notNull().unique(),
   name: text().notNull(),
 });
 
