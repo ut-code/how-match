@@ -35,5 +35,4 @@ const config = {
   extensions: [".svelte", ".svx"],
 };
 
-// biome-ignore lint/style/noDefaultExport: it's a config file
 export default config;
