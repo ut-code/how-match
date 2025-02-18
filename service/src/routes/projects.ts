@@ -5,12 +5,16 @@ import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import type { HonoOptions } from "../types.ts";
+import { HTTPException } from "hono/http-exception";
 
 const route = new Hono<HonoOptions>()
   .get("/:projectId", async (c) => {
     const projectId = c.req.param("projectId");
     const project_resp = await db(c).select().from(projects).where(eq(projects.id, projectId));
     const role_resp = await db(c).select().from(roles).where(eq(roles.project_id, projectId));
+    if (project_resp.length === 0) {
+      throw new HTTPException(404);
+    }
     return c.json({
       id: project_resp[0].id,
       name: project_resp[0].name,

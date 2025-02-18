@@ -3,13 +3,15 @@ import { Hono } from "hono";
 import projects from "./routes/projects.ts";
 import accounts from "./routes/sample.ts";
 import { cors } from "hono/cors";
+import { env } from "../utils/env.ts";
 
 const app = new Hono<HonoOptions>()
   .basePath("/api")
   .use(
     "/*",
     async (c, next) => {
-      return await cors({ origin: c.env.CORS_ORIGIN || "http://localhost:5173" })(c, next);
+      const CORS_ALLOW_ORIGINS = env(c, "CORS_ALLOW_ORIGINS", "");
+      return await cors({ origin: CORS_ALLOW_ORIGINS.split(",") })(c, next);
     },
   )
   .get("/", (c) => c.text("Hello from Hono!"))
