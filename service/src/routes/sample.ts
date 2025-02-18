@@ -1,17 +1,17 @@
-import { zValidator } from "@hono/zod-validator";
+import { vValidator } from "@hono/valibot-validator";
 import { accounts } from "../../db/schema.ts";
 import { Hono } from "hono";
 import type { HonoOptions } from "../types.ts";
-import { z } from "zod";
+import * as v from "valibot";
 import { db } from "../../db/client.ts";
 
 const route = new Hono<HonoOptions>()
   .post(
     "/",
-    zValidator(
+    vValidator(
       "json",
-      z.object({
-        name: z.string(),
+      v.object({
+        name: v.string(),
       }),
     ),
     async (c) => {

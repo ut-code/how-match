@@ -1,9 +1,9 @@
-import { zValidator } from "@hono/zod-validator";
+import { vValidator } from "@hono/valibot-validator";
 import { db } from "../../db/client.ts";
 import { accounts, matches, participants, projects, ratings, roles } from "../../db/schema.ts";
 import { Hono } from "hono";
 import { eq } from "drizzle-orm";
-import { z } from "zod";
+import * as v from "valibot";
 import type { HonoOptions } from "../types.ts";
 
 const route = new Hono<HonoOptions>()
@@ -20,15 +20,15 @@ const route = new Hono<HonoOptions>()
   })
   .post(
     "/",
-    zValidator(
+    vValidator(
       "json",
-      z.object({
-        name: z.string(),
-        description: z.string(),
-        role: z.array(z.object({
-          name: z.string(),
-          min: z.number(),
-          max: z.number(),
+      v.object({
+        name: v.string(),
+        description: v.string(),
+        role: v.array(v.object({
+          name: v.string(),
+          min: v.number(),
+          max: v.number(),
         })),
       }),
     ),
@@ -59,10 +59,10 @@ const route = new Hono<HonoOptions>()
   )
   .patch(
     "/:projectId",
-    zValidator(
+    vValidator(
       "json",
-      z.object({
-        done: z.boolean(),
+      v.object({
+        done: v.boolean(),
       }),
     ),
     async (c) => {
@@ -77,14 +77,14 @@ const route = new Hono<HonoOptions>()
   )
   .post(
     "/:projectId/preferences",
-    zValidator(
+    vValidator(
       "json",
-      z.object({
-        accountId: z.string().nullable(),
-        participantName: z.string(),
-        ratings: z.array(z.object({
-          roleId: z.string(),
-          score: z.number(),
+      v.object({
+        accountId: v.nullable(v.string()),
+        participantName: v.string(),
+        ratings: v.array(v.object({
+          roleId: v.string(),
+          score: v.number(),
         })),
       }),
     ),
