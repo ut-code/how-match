@@ -12,6 +12,9 @@ const route = new Hono<HonoOptions>()
     const projectId = c.req.param("projectId");
     const project_resp = await db(c).select().from(projects).where(eq(projects.id, projectId));
     const role_resp = await db(c).select().from(roles).where(eq(roles.project_id, projectId));
+    if (project_resp.length === 0) {
+      return c.json({ message: "Not Found" }, 404);
+    }
     return c.json({
       id: project_resp[0].id,
       name: project_resp[0].name,
@@ -36,6 +39,14 @@ const route = new Hono<HonoOptions>()
     async (c) => {
       const session_id = getCookie(c, "session_id");
       const project_id = crypto.randomUUID();
+      const body = c.req.valid("json");
+      await db(c).insert(projects).values([
+        {
+          id: project_id,
+          name: body.name,
+          description: body.description,
+        },
+      ]);
       if (!session_id) {
         const new_session_id = crypto.randomUUID();
         const account_id = crypto.randomUUID();
@@ -55,15 +66,17 @@ const route = new Hono<HonoOptions>()
           },
         ]);
         setCookie(c, "session_id", new_session_id);
+      } else {
+        const account_resp = await db(c).select().from(accounts).where(eq(accounts.session_id, session_id));
+        await db(c).insert(participants).values([
+          {
+            id: crypto.randomUUID(),
+            account_id: account_resp[0].id,
+            project_id: project_id,
+            is_admin: 1,
+          },
+        ]);
       }
-      const body = c.req.valid("json");
-      await db(c).insert(projects).values([
-        {
-          id: project_id,
-          name: body.name,
-          description: body.description,
-        },
-      ]);
 
       await db(c).insert(roles).values(
         body.roles.map((r) => ({
@@ -93,10 +106,12 @@ const route = new Hono<HonoOptions>()
     async (c) => {
       const session_id = getCookie(c, "session_id");
       if (!session_id) {
+        console.log("session_id not found");
         return c.json({ message: "Unauthorized" }, 401);
       }
       const account_resp = await db(c).select().from(accounts).where(eq(accounts.session_id, session_id));
       if (account_resp.length === 0) {
+        console.log("account not found");
         return c.json({ message: "Unauthorized" }, 401);
       }
       const participant_resp = await db(c).select().from(participants)
@@ -104,6 +119,7 @@ const route = new Hono<HonoOptions>()
           eq(participants.account_id, account_resp[0].id) && eq(participants.project_id, c.req.param("projectId")),
         );
       if (participant_resp.length === 0 || participant_resp[0].is_admin === 0) {
+        console.log("participant not found or not admin");
         return c.json({ message: "Unauthorized" }, 401);
       }
 
