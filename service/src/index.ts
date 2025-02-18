@@ -9,7 +9,7 @@ const app = new Hono<HonoOptions>()
   .use(
     "/*",
     async (c, next) => {
-      return cors({ origin: c.env.CORS_ORIGIN || "http://localhost:5173" })(c, next);
+      return await cors({ origin: c.env.CORS_ORIGIN || "http://localhost:5173" })(c, next);
     },
   )
   .get("/", (c) => c.text("Hello from Hono!"))
