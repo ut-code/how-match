@@ -5,19 +5,26 @@ import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import * as v from "valibot";
 import type { HonoOptions } from "../types.ts";
+import { json, param } from "../../validator/hono.ts";
 
 const route = new Hono<HonoOptions>()
-  .get("/:projectId", async (c) => {
-    const projectId = c.req.param("projectId");
-    const project_resp = await db(c).select().from(projects).where(eq(projects.id, projectId));
-    const role_resp = await db(c).select().from(roles).where(eq(roles.project_id, projectId));
-    return c.json({
-      id: project_resp[0].id,
-      name: project_resp[0].name,
-      description: project_resp[0].description,
-      role: role_resp,
-    });
-  })
+  .get(
+    "/:projectId",
+    param({
+      projectId: v.string(),
+    }),
+    async (c) => {
+      const projectId = c.req.valid("param").projectId;
+      const project_resp = await db(c).select().from(projects).where(eq(projects.id, projectId));
+      const role_resp = await db(c).select().from(roles).where(eq(roles.project_id, projectId));
+      return c.json({
+        id: project_resp[0].id,
+        name: project_resp[0].name,
+        description: project_resp[0].description,
+        role: role_resp,
+      });
+    },
+  )
   .post(
     "/",
     vValidator(
@@ -59,16 +66,16 @@ const route = new Hono<HonoOptions>()
   )
   .patch(
     "/:projectId",
-    vValidator(
-      "json",
+    json(
       v.object({
         done: v.boolean(),
       }),
     ),
+    param({ projectId: v.string() }),
     async (c) => {
       await db(c).update(projects).set({
         closed_at: new Date().toISOString(),
-      }).where(eq(projects.id, c.req.param("projectId")));
+      }).where(eq(projects.id, c.req.valid("param").projectId));
 
       // TODO: ここでマッチ計算
 
@@ -77,8 +84,7 @@ const route = new Hono<HonoOptions>()
   )
   .post(
     "/:projectId/preferences",
-    vValidator(
-      "json",
+    json(
       v.object({
         accountId: v.nullable(v.string()),
         participantName: v.string(),
@@ -88,8 +94,12 @@ const route = new Hono<HonoOptions>()
         })),
       }),
     ),
+    param({
+      projectId: v.string(),
+    }),
     async (c) => {
       const body = c.req.valid("json");
+      const { projectId } = c.req.valid("param");
       const new_account_id = crypto.randomUUID();
       const participant_id = crypto.randomUUID();
       await db(c).insert(ratings).values(
@@ -98,7 +108,7 @@ const route = new Hono<HonoOptions>()
           participant_id: participant_id,
           role_id: r.roleId,
           score: r.score,
-          project_id: c.req.param("projectId"),
+          project_id: projectId,
         })),
       );
 
@@ -114,7 +124,7 @@ const route = new Hono<HonoOptions>()
         {
           id: participant_id,
           account_id: body.accountId ?? new_account_id,
-          project_id: c.req.param("projectId"),
+          project_id: projectId,
           is_admin: 0,
         },
       );
@@ -123,8 +133,10 @@ const route = new Hono<HonoOptions>()
   )
   .get(
     "/:projectId/result",
+    param({ projectId: v.string() }),
     async (c) => {
-      const match_result = await db(c).select().from(matches).where(eq(matches.project_id, c.req.param("projectId")));
+      const { projectId } = c.req.valid("param");
+      const match_result = await db(c).select().from(matches).where(eq(matches.project_id, projectId));
       return c.json(match_result);
     },
   );
