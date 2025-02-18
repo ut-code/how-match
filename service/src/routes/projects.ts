@@ -3,6 +3,7 @@ import { accounts, matches, participants, projects, ratings, roles } from "../..
 import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import * as v from "valibot";
+import { HTTPException } from "hono/http-exception";
 import type { HonoOptions } from "../types.ts";
 import { json, param } from "../../validator/hono.ts";
 import { PreferenceSchema, ProjectSchema } from "../../validator/schemas.ts";
@@ -16,6 +17,9 @@ const route = new Hono<HonoOptions>()
     async (c) => {
       const projectId = c.req.valid("param").projectId;
       const project_resp = await db(c).select().from(projects).where(eq(projects.id, projectId));
+      if (project_resp.length === 0) {
+        throw new HTTPException(404);
+      }
       const role_resp = await db(c).select().from(roles).where(eq(roles.project_id, projectId));
       return c.json({
         id: project_resp[0].id,
