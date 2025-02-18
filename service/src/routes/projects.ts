@@ -4,7 +4,7 @@ import { accounts, matches, participants, projects, ratings, roles } from "../..
 import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
-import { deleteCookie, getCookie, getSignedCookie, setCookie, setSignedCookie } from "hono/cookie";
+import { getCookie, setCookie } from "hono/cookie";
 import type { HonoOptions } from "../types.ts";
 
 const route = new Hono<HonoOptions>()
