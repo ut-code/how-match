@@ -37,7 +37,7 @@ const route = new Hono<HonoOptions>()
       }),
     ),
     async (c) => {
-      const session_id = getCookie(c, "session_id");
+      const browser_id = getCookie(c, "browser_id");
       const project_id = crypto.randomUUID();
       const body = c.req.valid("json");
       await db(c).insert(projects).values([
@@ -47,13 +47,13 @@ const route = new Hono<HonoOptions>()
           description: body.description,
         },
       ]);
-      if (!session_id) {
-        const new_session_id = crypto.randomUUID();
+      if (!browser_id) {
+        const new_browser_id = crypto.randomUUID();
         const account_id = crypto.randomUUID();
         await db(c).insert(accounts).values([
           {
             id: account_id,
-            session_id: new_session_id,
+            browser_id: new_browser_id,
             name: "anonymous",
           },
         ]);
@@ -65,9 +65,9 @@ const route = new Hono<HonoOptions>()
             is_admin: 1,
           },
         ]);
-        setCookie(c, "session_id", new_session_id);
+        setCookie(c, "browser_id", new_browser_id);
       } else {
-        const account_resp = await db(c).select().from(accounts).where(eq(accounts.session_id, session_id));
+        const account_resp = await db(c).select().from(accounts).where(eq(accounts.browser_id, browser_id));
         await db(c).insert(participants).values([
           {
             id: crypto.randomUUID(),
@@ -104,12 +104,12 @@ const route = new Hono<HonoOptions>()
       }),
     ),
     async (c) => {
-      const session_id = getCookie(c, "session_id");
-      if (!session_id) {
-        console.log("session_id not found");
+      const browser_id = getCookie(c, "browser_id");
+      if (!browser_id) {
+        console.log("browser_id not found");
         return c.json({ message: "Unauthorized" }, 401);
       }
-      const account_resp = await db(c).select().from(accounts).where(eq(accounts.session_id, session_id));
+      const account_resp = await db(c).select().from(accounts).where(eq(accounts.browser_id, browser_id));
       if (account_resp.length === 0) {
         console.log("account not found");
         return c.json({ message: "Unauthorized" }, 401);
