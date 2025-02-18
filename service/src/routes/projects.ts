@@ -1,4 +1,3 @@
-import { vValidator } from "@hono/valibot-validator";
 import { db } from "../../db/client.ts";
 import { accounts, matches, participants, projects, ratings, roles } from "../../db/schema.ts";
 import { Hono } from "hono";
@@ -6,6 +5,7 @@ import { eq } from "drizzle-orm";
 import * as v from "valibot";
 import type { HonoOptions } from "../types.ts";
 import { json, param } from "../../validator/hono.ts";
+import { PreferenceSchema, ProjectSchema } from "../../validator/schemas.ts";
 
 const route = new Hono<HonoOptions>()
   .get(
@@ -27,18 +27,7 @@ const route = new Hono<HonoOptions>()
   )
   .post(
     "/",
-    vValidator(
-      "json",
-      v.object({
-        name: v.string(),
-        description: v.string(),
-        role: v.array(v.object({
-          name: v.string(),
-          min: v.number(),
-          max: v.number(),
-        })),
-      }),
-    ),
+    json(ProjectSchema),
     async (c) => {
       const body = c.req.valid("json");
       const project_id = crypto.randomUUID();
@@ -73,27 +62,27 @@ const route = new Hono<HonoOptions>()
     ),
     param({ projectId: v.string() }),
     async (c) => {
-      await db(c).update(projects).set({
-        closed_at: new Date().toISOString(),
-      }).where(eq(projects.id, c.req.valid("param").projectId));
-
-      // TODO: ここでマッチ計算
-
-      return c.json({}, 200);
+      const done = c.req.valid("json").done;
+      switch (done) {
+        case true: {
+          await db(c).update(projects).set({
+            closed_at: new Date().toISOString(),
+          }).where(eq(projects.id, c.req.valid("param").projectId));
+          // TODO: ここでマッチ計算
+          return c.json({}, 200);
+        }
+        case false: {
+          return c.json({}, 404);
+        }
+        default: {
+          done satisfies never;
+        }
+      }
     },
   )
   .post(
     "/:projectId/preferences",
-    json(
-      v.object({
-        accountId: v.nullable(v.string()),
-        participantName: v.string(),
-        ratings: v.array(v.object({
-          roleId: v.string(),
-          score: v.number(),
-        })),
-      }),
-    ),
+    json(PreferenceSchema),
     param({
       projectId: v.string(),
     }),
