@@ -33,7 +33,8 @@
       },
       "style": {
         "useNamingConvention": "off",
-        "noDefaultExport": "off"
+        "noDefaultExport": "off",
+        "noNamespaceImport": "off"
       }
     }
   },
