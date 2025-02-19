@@ -1,5 +1,16 @@
 # NOTE:
 # please update `.github/workflows` when updating this file.
+pre-push:
+  parallel: true
+  commands:
+    # check lockfile diff
+    install:
+      run: bun install --frozen-lockfile
+      only:
+        - ref: main
+    # check should not fail
+    check:
+      run: bun check
 
 pre-commit:
   parallel: true
