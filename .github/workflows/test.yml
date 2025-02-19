@@ -17,7 +17,10 @@ jobs:
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
-      - run: echo 'success!'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.2.2
+      - run: bun run test
   lockfile:
     name: "Lockfile doesn't have changes"
     runs-on: ubuntu-latest

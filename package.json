@@ -16,7 +16,8 @@
     "local-db": "cd service; rm ../local.db; DATABASE_URL=file:../local.db bun db push --force",
     "style": "deno fmt . && biome lint --fix .",
     "style:check": "deno fmt --check . && biome lint .",
-    "build": "cd web; bun run build"
+    "build": "cd web; bun run build",
+    "test": "cd share; bun run test"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250204.0",
