@@ -15,6 +15,10 @@ pre-commit:
       run: bun check
       only:
         - ref: main
+    test:
+      run: bun run test
+      only:
+        - ref: main
 
     # general/security
     gitleaks:
