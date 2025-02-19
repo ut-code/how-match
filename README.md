@@ -35,24 +35,27 @@ bun dev # 開発用サーバーを立てます
 bun check # 型チェックを行います
 bun style # コードスタイル (フォーマットなど) を整えます
 bun style:check # コードスタイルが即しているかどうか確認します (書き込みはしません)。
-bun local-db # ローカルのデータベースをスキーマに同期します
+bun local-db # ローカルのデータベースを構築します (既存のものがある場合は削除されます)
 ```
 
 ## 技術スタック
 
 ### フロントエンド
 
-- Svelte/Kit
-  - adapter: static
+- Svelte
+- SvelteKit
+  - adapter: cloudflare
 - Tailwind CSS
 - DaisyUI
 - `hono/client`
+- Cloudflare Pages
 
 ### バックエンド
 
-- serverless (未定)
 - Hono
 - Drizzle
+- Cloudflare Page Functions
+- Cloudflare D1
 
 ### 開発
 
