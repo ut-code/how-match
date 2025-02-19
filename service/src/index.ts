@@ -11,7 +11,10 @@ const app = new Hono<HonoOptions>()
     "/*",
     async (c, next) => {
       const CORS_ALLOW_ORIGINS = env(c, "CORS_ALLOW_ORIGINS", "");
-      return await cors({ origin: CORS_ALLOW_ORIGINS.split(",") })(c, next);
+      return await cors({
+        origin: CORS_ALLOW_ORIGINS.split(","),
+        credentials: true,
+      })(c, next);
     },
   )
   .get("/", (c) => c.text("Hello from Hono!"))

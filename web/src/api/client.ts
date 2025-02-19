@@ -5,4 +5,8 @@ import type { App } from "service/src";
 const baseUrl = import.meta.env.DEV ? "http://localhost:3000/" : "/";
 console.log(`[log] hono/client: baseUrl = ${import.meta.env.baseUrl}`);
 
-export const client = hc<App>(baseUrl).api;
+export const client = hc<App>(baseUrl, {
+  init: {
+    credentials: "include",
+  },
+}).api;
