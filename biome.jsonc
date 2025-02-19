@@ -35,6 +35,9 @@
         "useNamingConvention": "off",
         "noDefaultExport": "off",
         "noNamespaceImport": "off"
+      },
+      "complexity": {
+        "noExcessiveCognitiveComplexity": "off"
       }
     }
   },
