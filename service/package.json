@@ -12,7 +12,8 @@
     "dev:tmp": "DB_KIND=memory bun run dev",
     "dev:remote": "DB_KIND=remote bun run dev",
     "dev": "bun run --watch ./src/index.ts",
-    "check": "bun run tsc"
+    "check": "bun run tsc",
+    "build": "bun run tsc"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.6.4",
