@@ -1,12 +1,12 @@
-import { db } from "../../db/client.ts";
-import { accounts, matches, participants, projects, ratings, roles } from "../../db/schema.ts";
+import { db } from "../db/client.ts";
+import { accounts, matches, participants, projects, ratings, roles } from "../db/schema.ts";
 import { Hono } from "hono";
 import { eq } from "drizzle-orm";
 import * as v from "valibot";
 import { HTTPException } from "hono/http-exception";
 import type { HonoOptions } from "../types.ts";
-import { json, param } from "../../validator/hono.ts";
-import { PreferenceSchema, ProjectSchema } from "../../validator/schemas.ts";
+import { json, param } from "../validator/hono.ts";
+import { PreferenceSchema, ProjectSchema } from "../validator/schemas.ts";
 
 const route = new Hono<HonoOptions>()
   .get(

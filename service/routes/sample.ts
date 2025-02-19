@@ -1,9 +1,9 @@
 import { Hono } from "hono";
 import type { HonoOptions } from "../types.ts";
 import * as v from "valibot";
-import { accounts } from "../../db/schema.ts";
-import { db } from "../../db/client.ts";
-import { json } from "../../validator/hono.ts";
+import { accounts } from "../db/schema.ts";
+import { db } from "../db/client.ts";
+import { json } from "../validator/hono.ts";
 
 const route = new Hono<HonoOptions>()
   .post(

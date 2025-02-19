@@ -3,7 +3,7 @@ import { Hono } from "hono";
 import projects from "./routes/projects.ts";
 import accounts from "./routes/sample.ts";
 import { cors } from "hono/cors";
-import { env } from "../utils/env.ts";
+import { env } from "./utils/env.ts";
 
 const app = new Hono<HonoOptions>()
   .basePath("/api")
