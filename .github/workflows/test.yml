@@ -12,7 +12,7 @@ on:
 
 jobs:
   test:
-    name: "Tests (todo)"
+    name: "Tests"
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
