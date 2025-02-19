@@ -1,5 +1,5 @@
 import type { RequestEvent } from "@sveltejs/kit";
-import app from "service/src";
+import app from "service";
 import { panic } from "service/utils/panic";
 
 async function hook(event: RequestEvent) {

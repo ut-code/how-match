@@ -1,5 +1,5 @@
 import { hc } from "hono/client";
-import type { App } from "service/src";
+import type { App } from "service";
 
 // during development, use isolated server for better hot reload
 const baseUrl = import.meta.env.DEV ? "http://localhost:3000/" : "/";
