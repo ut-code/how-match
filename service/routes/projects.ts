@@ -57,31 +57,15 @@ const route = new Hono<HonoOptions>()
       });
     },
   )
-  .patch(
-    "/:projectId",
-    json(
-      v.object({
-        done: v.boolean(),
-      }),
-    ),
+  .put(
+    "/:projectId/finalize",
     param({ projectId: v.string() }),
     async (c) => {
-      const done = c.req.valid("json").done;
-      switch (done) {
-        case true: {
-          await db(c).update(projects).set({
-            closed_at: new Date().toISOString(),
-          }).where(eq(projects.id, c.req.valid("param").projectId));
-          // TODO: ここでマッチ計算
-          return c.json({}, 200);
-        }
-        case false: {
-          return c.json({}, 404);
-        }
-        default: {
-          done satisfies never;
-        }
-      }
+      await db(c).update(projects).set({
+        closed_at: new Date().toISOString(),
+      }).where(eq(projects.id, c.req.valid("param").projectId));
+      // TODO: ここでマッチ計算
+      return c.json({}, 200);
     },
   )
   .post(
