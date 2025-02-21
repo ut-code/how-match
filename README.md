@@ -32,27 +32,32 @@ just と Bun Script で管理されています。以下は、just や bun で�
 # Just: 未導入
 
 bun dev # 開発用サーバーを立てます
-bun check # 型チェックを行います
-bun style # コードスタイル (フォーマットなど) を整えます
-bun style:check # コードスタイルが即しているかどうか確認します (書き込みはしません)。
-bun local-db # ローカルのデータベースをスキーマに同期します
+bun check # コードスタイルや型チェックなどすべてのチェックを実行します
+bun fix # すべてのチェックを実行し、自動で直せるものは直します
+
+bun db # ローカルのデータベースを構築します (既存のものがある場合は削除されます)
+bun run test # テストを実行します
+bun clean # 生成されたファイルをすべて削除します
 ```
 
 ## 技術スタック
 
 ### フロントエンド
 
-- Svelte/Kit
-  - adapter: static
+- Svelte
+- SvelteKit
+  - adapter: cloudflare
 - Tailwind CSS
 - DaisyUI
 - `hono/client`
+- Cloudflare Pages
 
 ### バックエンド
 
-- serverless (未定)
 - Hono
 - Drizzle
+- Cloudflare Page Functions
+- Cloudflare D1
 
 ### 開発
 

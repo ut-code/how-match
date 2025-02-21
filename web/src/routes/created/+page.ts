@@ -9,7 +9,7 @@ async function validateProjectId(projectId: string) {
 
 export const load: PageLoad = async ({ url }) => {
   const projectId = url.searchParams.get("projectId");
-  if (!projectId) return {};
+  if (!projectId) return null;
   const validProjectId = await validateProjectId(projectId);
   return { projectId: validProjectId };
 };

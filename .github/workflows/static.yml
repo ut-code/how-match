@@ -7,48 +7,21 @@ on:
     branches:
       - main
 jobs:
-  format:
-    name: Format JS
+  check:
+    name: Bun Check
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.2.2
       - uses: biomejs/setup-biome@v2
-      - run: biome lint .
-  lint:
-    name: Lint JS
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
       - uses: denoland/setup-deno@v2
+      - run: bun install --frozen-lockfile
+      - run: bun check
+      - run: biome lint .
       - run: deno fmt --check
-  worker-check:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    defaults:
-      run:
-        working-directory: service
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.2.2
-      - run: bun install --frozen-lockfile
-      - run: bun check
-  svelte-check:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    defaults:
-      run:
-        working-directory: web
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: 1.2.2
-      - run: bun install --frozen-lockfile
-        working-directory: service # doesn't work without this
-      - run: bun install --frozen-lockfile
-      - run: bun check
   nix-checks:
     name: Nix checks
     runs-on: ubuntu-latest

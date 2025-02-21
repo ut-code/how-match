@@ -1,32 +1,27 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
   import Header from "~/components/header.svelte";
   import { client } from "~/api/client";
   import type { PageProps } from "./$types.ts";
   let { data }: PageProps = $props();
 
-  let participantName = $state("");
-  let ratings = $state<{ roleId: string; score: number }[]>([]);
+  const project = data.project;
+  // TODO: ローディング中の UI を追加
 
-  async function getProject() {
-    const response = await client.projects[":projectId"].$get({
-      param: { projectId: data.projectId },
-    });
-    if (!response.ok) {
-      return null;
-    }
-    return await response.json();
-  }
-
-  const project = getProject();
+  let participantName = $state(project.name);
+  let ratings = $state<{ roleId: string; score: number }[]>(
+    Array.from(project.roles, (role) => ({ roleId: role.id, score: 0 })),
+  );
 
   async function postPreference() {
     const preference = {
+      accountId: null,
       participantName: participantName,
       ratings: ratings,
     };
     const response = await client.projects[":projectId"].preferences.$post({
       json: preference,
-      param: { projectId: data.projectId },
+      param: { projectId: project.id },
     });
     return response.json();
   }
@@ -34,49 +29,44 @@
 
 <div>
   <Header title="希望の提出" />
-  {#await project}
+  {#if project === null}
     <div class="hm-blocks-container">
-      <span class="loading loading-infinity"></span>
+      <p>プロジェクトが見つかりませんでした</p>
     </div>
-  {:then project}
-    {#if project === null}
+  {:else}
+    <form
+      method="POST"
+      onsubmit={async (e) => {
+        e.preventDefault();
+        await postPreference();
+        goto("/done");
+      }}
+    >
       <div class="hm-blocks-container">
-        <p>プロジェクトが見つかりませんでした</p>
-      </div>
-    {:else}
-      <form
-        method="POST"
-        onsubmit={async (e) => {
-          e.preventDefault();
-          const preference = await postPreference();
-        }}
-      >
-        <div class="hm-blocks-container">
-          <div class="hm-block">
-            <h3>{project.name}</h3>
-            {#if project.description}
-              <p class="text-sm">{project.description}</p>
-            {/if}
-          </div>
-          <div class="hm-block">
-            <h3>名前</h3>
-            <input
-              type="text"
-              class="input bg-white"
-              placeholder="回答を入力"
-              bind:value={participantName}
-            />
-          </div>
-          {#each project.roles as role, roleIndex}
-            {@render ratingSelector(role.name, roleIndex)}
-          {/each}
-          <div class="flex justify-end">
-            <button type="submit" class="btn btn-primary">送信</button>
-          </div>
+        <div class="hm-block">
+          <h3>{project.name}</h3>
+          {#if project.description}
+            <p class="text-sm">{project.description}</p>
+          {/if}
         </div>
-      </form>
-    {/if}
-  {/await}
+        <div class="hm-block">
+          <h3>名前</h3>
+          <input
+            type="text"
+            class="input bg-white"
+            placeholder="回答を入力"
+            bind:value={participantName}
+          />
+        </div>
+        {#each project.roles as role, roleIndex}
+          {@render ratingSelector(role.name, roleIndex)}
+        {/each}
+        <div class="flex justify-end">
+          <button type="submit" class="btn btn-primary">送信</button>
+        </div>
+      </div>
+    </form>
+  {/if}
 </div>
 
 {#snippet ratingSelector(roleName: string, roleIndex: number)}
