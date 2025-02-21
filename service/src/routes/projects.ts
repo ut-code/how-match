@@ -20,6 +20,7 @@ const route = new Hono<HonoOptions>()
       name: project_resp[0].name,
       description: project_resp[0].description,
       roles: role_resp,
+      closed_at: project_resp[0].closed_at,
     });
   })
   .post(
