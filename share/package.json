@@ -3,8 +3,7 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "check": "bun tsc",
-    "prepare": "echo 'noop'",
+    "check:type": "bun tsc",
     "test": "bun test"
   },
   "devDependencies": {

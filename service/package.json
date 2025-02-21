@@ -3,7 +3,6 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "prepare": "bun run sync",
     "sync": "bun run cf-typegen",
     "deploy": "wrangler deploy",
     "cf-typegen": "wrangler types && if command -v deno >/dev/null; then deno fmt ./worker-configuration.d.ts; fi",
@@ -12,7 +11,7 @@
     "dev:tmp": "DB_KIND=memory bun run dev",
     "dev:remote": "DB_KIND=remote bun run dev",
     "dev": "bun run --watch ./src/index.ts",
-    "check": "bun run tsc",
+    "check:type": "bun run tsc",
     "build": "bun run tsc"
   },
   "devDependencies": {
