@@ -4,7 +4,6 @@ node_modules
 
 # web
 web/.svelte-kit
-web/dist
 
 # service
 service/.drizzle

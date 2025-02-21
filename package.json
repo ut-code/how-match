@@ -20,7 +20,8 @@
     "fix:style": "deno fmt . && biome lint --fix .",
     "db": "cd service; rm ../local.db; DATABASE_URL=file:../local.db bun db push --force",
     "build": "(cd service && bun run build) && (cd web && bun run build)",
-    "test": "cd share; bun run test"
+    "test": "cd share; bun run test",
+    "clean": "rm -r node_modules; rm -r **/node_modules; rm -r web/.svelte-kit; rm -r service/.drizzle; true"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250204.0",
