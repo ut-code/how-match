@@ -3,6 +3,9 @@
   "workspaces": {
     "": {
       "name": "how-match",
+      "dependencies": {
+        "valibot": "^1.0.0-rc.1",
+      },
       "devDependencies": {
         "@cloudflare/workers-types": "^4.20250204.0",
         "@types/bun": "latest",

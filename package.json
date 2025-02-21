@@ -30,5 +30,8 @@
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "valibot": "^1.0.0-rc.1"
   }
 }
