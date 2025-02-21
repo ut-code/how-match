@@ -10,7 +10,7 @@
     "dev:local": "DB_KIND=local bun run dev",
     "dev:tmp": "DB_KIND=memory bun run dev",
     "dev:remote": "DB_KIND=remote bun run dev",
-    "dev": "bun run --watch ./src/index.ts",
+    "dev": "bun run --watch ./index.ts",
     "check:type": "bun run tsc",
     "build": "bun run tsc"
   },
