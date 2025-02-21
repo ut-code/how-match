@@ -1,45 +1,45 @@
 <script lang="ts">
-import Header from "~/components/header.svelte";
-import { onMount } from "svelte";
-import { onDestroy } from "svelte";
-import { db } from "service/db/client.ts";
-import { matches, participants, roles } from "service/db/schema.ts";
-import { eq } from "drizzle-orm";
-import route from "service/routes/projects.js";
+  import Header from "~/components/header.svelte";
+  import { onMount } from "svelte";
+  import { onDestroy } from "svelte";
+  import { db } from "service/db/client.ts";
+  import { matches, participants, roles } from "service/db/schema.ts";
+  import { eq } from "drizzle-orm";
+  import route from "service/routes/projects.js";
 
-const { data } = $props();
-const schema_domain = "http://localhost:5173";
-const link = `${schema_domain}/${data.projectId}/result`;
+  const { data } = $props();
+  const schema_domain = "http://localhost:5173";
+  const link = `${schema_domain}/${data.projectId}/result`;
 
-let copyTimeout = 0;
-let matchList: {
-	role_id: string;
-	participant_id: string;
-	role_name: string;
-	account_name: string;
-}[] = [];
+  let copyTimeout = 0;
+  let matchList: {
+    role_id: string;
+    participant_id: string;
+    role_name: string;
+    account_name: string;
+  }[] = [];
 
-onMount(async () => {
-	try {
-		// fetchを使用してエンドポイントから結果を取得
-		const response = await fetch(link);
-		if (!response.ok) {
-			throw new Error("Failed to fetch matches");
-		}
-		const match_result = await response.json();
-		matchList = match_result; // 取得したデータをmatchListにセット
-	} catch (error) {
-		console.error("Failed to fetch matches:", error);
-	}
-});
+  onMount(async () => {
+    try {
+      // fetchを使用してエンドポイントから結果を取得
+      const response = await fetch(link);
+      if (!response.ok) {
+        throw new Error("Failed to fetch matches");
+      }
+      const match_result = await response.json();
+      matchList = match_result; // 取得したデータをmatchListにセット
+    } catch (error) {
+      console.error("Failed to fetch matches:", error);
+    }
+  });
 
-const interval = setInterval(() => {
-	if (copyTimeout > 0) {
-		copyTimeout--;
-	}
-}, 100);
+  const interval = setInterval(() => {
+    if (copyTimeout > 0) {
+      copyTimeout--;
+    }
+  }, 100);
 
-onDestroy(() => clearInterval(interval));
+  onDestroy(() => clearInterval(interval));
 </script>
 
 <style>
@@ -58,9 +58,7 @@ onDestroy(() => clearInterval(interval));
         <div>
           <h2>{match.role_name}</h2>
           <ul class="example2">
-            {#each match.role_id}
-              <li>{match.account_name}さん</li>
-            {/each}
+            <li>{match.account_name}さん</li>
           </ul>
         </div>
       {/each}
