@@ -7,15 +7,6 @@ on:
     branches:
       - main
 jobs:
-  format:
-    name: Format + Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: biomejs/setup-biome@v2
-      - run: biome lint .
-      - uses: denoland/setup-deno@v2
-      - run: deno fmt --check
   check:
     name: Bun Check
     runs-on: ubuntu-latest
@@ -27,6 +18,10 @@ jobs:
           bun-version: 1.2.2
       - run: bun install --frozen-lockfile
       - run: bun check
+      - uses: biomejs/setup-biome@v2
+      - run: biome lint .
+      - uses: denoland/setup-deno@v2
+      - run: deno fmt --check
   nix-checks:
     name: Nix checks
     runs-on: ubuntu-latest
