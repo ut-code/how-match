@@ -16,7 +16,7 @@
     "check": "bun check:style && bun check:type",
     "check:type": "(cd web && bun check:type) && (cd service && bun check:type) && (cd share && bun run check:type)",
     "check:style": "deno fmt --check . && biome lint .",
-    "fix": "bun fix:style && bun check:type",
+    "fix": "bun fix:style",
     "fix:style": "deno fmt . && biome lint --fix .",
     "db": "cd service; rm ../local.db; DATABASE_URL=file:../local.db bun db push --force",
     "build": "(cd service && bun run build) && (cd web && bun run build)",
