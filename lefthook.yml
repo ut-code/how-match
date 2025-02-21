@@ -4,6 +4,22 @@
 pre-commit:
   parallel: true
   commands:
+    # additional checks if on main branch
+    # check lockfile diff
+    install:
+      run: bun install --frozen-lockfile
+      only:
+        - ref: main
+    # check should not fail
+    check:
+      run: bun check
+      only:
+        - ref: main
+    test:
+      run: bun run test
+      only:
+        - ref: main
+
     # general/security
     gitleaks:
       glob: "*"

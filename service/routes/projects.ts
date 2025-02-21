@@ -1,43 +1,38 @@
-import { zValidator } from "@hono/zod-validator";
-import { db } from "../../db/client.ts";
-import { accounts, matches, participants, projects, ratings, roles } from "../../db/schema.ts";
+import { db } from "../db/client.ts";
+import { accounts, matches, participants, projects, ratings, roles } from "../db/schema.ts";
 import { Hono } from "hono";
 import { eq } from "drizzle-orm";
-import { z } from "zod";
 import { getCookie, setCookie } from "hono/cookie";
+import * as v from "valibot";
+import { HTTPException } from "hono/http-exception";
 import type { HonoOptions } from "../types.ts";
+import { json, param } from "../validator/hono.ts";
+import { PreferenceSchema, ProjectSchema } from "../validator/schemas.ts";
 
 const route = new Hono<HonoOptions>()
-  .get("/:projectId", async (c) => {
-    const projectId = c.req.param("projectId");
-    const project_resp = await db(c).select().from(projects).where(eq(projects.id, projectId));
-    const role_resp = await db(c).select().from(roles).where(eq(roles.project_id, projectId));
-    if (project_resp.length === 0) {
-      return c.json({ message: "Not Found" }, 404);
-    }
-    return c.json({
-      id: project_resp[0].id,
-      name: project_resp[0].name,
-      description: project_resp[0].description,
-      roles: role_resp,
-    });
-  })
+  .get(
+    "/:projectId",
+    param({
+      projectId: v.string(),
+    }),
+    async (c) => {
+      const projectId = c.req.valid("param").projectId;
+      const project_resp = await db(c).select().from(projects).where(eq(projects.id, projectId));
+      if (project_resp.length === 0) {
+        throw new HTTPException(404);
+      }
+      const role_resp = await db(c).select().from(roles).where(eq(roles.project_id, projectId));
+      return c.json({
+        id: project_resp[0].id,
+        name: project_resp[0].name,
+        description: project_resp[0].description,
+        role: role_resp,
+      });
+    },
+  )
   .post(
     "/",
-    zValidator(
-      "json",
-      z.object({
-        name: z.string(),
-        description: z.string().nullable(),
-        roles: z.array(
-          z.object({
-            name: z.string(),
-            min: z.number(),
-            max: z.number(),
-          }),
-        ),
-      }),
-    ),
+    json(ProjectSchema),
     async (c) => {
       const browser_id = getCookie(c, "browser_id");
       const project_id = crypto.randomUUID();
@@ -114,68 +109,86 @@ const route = new Hono<HonoOptions>()
   )
   .patch(
     "/:projectId",
-    zValidator(
-      "json",
-      z.object({
-        done: z.boolean(),
+    json(
+      v.object({
+        done: v.boolean(),
       }),
     ),
+    param({ projectId: v.string() }),
     async (c) => {
-      const browser_id = getCookie(c, "browser_id");
-      if (!browser_id) {
-        return c.json({ message: "Unauthorized" }, 401);
-      }
-      const account_resp = await db(c)
-        .select()
-        .from(accounts)
-        .where(eq(accounts.browser_id, browser_id));
-      if (account_resp.length === 0) {
-        return c.json({ message: "Unauthorized" }, 401);
-      }
-      const participant_resp = await db(c)
-        .select()
-        .from(participants)
-        .where(
-          eq(participants.account_id, account_resp[0].id) &&
-            eq(participants.project_id, c.req.param("projectId")),
-        );
-      if (participant_resp.length === 0 || participant_resp[0].is_admin === 0) {
-        return c.json({ message: "Unauthorized" }, 401);
-      }
+      // const browser_id = getCookie(c, "browser_id");
+      // if (!browser_id) {
+      //   return c.json({ message: "Unauthorized" }, 401);
+      // }
+      // const account_resp = await db(c)
+      //   .select()
+      //   .from(accounts)
+      //   .where(eq(accounts.browser_id, browser_id));
+      // if (account_resp.length === 0) {
+      //   return c.json({ message: "Unauthorized" }, 401);
+      // }
+      // const participant_resp = await db(c)
+      //   .select()
+      //   .from(participants)
+      //   .where(
+      //     eq(participants.account_id, account_resp[0].id) &&
+      //       eq(participants.project_id, c.req.param("projectId")),
+      //   );
+      // if (participant_resp.length === 0 || participant_resp[0].is_admin === 0) {
+      //   return c.json({ message: "Unauthorized" }, 401);
+      // }
 
-      await db(c)
-        .update(projects)
-        .set({
-          closed_at: new Date().toISOString(),
-        })
-        .where(eq(projects.id, c.req.param("projectId")));
+      // await db(c)
+      //   .update(projects)
+      //   .set({
+      //     closed_at: new Date().toISOString(),
+      //   })
+      //   .where(eq(projects.id, c.req.param("projectId")));
 
-      // TODO: ここでマッチ計算
+      // // TODO: ここでマッチ計算
 
-      return c.json({}, 200);
+      // return c.json({}, 200);
+      const done = c.req.valid("json").done;
+      switch (done) {
+        case true: {
+          await db(c).update(projects).set({
+            closed_at: new Date().toISOString(),
+          }).where(eq(projects.id, c.req.valid("param").projectId));
+          // TODO: ここでマッチ計算
+          return c.json({}, 200);
+        }
+        case false: {
+          return c.json({}, 404);
+        }
+        default: {
+          done satisfies never;
+        }
+      }
     },
   )
   .post(
     "/:projectId/preferences",
-    zValidator(
-      "json",
-      z.object({
-        participantName: z.string(),
-        ratings: z.array(
-          z.object({
-            roleId: z.string(),
-            score: z.number(),
-          }),
-        ),
-      }),
-    ),
+    json(PreferenceSchema),
+    param({
+      projectId: v.string(),
+    }),
     async (c) => {
       const browserId = getCookie(c, "browser_id");
-      const projectId = c.req.param("projectId");
       const body = c.req.valid("json");
+      const { projectId } = c.req.valid("param");
+      const new_account_id = crypto.randomUUID();
+      const participant_id = crypto.randomUUID();
+      await db(c).insert(ratings).values(
+        body.ratings.map((r) => ({
+          id: crypto.randomUUID(),
+          participant_id: participant_id,
+          role_id: r.roleId,
+          score: r.score,
+          project_id: projectId,
+        })),
+      );
 
       if (browserId) {
-        console.log("🍣", browserId);
         // TODO: findUnique をしたい感じ。もう少しうまくやりたい
         const accountsResult = await db(c)
           .select()
@@ -228,7 +241,6 @@ const route = new Hono<HonoOptions>()
           return c.json({}, 201);
         });
       } else {
-        console.log("🧨");
         await db(c).transaction(async (tx) => {
           const account = (
             await tx
@@ -269,12 +281,25 @@ const route = new Hono<HonoOptions>()
       }
     },
   )
-  .get("/:projectId/result", async (c) => {
-    const match_result = await db(c)
-      .select()
-      .from(matches)
-      .where(eq(matches.project_id, c.req.param("projectId")));
-    return c.json(match_result);
-  });
+  //     await db(c).insert(participants).values(
+  //       {
+  //         id: participant_id,
+  //         account_id: body.accountId ?? new_account_id,
+  //         project_id: projectId,
+  //         is_admin: 0,
+  //       },
+  //     );
+  //     return c.json({}, 201);
+  //   },
+  // )
+  .get(
+    "/:projectId/result",
+    param({ projectId: v.string() }),
+    async (c) => {
+      const { projectId } = c.req.valid("param");
+      const match_result = await db(c).select().from(matches).where(eq(matches.project_id, projectId));
+      return c.json(match_result);
+    },
+  );
 
 export default route;
