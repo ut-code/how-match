@@ -8,16 +8,20 @@
     "web"
   ],
   "scripts": {
-    "prepare": "trap 'kill 0' SIGINT; (cd service; bun run prepare) & (cd web; bun run prepare) & (cd share; bun run prepare) & bun run prepare:self & wait",
+    "prepare": "trap 'kill 0' SIGINT; bun sync & bun prepare:self & wait",
     "prepare:self": "lefthook install",
+    "sync": "trap 'kill 0' SIGINT; (cd service && bun sync) & (cd web && bun sync) & wait",
     "dev": "bun --env-file=./.env run :dev",
     ":dev": "trap 'kill 0' EXIT; (cd web; bun run dev) & (cd service; bun run dev) & wait",
-    "check": "(cd web && bun check) && (cd service && bun check) && (cd share && bun run check)",
-    "local-db": "cd service; rm ../local.db; DATABASE_URL=file:../local.db bun db push --force",
-    "style": "deno fmt . && biome lint --fix .",
-    "style:check": "deno fmt --check . && biome lint .",
+    "check": "bun check:style && bun check:type",
+    "check:type": "(cd web && bun check:type) && (cd service && bun check:type) && (cd share && bun run check:type)",
+    "check:style": "deno fmt --check . && biome lint .",
+    "fix": "bun fix:style",
+    "fix:style": "deno fmt . && biome lint --fix .",
+    "db": "cd service; rm ../local.db; DATABASE_URL=file:../local.db bun db push --force",
     "build": "(cd service && bun run build) && (cd web && bun run build)",
-    "test": "cd share; bun run test"
+    "test": "cd share; bun run test",
+    "clean": "rm -r node_modules; rm -r **/node_modules; rm -r web/.svelte-kit; rm -r service/.drizzle; true"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250204.0",
