@@ -20,6 +20,9 @@
       description: "",
     };
     const response = await client.projects.$post({ json: project });
+    if (!response.ok) {
+      throw new Error("could not create project");
+    }
     return response.json();
   }
 </script>
