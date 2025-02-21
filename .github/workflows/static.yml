@@ -16,11 +16,11 @@ jobs:
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: 1.2.2
+      - uses: biomejs/setup-biome@v2
+      - uses: denoland/setup-deno@v2
       - run: bun install --frozen-lockfile
       - run: bun check
-      - uses: biomejs/setup-biome@v2
       - run: biome lint .
-      - uses: denoland/setup-deno@v2
       - run: deno fmt --check
   nix-checks:
     name: Nix checks
