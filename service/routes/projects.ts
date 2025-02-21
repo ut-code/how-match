@@ -90,7 +90,6 @@ const route = new Hono<HonoOptions>()
       .values(
         body.roles.map((r) => ({
           id: crypto.randomUUID(),
-          name: body.name,
           name: r.name,
           min: r.min,
           max: r.max,
