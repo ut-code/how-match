@@ -1,7 +1,6 @@
 import type { HonoOptions } from "./types.ts";
 import { Hono } from "hono";
 import projects from "./routes/projects.ts";
-import accounts from "./routes/sample.ts";
 import { cors } from "hono/cors";
 import { env } from "./utils/env.ts";
 
@@ -19,8 +18,7 @@ const app = new Hono<HonoOptions>()
     },
   )
   .get("/", (c) => c.text("Hello from Hono!"))
-  .route("/projects", projects)
-  .route("/accounts", accounts);
+  .route("/projects", projects);
 
 console.log("running");
 

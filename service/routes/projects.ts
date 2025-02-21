@@ -26,7 +26,7 @@ const route = new Hono<HonoOptions>()
         id: project_resp[0].id,
         name: project_resp[0].name,
         description: project_resp[0].description,
-        role: role_resp,
+        "roles": role_resp, // エンティティの roles と被るため文字列リテラル
       });
     },
   )
@@ -176,7 +176,6 @@ const route = new Hono<HonoOptions>()
       const browserId = getCookie(c, "browser_id");
       const body = c.req.valid("json");
       const { projectId } = c.req.valid("param");
-      const new_account_id = crypto.randomUUID();
       const participant_id = crypto.randomUUID();
       await db(c).insert(ratings).values(
         body.ratings.map((r) => ({
@@ -209,7 +208,7 @@ const route = new Hono<HonoOptions>()
           )
           .limit(1);
 
-        if (participantResult.length !== 0) {
+        if (participantResult.length > 0) {
           // TODO: 管理者も参加者として希望を出す場合には未対応
           return c.json({ message: "すでに希望を提出済です" }, 400);
         }

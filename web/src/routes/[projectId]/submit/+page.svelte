@@ -15,6 +15,7 @@
 
   async function postPreference() {
     const preference = {
+      accountId: null,
       participantName: participantName,
       ratings: ratings,
     };
