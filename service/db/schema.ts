@@ -21,6 +21,7 @@ export const projects = sqliteTable("projects", {
 
 export const roles = sqliteTable("roles", {
   id: text().notNull().primaryKey(),
+  name: text().notNull(),
   min: integer().notNull(),
   max: integer().notNull(),
   project_id: text("project_id").references(() => projects.id).notNull(),
