@@ -4,7 +4,9 @@
   import Header from "~/components/header.svelte";
 
   let name = $state("");
-  let inputs = $state<{ name: string; max: number; min: number }[]>([{ name: "", max: 0, min: 0 }]);
+  let inputs = $state<{ name: string; max: number; min: number }[]>([
+    { name: "", max: 0, min: 0 },
+  ]);
 
   function addInput() {
     inputs.push({ name: "", max: 0, min: 0 });
@@ -40,7 +42,12 @@
     <div class="hm-blocks-container">
       <div class="hm-block">
         <p>プロジェクト名</p>
-        <input type="text" class="input bg-white" placeholder="プロジェクト名" bind:value={name} />
+        <input
+          type="text"
+          class="input bg-white"
+          placeholder="プロジェクト名"
+          bind:value={name}
+        />
       </div>
       <div class="hm-block">
         <p>設定する役職</p>
@@ -67,7 +74,11 @@
             <button type="button" onclick={() => deleteInput(index)}>✖️</button>
           </div>
         {/each}
-        <button type="button" class="btn btn-primary flex justify-center" onclick={addInput}>
+        <button
+          type="button"
+          class="btn btn-primary flex justify-center"
+          onclick={addInput}
+        >
           ＋追加
         </button>
       </div>

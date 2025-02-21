@@ -34,7 +34,8 @@
       "style": {
         "useNamingConvention": "off",
         "noDefaultExport": "off",
-        "noNamespaceImport": "off"
+        "noNamespaceImport": "off",
+        "useBlockStatements": "off"
       },
       "complexity": {
         "noExcessiveCognitiveComplexity": "off"
