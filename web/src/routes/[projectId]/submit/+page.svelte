@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
   import Header from "~/components/header.svelte";
   import { client } from "~/api/client";
   import type { PageProps } from "./$types.ts";
@@ -36,7 +37,8 @@
       method="POST"
       onsubmit={async (e) => {
         e.preventDefault();
-        const preference = await postPreference();
+        await postPreference();
+        goto("/done");
       }}
     >
       <div class="hm-blocks-container">
