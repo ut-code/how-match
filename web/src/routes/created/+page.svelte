@@ -11,7 +11,12 @@
     <p>プロジェクトが作成されました。</p>
     <div class="hm-block">
       <div class="flex gap-2">
-        <input type="text" value={shareUrl} readonly class="input flex-1 bg-gray-50" />
+        <input
+          type="text"
+          value={shareUrl}
+          readonly
+          class="input flex-1 bg-gray-50"
+        />
         <button
           type="button"
           class="btn w-20"
