@@ -1,3 +1,4 @@
+import { browser } from "$app/environment";
 import { hc } from "hono/client";
 import type { App } from "service";
 
@@ -7,6 +8,6 @@ console.log(`[log] hono/client: baseUrl = ${baseUrl}`);
 
 export const client = hc<App>(baseUrl, {
   init: {
-    credentials: "include",
+    credentials: browser ? "include" : undefined,
   },
 }).api;
