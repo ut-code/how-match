@@ -1,58 +1,68 @@
 <script lang="ts">
-  import type { SelectAccount } from "service/db/schema";
-  import { onMount } from "svelte";
+  import Header from "~/components/header.svelte";
   import { client } from "~/api/client.ts";
+  import { onMount } from "svelte";
 
-  let promise: Promise<SelectAccount[]> = $state(new Promise(() => {}));
-  async function refetch() {
-    promise = client.accounts.$get().then((it) => it.json());
+  async function getMyProjects(options?: { signal: AbortSignal }) {
+    const res = await client.projects.mine.$get(options);
+    if (!res.ok) {
+      return null;
+    }
+    return await res.json();
   }
-  onMount(refetch);
 
-  let name = $state("");
-  let age = $state(0);
+  type Project = {
+    id: string;
+    name: string;
+    description: string | null;
+    closed_at: string | null;
+    is_admin: number;
+  };
+  let projects = $state<Project[] | null>(null);
 
-  async function postUser() {
-    await client.accounts.$post({
-      json: {
-        name,
-      },
-    });
-    console.log("posted");
-  }
+  onMount(() => {
+    const ctrl = new AbortController();
+    getMyProjects({ signal: ctrl.signal })
+      .then((data) => {
+        projects = data;
+      })
+      .catch(console.error);
+
+    return () => ctrl.abort();
+  });
 </script>
 
-<h1 class="text-2xl text-red-800">Add User!</h1>
-<form
-  method="POST"
-  onsubmit={async (e) => {
-    e.preventDefault();
-    await postUser();
-    await refetch();
-  }}
->
-  <fieldset class="fieldset">
-    <legend class="fieldset-legend">name</legend>
-    <label class="input validator">
-      <input type="name" name="name" bind:value={name} />
-    </label>
-  </fieldset>
-  <fieldset class="fieldset">
-    <legend class="fieldset-legend">age</legend>
-    <label class="input validator">
-      <input type="number" name="age" bind:value={age} />
-    </label>
-  </fieldset>
-  <button class="btn" type="submit">submit</button>
-</form>
-
-<h1>Users</h1>
 <div>
-  {#await promise}
-    <span class="loading loading-infinity"></span>
-  {:then users}
-    {#each users as user}
-      <div>Name: {user.name}</div>
-    {/each}
-  {/await}
+  <Header title="how-match" />
+  <div class="mt-12 p-4 w-full">
+    <div class="p-2">
+      <h2 class="text-xl">プロジェクトを新規作成する</h2>
+      <div class="flex justify-center p-6">
+        <a href="/new" class="btn btn-lg btn-primary">新規作成</a>
+      </div>
+      {#if !projects}
+        <span>Welcome! this is being prerendered.</span>
+      {:else}
+        <h2 class="text-xl">作成・提出したプロジェクト</h2>
+        {#if projects.length === 0}
+          <span>作成・提出したプロジェクトはありません。</span>
+        {:else}
+          <ul class="menu w-full">
+            {#each projects as project}
+              <li class="w-full border-b border-gray-200 flex flex-row">
+                <a href="/{project.id}/submit" class="abcde h-full flex-1">
+                  <span>{project.name}</span>
+                </a>
+                {#if project.is_admin}
+                  <a class="btn btn-primary" href="/{project.id}/config">
+                    管理
+                  </a>
+                {/if}
+              </li>
+            {/each}
+          </ul>
+        {/if}
+      {/if}
+    </div>
+  </div>
 </div>
