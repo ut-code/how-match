@@ -7,7 +7,7 @@ import * as v from "valibot";
 import { HTTPException } from "hono/http-exception";
 import type { HonoOptions } from "../types.ts";
 import { json, param } from "../validator/hono.ts";
-import { PreferenceSchema, ProjectSchema } from "../validator/schemas.ts";
+import { PreferenceSchema, ProjectSchema } from "share/schema.ts";
 
 const route = new Hono<HonoOptions>()
   .get("/mine", async (c) => {

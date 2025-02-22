@@ -2,7 +2,8 @@
   import { goto } from "$app/navigation";
   import { client } from "~/api/client";
   import Header from "~/components/header.svelte";
-  import * as v from "valibot";
+  import { safeParse } from "valibot";
+  import { ProjectSchema } from "share/schema";
 
   type Form = {
     name: string;
@@ -23,19 +24,8 @@
     form.roles.splice(index, 1);
   }
 
-  const RoleSchema = v.object({
-    name: v.pipe(v.string(), v.minLength(1)),
-    max: v.pipe(v.number(), v.minValue(1)),
-    min: v.pipe(v.number(), v.minValue(0)),
-  });
-  const ProjectSchema = v.object({
-    name: v.pipe(v.string(), v.minLength(1)),
-    roles: v.array(RoleSchema),
-    description: v.string(),
-  });
-
   async function postProject() {
-    const val = v.safeParse(ProjectSchema, form);
+    const val = safeParse(ProjectSchema, form);
     if (!val.success) {
       const error = new Error(
         "[TODO: make it into the UI] Failed to validate schema, issues:",
