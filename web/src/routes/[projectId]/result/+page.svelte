@@ -10,6 +10,7 @@
   });
 
   let copyTimeout = 0;
+  // TODO: make a proper loading
   let matchList: {
     role_id: string;
     participant_id: string;
@@ -43,11 +44,15 @@
 </script>
 
 <div>
-  <Header title={matchList.length > 0 ? matchList[0].project_name : "プロジェクト名未取得"} />
+  <Header title={matchList[0]?.project_name ?? "プロジェクト名未取得"} />
   <div class="mt-12 h-full bg-base-100 p-6 flex flex-col gap-4">
     <div class="rounded-lg bg-white p-6 flex flex-col gap-2">
-      <p>{matchList.length > 0 ? matchList[0].project_name : "プロジェクト名未取得"}</p>
-      <h1>{matchList.length > 0 ? matchList[0].project_desc : "プロジェクト説明未取得"}</h1>
+      <p>
+        {matchList[0]?.project_name ?? "プロジェクト名未取得"}
+      </p>
+      <h1>
+        {matchList[0]?.project_desc ?? "プロジェクト説明未取得"}
+      </h1>
       {#each matchList as match}
         <div>
           <h2>{match.role_name}</h2>

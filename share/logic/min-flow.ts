@@ -1,4 +1,4 @@
-import { asserting } from "../lib.ts";
+import { asserting, at } from "../lib.ts";
 
 class MinCostFlow {
   n: number;
@@ -14,8 +14,8 @@ class MinCostFlow {
     this.edges.push({ from, to, capacity, cost, flow: 0 });
     this.edges.push({ from: to, to: from, capacity: 0, cost: -cost, flow: 0 });
 
-    this.graph[from].push(this.edges.length - 2);
-    this.graph[to].push(this.edges.length - 1);
+    at(this.graph, from).push(this.edges.length - 2);
+    at(this.graph, to).push(this.edges.length - 1);
   }
 
   minCostMaxFlow(source: number, sink: number) {
@@ -37,8 +37,8 @@ class MinCostFlow {
         const u = asserting(queue.shift());
         inQueue[u] = false;
 
-        for (const i of this.graph[u]) {
-          const e = this.edges[i];
+        for (const i of at(this.graph, u)) {
+          const e = at(this.edges, i);
           if (e.flow < e.capacity && dist[e.to] > dist[u] + e.cost) {
             dist[e.to] = dist[u] + e.cost;
             prev[e.to] = u;
@@ -57,12 +57,12 @@ class MinCostFlow {
 
       let flow = INF;
       for (let v = sink; v !== source; v = prev[v]) {
-        flow = Math.min(flow, this.edges[prevEdge[v]].capacity - this.edges[prevEdge[v]].flow);
+        flow = Math.min(flow, at(this.edges, prevEdge[v]).capacity - at(this.edges, prevEdge[v]).flow);
       }
 
       for (let v = sink; v !== source; v = prev[v]) {
-        this.edges[prevEdge[v]].flow += flow;
-        this.edges[prevEdge[v] ^ 1].flow -= flow;
+        at(this.edges, prevEdge[v]).flow += flow;
+        at(this.edges, prevEdge[v] ^ 1).flow -= flow;
       }
 
       totalFlow += flow;
@@ -90,12 +90,12 @@ export function findAllOptimalAssignments(
   }
 
   for (let j = 0; j < m; j++) {
-    solver.addEdge(n + j, sink, minMaxConstraints[j].max, 0);
+    solver.addEdge(n + j, sink, at(minMaxConstraints, j).max, 0);
   }
 
   for (let i = 0; i < n; i++) {
     for (let j = 0; j < m; j++) {
-      solver.addEdge(i, n + j, 1, -participants[i][j]); // スコアを負にする
+      solver.addEdge(i, n + j, 1, -at(at(participants, i), j)); // スコアを負にする
     }
   }
 
@@ -115,8 +115,8 @@ export function findAllOptimalAssignments(
 
     const assignment: { participant: number; role: number }[] = [];
     for (let i = 0; i < n; i++) {
-      for (const e of solver.graph[i]) {
-        const edge = solver.edges[e];
+      for (const e of at(solver.graph, i)) {
+        const edge = at(solver.edges, e);
         if (edge.flow === 1) {
           assignment.push({ participant: i, role: edge.to - n });
         }
@@ -133,7 +133,7 @@ export function findAllOptimalAssignments(
     for (const { participant, role } of assignment) {
       const e = solver.edges.findIndex((e) => e.from === participant && e.to === n + role);
       if (e !== -1) {
-        solver.edges[e].capacity = 0; // この組み合わせを禁止
+        at(solver.edges, e).capacity = 0; // この組み合わせを禁止
       }
     }
 

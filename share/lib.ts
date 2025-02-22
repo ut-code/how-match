@@ -10,3 +10,8 @@ export function assert(cond: boolean, message?: string) {
   }
   return cond;
 }
+export function at<T>(list: T[], idx: number): T {
+  const elem = list[idx];
+  if (!elem) throw new Error(`elemAt: item not found at index ${idx} in list`);
+  return elem;
+}
