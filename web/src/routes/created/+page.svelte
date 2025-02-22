@@ -2,10 +2,12 @@
   import { goto } from "$app/navigation";
   import { generateURL } from "~/api/origins.svelte";
   import Header from "~/components/header.svelte";
-  const { data }: { data: { projectId: string } } = $props(); // TODO: 適切な型付け
-  if (!data.projectId) {
-    goto("/");
-  }
+  const { data }: { data: { projectId: Promise<string | null> } } = $props(); // TODO: 適切な型付け
+  data.projectId.then((it) => {
+    if (!it) {
+      goto("/");
+    }
+  });
   const shareUrl = generateURL({
     pathname: `${data.projectId}/submit`,
   });
