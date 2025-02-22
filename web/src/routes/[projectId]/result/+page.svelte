@@ -53,7 +53,7 @@
   <div class="mt-12 h-full bg-base-100 p-6 flex flex-col gap-4">
     <div class="rounded-lg bg-white p-6 flex flex-col gap-2">
       <p>{data.projectId}</p>
-      <h1>今年は以下の役職を募集しました。</h1>
+      <h1>以下の役職を募集しました。</h1>
       {#each matchList as match}
         <div>
           <h2>{match.role_name}</h2>
