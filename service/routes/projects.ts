@@ -1,7 +1,7 @@
 import { db } from "../db/client.ts";
 import { accounts, matches, participants, projects, ratings, roles } from "../db/schema.ts";
 import { Hono } from "hono";
-import { eq, inArray, is } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { getCookie, setCookie } from "hono/cookie";
 import * as v from "valibot";
 import { HTTPException } from "hono/http-exception";
