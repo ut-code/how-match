@@ -32,9 +32,9 @@
   });
 </script>
 
-<div class="container">
+<div>
   <Header title="how-match" />
-  <div class="mt-12 p-4">
+  <div class="mt-12 p-4 w-full">
     <div class="p-2">
       <h2 class="text-xl">プロジェクトを新規作成する</h2>
       <div class="flex justify-center p-6">
@@ -49,16 +49,15 @@
         {:else}
           <ul class="menu w-full">
             {#each projects as project}
-              <li class="border-b border-gray-200">
-                <a
-                  href="/{project.id}/submit"
-                  class="w-full h-full flex justify-between"
-                >
+              <li class="w-full border-b border-gray-200 flex flex-row">
+                <a href="/{project.id}/submit" class="abcde h-full flex-1">
                   <span>{project.name}</span>
-                  {#if project.is_admin}
-                    <span>管理者</span>
-                  {/if}
                 </a>
+                {#if project.is_admin}
+                  <a class="btn btn-primary" href="/{project.id}/config">
+                    管理
+                  </a>
+                {/if}
               </li>
             {/each}
           </ul>
