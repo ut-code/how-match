@@ -51,7 +51,7 @@
     onsubmit={async (e) => {
       e.preventDefault();
       const project = await postProject();
-      goto(`/created?projectId=${project.id}`);
+      goto(`/${project.id}/config`);
     }}
   >
     <div class="hm-blocks-container">
