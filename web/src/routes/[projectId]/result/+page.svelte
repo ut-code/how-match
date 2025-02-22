@@ -17,7 +17,6 @@
     account_name: string;
     project_name: string;
     project_desc: string;
-  }[] = [];
   }[] = $state([]);
 
   onMount(async () => {
