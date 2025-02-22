@@ -8,6 +8,7 @@ import { HTTPException } from "hono/http-exception";
 import type { HonoOptions } from "../types.ts";
 import { json, param } from "../validator/hono.ts";
 import { PreferenceSchema, ProjectSchema } from "../validator/schemas.ts";
+import { assignRoles } from "../../share/logic/min-flow.ts";
 
 const route = new Hono<HonoOptions>()
   .get("/mine", async (c) => {
@@ -134,7 +135,70 @@ const route = new Hono<HonoOptions>()
         closed_at: new Date().toISOString(),
       })
       .where(eq(projects.id, c.req.valid("param").projectId));
-    // TODO: ここでマッチ計算
+    const ratingItems = await db(c)
+      .select()
+      .from(ratings)
+      .where(eq(ratings.project_id, c.req.valid("param").projectId));
+    const ratingsByParticipant = Map.groupBy(ratingItems, (item) => item.participant_id);
+    // for (const [index, rating] of ratingItems.entries()) {
+    //   ratingIndexIdMap.set(rating.id, index);
+    // }
+    const participantIndexIdMap: string[] = [];
+    // let ratingIndexIdMap: string[] = [];
+    // for (const [index, rating] of ratingItems.entries()) {
+    //   participantIndexIdMap.set(rating.participant_id, index);
+    // }
+    const ratingsArray: number[][] = [];
+    // ratingsByParticipant.values().forEach((participantRatings, i) => {
+
+    //   ratingsArray.push(
+    //     participantRatings.sort((a, b) => a.role_id.localeCompare(b.role_id)).map((r) => r.score)
+    //   );
+    //   ratingIndexIdMap.set(participantRatings[0].id, ratingsArray.length - 1);
+    // }
+    // );
+
+    const roleIds = Array.from(ratingsByParticipant.values())[0].map((r) => r.role_id).sort(
+      (a, b) => a.localeCompare(b),
+    );
+
+    // for (const participantRatings of ratingsByParticipant.values()) {
+    //  ratingIndexIdMap.push(participantRatings[0].id);
+    // }
+
+    for (const participantRatings of ratingsByParticipant.values()) {
+      participantIndexIdMap.push(participantRatings[0].id);
+      ratingsArray.push(
+        participantRatings.sort((a, b) => a.role_id.localeCompare(b.role_id)).map((r) => r.score),
+      );
+    }
+    console.log(ratingsArray);
+
+    const roleItems = await db(c)
+      .select()
+      .from(roles)
+      .where(eq(roles.project_id, c.req.valid("param").projectId));
+    const rolesArray: {
+      max: number;
+      min: number;
+    }[] = [];
+    for (const r of roleItems) {
+      rolesArray.push({ max: r.max, min: r.min });
+    }
+    console.log(rolesArray);
+    const result = assignRoles(
+      ratingsArray,
+      Array.from({ length: ratingsArray.length }, (_, i) => i),
+      rolesArray,
+    );
+    await db(c).insert(matches).values(
+      result.map((r, i) => ({
+        id: crypto.randomUUID(),
+        role_id: roleIds[r.role],
+        participant_id: participantIndexIdMap[r.participant],
+        project_id: c.req.valid("param").projectId,
+      })),
+    );
     return c.json({}, 200);
   })
   .post(

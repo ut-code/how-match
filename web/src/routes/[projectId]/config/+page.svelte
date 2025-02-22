@@ -93,7 +93,6 @@
   </label>
 </section>
 
-<!-- 締切 -->
   <section>
     <button
       class="btn m-8 btn-error"
