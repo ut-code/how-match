@@ -1,8 +1,15 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
+  import { generateURL } from "~/api/origins.svelte";
   import Header from "~/components/header.svelte";
-  export let data: { projectId: string }; // TODO: 適切な型付け
-  const shareUrl = data.projectId ? `http://localhost:5173/${data.projectId}/submit` : null; // TODO: 別箇所で設定可能にする
-  let copied = false;
+  const { data }: { data: { projectId: string } } = $props(); // TODO: 適切な型付け
+  if (!data.projectId) {
+    goto("/");
+  }
+  const shareUrl = generateURL({
+    pathname: `${data.projectId}/submit`,
+  });
+  let copied = $state(false);
 </script>
 
 <div>
@@ -23,8 +30,11 @@
           disabled={shareUrl === null}
           onclick={async () => {
             if (shareUrl) {
-              await navigator.clipboard.writeText(shareUrl);
+              await navigator.clipboard.writeText(shareUrl.href);
               copied = true;
+              setTimeout(() => {
+                copied = false;
+              }, 1000);
             }
           }}
         >

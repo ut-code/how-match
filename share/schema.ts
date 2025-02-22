@@ -8,7 +8,7 @@ export const RoleSchema = object({
 export const ProjectSchema = object({
   name: pipe(string(), minLength(1)),
   description: string(),
-  roles: array(RoleSchema),
+  roles: pipe(array(RoleSchema), minLength(1)),
 });
 
 export const PreferenceSchema = object({

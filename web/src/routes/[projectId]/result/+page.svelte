@@ -2,10 +2,12 @@
   import Header from "~/components/header.svelte";
   import { onMount } from "svelte";
   import { onDestroy } from "svelte";
+  import { generateURL } from "~/api/origins.svelte.ts";
 
   const { data } = $props();
-  const schema_domain = "http://localhost:5173";
-  const link = `${schema_domain}/${data.projectId}/result`;
+  const link = generateURL({
+    pathname: `${data.projectId}/result`,
+  });
 
   let copyTimeout = 0;
   let matchList: {
@@ -13,7 +15,7 @@
     participant_id: string;
     role_name: string;
     account_name: string;
-  }[] = [];
+  }[] = $state([]);
 
   onMount(async () => {
     try {
