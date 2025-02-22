@@ -4,11 +4,11 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev": "vite dev",
-    "build": "vite build",
-    "preview": "vite preview",
-    "sync": "svelte-kit sync",
-    "check:type": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
+    "dev": "bun run --bun vite dev",
+    "build": "bun run --bun vite build",
+    "preview": "bun run --bun vite preview",
+    "sync": "bun run --bun svelte-kit sync",
+    "check:type": "bun run --bun svelte-kit sync && bun run --bun svelte-check --tsconfig ./tsconfig.json"
   },
   "devDependencies": {
     "@sveltejs/adapter-cloudflare": "^5.0.2",
