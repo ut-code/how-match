@@ -1,29 +1,30 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import Header from "~/components/header.svelte";
-  import { client } from "~/api/client";
+  import { createClient } from "~/api/client";
   import type { PageProps } from "./$types.ts";
-  let { data }: PageProps = $props();
+
+  const { data }: PageProps = $props();
+  const client = createClient({ fetch });
 
   const project = data.project;
   // TODO: ローディング中の UI を追加
-
-  let participantName = $state(project.name);
+  let participantName = $state(project.name); // ?
   let ratings = $state<{ roleId: string; score: number }[]>(
-    Array.from(project.roles, (role) => ({ roleId: role.id, score: 0 })),
+    project.roles.map((role) => ({ roleId: role.id, score: 0 })),
   );
 
   async function postPreference() {
     const preference = {
-      accountId: null,
+      accountId: null, // ?
       participantName: participantName,
       ratings: ratings,
     };
-    const response = await client.projects[":projectId"].preferences.$post({
+    const res = await client.projects[":projectId"].preferences.$post({
       json: preference,
       param: { projectId: project.id },
     });
-    return response.json();
+    return await res.json();
   }
 </script>
 
@@ -94,7 +95,10 @@
 
         {#snippet radioButton(radioIndex: number)}
           <div class="inline-flex items-center">
-            <label class="relative flex items-center cursor-pointer" for="{roleName}-{radioIndex}">
+            <label
+              class="relative flex items-center cursor-pointer"
+              for="{roleName}-{radioIndex}"
+            >
               <input
                 name={roleName}
                 type="radio"

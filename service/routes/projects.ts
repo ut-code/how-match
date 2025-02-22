@@ -48,16 +48,14 @@ const route = new Hono<HonoOptions>()
     async (c) => {
       const projectId = c.req.valid("param").projectId;
       const project_resp = await db(c).select().from(projects).where(eq(projects.id, projectId));
-      if (project_resp.length === 0) {
-        throw new HTTPException(404);
-      }
+      const project = project_resp[0];
+      if (!project) throw new HTTPException(404);
+
+      // エンティティの roles と被るため role_resp
       const role_resp = await db(c).select().from(roles).where(eq(roles.project_id, projectId));
-      if (role_resp.length === 0) throw new HTTPException(404);
       return c.json({
-        id: project_resp[0]?.id,
-        name: project_resp[0]?.name,
-        description: project_resp[0]?.description,
-        roles: role_resp, // エンティティの roles と被るため文字列リテラル
+        ...project,
+        roles: role_resp,
       });
     },
   )

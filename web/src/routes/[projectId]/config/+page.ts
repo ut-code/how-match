@@ -1,21 +1,18 @@
 import { error } from "@sveltejs/kit";
 import type { PageLoad } from "./$types.ts";
-import { client } from "~/api/client.ts";
+import { type Client, createClient } from "~/api/client.ts";
 
-export const load: PageLoad = ({ params }) => {
-  if (params.projectId) {
-    const projectId = params.projectId;
-    const project = client.projects[":projectId"].$get({
-      param: {
-        projectId,
-      },
-    }).then((it) => it.json());
+export const load: PageLoad = ({ params, fetch }) => {
+  if (!params.projectId) error(404, "not found");
+  const client: Client = createClient({ fetch });
+  const project = client.projects[":projectId"].$get({
+    param: {
+      projectId: params.projectId,
+    },
+  }).then((it) => it.json());
 
-    return {
-      projectId,
-      project,
-    };
-  }
-
-  error(404, "Not found");
+  return {
+    projectId: params.projectId,
+    project,
+  };
 };

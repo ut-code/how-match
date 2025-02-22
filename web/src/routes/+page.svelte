@@ -1,8 +1,9 @@
 <script lang="ts">
   import Header from "~/components/header.svelte";
-  import { client } from "~/api/client.ts";
+  import { type Client, createClient } from "~/api/client.ts";
   import { onMount } from "svelte";
 
+  const client: Client = createClient({ fetch });
   async function getMyProjects(options?: { signal: AbortSignal }) {
     const res = await client.projects.mine.$get(options);
     if (!res.ok) {

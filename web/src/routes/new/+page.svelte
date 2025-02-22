@@ -1,10 +1,11 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { client } from "~/api/client";
+  import { type Client, createClient } from "~/api/client";
   import Header from "~/components/header.svelte";
   import { safeParse } from "valibot";
   import { ProjectSchema } from "share/schema";
 
+  const client: Client = createClient({ fetch });
   type Form = {
     name: string;
     description: string;

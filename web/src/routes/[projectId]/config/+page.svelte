@@ -1,12 +1,13 @@
 <script lang="ts">
   import Header from "~/components/header.svelte";
   import { onMount } from "svelte";
-  import { client } from "~/api/client";
+  import { type Client, createClient } from "~/api/client";
   import chain from "~/icons/Chain.svg";
   import { generateURL } from "~/api/origins.svelte.ts";
+
+  const client: Client = createClient({ fetch });
   const { data } = $props();
 
-  // TODO: fix this
   const link = generateURL({
     pathname: `${data.projectId}/submit`,
   }).href;
@@ -26,10 +27,10 @@
     <div class="mt-12 h-full bg-base-100 p-6 flex flex-col gap-4">
       <div class="rounded-lg bg-white p-6 flex flex-col gap-2">
         <h3>プロジェクトの詳細</h3>
-        <p>プロジェクト名: {"name" in project ? project.name : "N/A"}</p>
-        <p>説明: {"description" in project ? project.description : "N/A"}</p>
+        <p>プロジェクト名: {project.name}</p>
+        <p>説明: {project.description}</p>
         <p>
-          締め切り: {"closed_at" in project ? (project.closed_at ?? "まだ締め切っていません") : "N/A"}
+          締め切り: {project.closed_at ?? "まだ締め切っていません"}
         </p>
 
         <label class="input input-bordered w-full">
