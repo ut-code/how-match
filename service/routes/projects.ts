@@ -315,12 +315,15 @@ const route = new Hono<HonoOptions>()
         participant_id: matches.participant_id,
         role_name: roles.name,
         account_name: accounts.name,
+        project_name: projects.name,
+        project_desc: projects.description,
       })
       .from(matches)
       .where(eq(matches.project_id, projectId))
       .innerJoin(roles, eq(matches.role_id, roles.id))
       .innerJoin(participants, eq(matches.participant_id, participants.account_id))
-      .innerJoin(accounts, eq(participants.account_id, accounts.id));
+      .innerJoin(accounts, eq(participants.account_id, accounts.id))
+      .innerJoin(projects, eq(matches.project_id, projects.id));
     const match_result = match_res;
     return c.json(match_result);
   });
