@@ -2,14 +2,12 @@
   import Header from "~/components/header.svelte";
   import { onMount } from "svelte";
   import { onDestroy } from "svelte";
-  import { db } from "service/db/client.ts";
-  import { matches, participants, roles } from "service/db/schema.ts";
-  import { eq } from "drizzle-orm";
-  import route from "service/routes/projects.js";
+  import { generateURL } from "~/api/origins.svelte.ts";
 
   const { data } = $props();
-  const schema_domain = "http://localhost:5173";
-  const link = `${schema_domain}/${data.projectId}/result`;
+  const link = generateURL({
+    pathname: `${data.projectId}/result`,
+  });
 
   let copyTimeout = 0;
   let matchList: {
@@ -20,6 +18,7 @@
     project_name: string;
     project_desc: string;
   }[] = [];
+  }[] = $state([]);
 
   onMount(async () => {
     try {
@@ -44,12 +43,6 @@
   onDestroy(() => clearInterval(interval));
 </script>
 
-<style>
-  .example2 {
-    list-style: disc;
-  }
-</style>
-
 <div>
   <Header title={matchList.length > 0 ? matchList[0].project_name : "プロジェクト名未取得"} />
   <div class="mt-12 h-full bg-base-100 p-6 flex flex-col gap-4">
@@ -66,9 +59,13 @@
       {/each}
     </div>
     <div class="flex justify-start">
-      <button type="button" class="btn btn-primary">
-        戻る
-      </button>
+      <button type="button" class="btn btn-primary">戻る</button>
     </div>
   </div>
 </div>
+
+<style>
+  .example2 {
+    list-style: disc;
+  }
+</style>

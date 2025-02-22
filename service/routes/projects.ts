@@ -1,13 +1,13 @@
 import { db } from "../db/client.ts";
 import { accounts, matches, participants, projects, ratings, roles } from "../db/schema.ts";
 import { Hono } from "hono";
-import { eq, inArray, is } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { getCookie, setCookie } from "hono/cookie";
 import * as v from "valibot";
 import { HTTPException } from "hono/http-exception";
 import type { HonoOptions } from "../types.ts";
 import { json, param } from "../validator/hono.ts";
-import { PreferenceSchema, ProjectSchema } from "../validator/schemas.ts";
+import { PreferenceSchema, ProjectSchema } from "share/schema.ts";
 
 const route = new Hono<HonoOptions>()
   .get("/mine", async (c) => {
@@ -22,10 +22,13 @@ const route = new Hono<HonoOptions>()
     if (account_resp.length === 0) {
       return c.json({ message: "Unauthorized" }, 401);
     }
+    const account = account_resp[0];
+    if (!account) throw new HTTPException(404);
+
     const project_resp = await db(c)
       .select()
       .from(projects)
-      .where(eq(participants.account_id, account_resp[0].id))
+      .where(eq(participants.account_id, account.id))
       .innerJoin(participants, eq(projects.id, participants.project_id));
     return c.json(project_resp.map(
       (p) => ({
@@ -49,10 +52,11 @@ const route = new Hono<HonoOptions>()
         throw new HTTPException(404);
       }
       const role_resp = await db(c).select().from(roles).where(eq(roles.project_id, projectId));
+      if (role_resp.length === 0) throw new HTTPException(404);
       return c.json({
-        id: project_resp[0].id,
-        name: project_resp[0].name,
-        description: project_resp[0].description,
+        id: project_resp[0]?.id,
+        name: project_resp[0]?.name,
+        description: project_resp[0]?.description,
         roles: role_resp, // エンティティの roles と被るため文字列リテラル
       });
     },
@@ -75,13 +79,15 @@ const route = new Hono<HonoOptions>()
         .select()
         .from(accounts)
         .where(eq(accounts.browser_id, browser_id));
+      const account = account_resp[0];
+      if (!account) throw new HTTPException(404);
       await db(c)
         .insert(participants)
         .values([
           {
             id: crypto.randomUUID(),
             name: "anonymous admin",
-            account_id: account_resp[0].id,
+            account_id: account.id,
             project_id: project_id,
             is_admin: 1,
           },
@@ -213,12 +219,13 @@ const route = new Hono<HonoOptions>()
           return c.json({ message: "Unauthorized" }, 401);
         }
         const account = accountsResult[0]; // findUnique をしたかった
+        if (!account) throw new HTTPException(404);
 
         const participantResult = await db(c)
           .select()
           .from(participants)
           .where(
-            eq(participants.account_id, accountsResult[0].id) &&
+            eq(participants.account_id, account.id) &&
               eq(participants.project_id, projectId),
           )
           .limit(1);
@@ -242,6 +249,7 @@ const route = new Hono<HonoOptions>()
               })
               .returning()
           )[0];
+          if (!participant) throw new HTTPException(404);
 
           await tx.insert(ratings).values(
             body.ratings.map((r) => ({
@@ -268,6 +276,7 @@ const route = new Hono<HonoOptions>()
               .returning()
           )[0];
 
+          if (!account) throw new HTTPException(404);
           const participant = (
             await tx
               .insert(participants)
@@ -280,6 +289,8 @@ const route = new Hono<HonoOptions>()
               })
               .returning()
           )[0];
+
+          if (!participant) throw new HTTPException(404);
 
           await tx.insert(ratings).values(
             body.ratings.map((r) => ({

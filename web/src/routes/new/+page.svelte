@@ -2,46 +2,44 @@
   import { goto } from "$app/navigation";
   import { client } from "~/api/client";
   import Header from "~/components/header.svelte";
-  import * as v from "valibot";
+  import { safeParse } from "valibot";
+  import { ProjectSchema } from "share/schema";
 
-  let name = $state("");
-  let inputs = $state<
-    { name: string; max: number | undefined; min: number | undefined }[]
-  >([{ name: "", max: undefined, min: undefined }]);
+  type Form = {
+    name: string;
+    description: string;
+    roles: { name: string; max: number | undefined; min: number | undefined }[];
+  };
 
-  function addInput() {
-    inputs.push({ name: "", max: undefined, min: undefined });
-  }
-  function deleteInput(index: number) {
-    inputs.splice(index, 1);
-  }
-
-  const InputSchema = v.array(
-    v.object({
-      name: v.pipe(v.string(), v.minLength(1)),
-      max: v.pipe(v.number(), v.minValue(1)),
-      min: v.pipe(v.number(), v.minValue(0)),
-    }),
-  );
-  const ProjectSchema = v.object({
-    name: v.pipe(v.string(), v.minLength(1)),
-    roles: InputSchema,
-    description: v.string(),
+  const form = $state<Form>({
+    name: "",
+    description: "",
+    roles: [{ name: "", max: undefined, min: undefined }],
   });
 
+  function addRole() {
+    form.roles.push({ name: "", max: undefined, min: undefined });
+  }
+  function deleteRole(index: number) {
+    form.roles.splice(index, 1);
+  }
+
   async function postProject() {
-    const project = v.parse(ProjectSchema, {
-      name: name,
-      roles: inputs,
-      description: "", // TODO
-    });
+    const val = safeParse(ProjectSchema, form);
+    if (!val.success) {
+      const error = new Error(
+        "[TODO: make it into the UI] Failed to validate schema, issues:",
+      );
+      console.error(error, val.issues);
+      throw error;
+    }
     const res = await client.projects.$post({
-      json: project,
+      json: val.output,
     });
     if (!res.ok) {
-      throw new Error("could not create project");
+      throw new Error("failed to create project");
     }
-    return res.json();
+    return await res.json();
   }
 </script>
 
@@ -61,13 +59,24 @@
         <input
           type="text"
           class="input bg-white"
+          required
+          minlength="1"
           placeholder="プロジェクト名"
-          bind:value={name}
+          bind:value={form.name}
+        />
+      </div>
+      <div class="hm-block">
+        <p>プロジェクトの説明</p>
+        <input
+          type="text"
+          class="input bg-white"
+          placeholder="説明"
+          bind:value={form.description}
         />
       </div>
       <div class="hm-block">
         <p>設定する役職</p>
-        {#each inputs as input, index}
+        {#each form.roles as role, index}
           <div class="flex gap-2">
             <input
               type="text"
@@ -75,7 +84,7 @@
               placeholder="役職名"
               minlength="1"
               required
-              bind:value={input.name}
+              bind:value={role.name}
             />
             <input
               type="number"
@@ -83,24 +92,24 @@
               placeholder="最大人数"
               min={1}
               required
-              bind:value={input.max}
+              bind:value={role.max}
             />
             <input
               type="number"
               class="input bg-white validator"
               placeholder="最小人数"
               min="0"
-              max={input.max}
+              max={role.max}
               required
-              bind:value={input.min}
+              bind:value={role.min}
             />
-            <button type="button" onclick={() => deleteInput(index)}>✖️</button>
+            <button type="button" onclick={() => deleteRole(index)}>✖️</button>
           </div>
         {/each}
         <button
           type="button"
           class="btn btn-primary flex justify-center"
-          onclick={addInput}
+          onclick={addRole}
         >
           ＋追加
         </button>

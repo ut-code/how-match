@@ -1,3 +1,4 @@
+import { browser } from "$app/environment";
 import { hc } from "hono/client";
 import type { App } from "service";
 
@@ -6,7 +7,8 @@ const baseUrl = import.meta.env.DEV ? "http://localhost:3000/" : "/";
 console.log(`[log] hono/client: baseUrl = ${baseUrl}`);
 
 export const client = hc<App>(baseUrl, {
+  fetch,
   init: {
-    credentials: "include",
+    credentials: browser ? "include" : undefined,
   },
 }).api;
