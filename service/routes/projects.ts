@@ -296,7 +296,6 @@ const route = new Hono<HonoOptions>()
       }
     },
   )
-
   .get("/:projectId/result", param({ projectId: v.string() }), async (c) => {
     const { projectId } = c.req.valid("param");
     const match_res = await db(c)
@@ -306,14 +305,14 @@ const route = new Hono<HonoOptions>()
         role_name: roles.name,
         account_name: accounts.name,
         project_name: projects.name,
-        project_desc: projects.description
+        project_desc: projects.description,
       })
       .from(matches)
       .where(eq(matches.project_id, projectId))
       .innerJoin(roles, eq(matches.role_id, roles.id))
       .innerJoin(participants, eq(matches.participant_id, participants.account_id))
       .innerJoin(accounts, eq(participants.account_id, accounts.id))
-      .innerJoin(projects,eq(matches.project_id, projects.id));
+      .innerJoin(projects, eq(matches.project_id, projects.id));
     const match_result = match_res;
     return c.json(match_result);
   });
