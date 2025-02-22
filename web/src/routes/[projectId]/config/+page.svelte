@@ -4,9 +4,27 @@
   import { type Client, createClient } from "~/api/client";
   import chain from "~/icons/Chain.svg";
   import { generateURL } from "~/api/origins.svelte.ts";
+  import { page } from "$app/state";
+  import { fly } from "svelte/transition";
 
   const client: Client = createClient({ fetch });
   const { data } = $props();
+
+  const newlyCreated = page.url.searchParams.get("created") !== null;
+  let createdToastShown = $state(false);
+  onMount(() => {
+    if (newlyCreated) {
+      createdToastShown = true;
+      setTimeout(() => {
+        createdToastShown = false;
+
+        // replace ?created with none s.t. it won't show "created!" after reload
+        const next = new URL(window.location.href);
+        next.search = "";
+        window.history.pushState({}, "", next);
+      }, 2000);
+    }
+  });
 
   const link = generateURL({
     pathname: `${data.projectId}/submit`,
@@ -19,13 +37,21 @@
   });
 </script>
 
+<div class="toast-start toast-top absolute">
+  {#if createdToastShown}
+    <div class="alert alert-success z-31" transition:fly>
+      <span class="z-31">プロジェクトを作成しました。</span>
+    </div>
+  {/if}
+</div>
+
 <div>
   <Header title="管理・設定" />
-  {#await data.project}
-    <span class="loading loading-xl"> </span>
-  {:then project}
-    <div class="mt-12 h-full bg-base-100 p-6 flex flex-col gap-4">
-      <div class="rounded-lg bg-white p-6 flex flex-col gap-2">
+  <div class="mt-12 h-full bg-base-100 p-6 flex flex-col gap-4">
+    <div class="rounded-lg bg-white p-6 flex flex-col gap-2">
+      {#await data.project}
+        <span class="loading loading-xl"> </span>
+      {:then project}
         <h3>プロジェクトの詳細</h3>
         <p>プロジェクト名: {project.name}</p>
         <p>説明: {project.description}</p>
@@ -51,31 +77,36 @@
             <button disabled>copied!</button>
           {/if}
         </label>
-      </div>
+        <!-- navigation -->
+        <section>
+          <div class="mt-6 ml-8">
+            <a
+              class="btn btn-primary m-4"
+              href="./submit"
+              class:btn-disabled={project.closed_at ? true : false}
+            >提出の画面へ</a>
+            <button
+              class="btn btn-error m-4"
+              onclick={async () => {
+                await client.projects[":projectId"].$patch({
+                  param: {
+                    projectId: data.projectId,
+                  },
+                  json: {
+                    done: true,
+                  },
+                });
+                location.reload();
+              }}
+              disabled={project.closed_at ? true : false}
+            >
+              締め切る
+            </button>
+          </div>
+        </section>
+      {:catch}
+        プロジェクトの読み込みに失敗しました
+      {/await}
     </div>
-    <section>
-      <a class="btn btn-primary ml-8" href="./submit">提出の画面へ</a>
-    </section>
-    <section>
-      <button
-        class="btn mt-4 ml-8 btn-error"
-        onclick={async () => {
-          await client.projects[":projectId"].$patch({
-            param: {
-              projectId: data.projectId,
-            },
-            json: {
-              done: true,
-            },
-          });
-          location.reload();
-        }}
-        disabled={project.closed_at ? true : false}
-      >
-        締め切る
-      </button>
-    </section>
-  {:catch}
-    プロジェクトの読み込みに失敗しました
-  {/await}
+  </div>
 </div>
