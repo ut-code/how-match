@@ -3,11 +3,13 @@
   import { onMount } from "svelte";
   import { client } from "~/api/client";
   import chain from "~/icons/Chain.svg";
+  import { generateURL } from "~/api/origins.svelte.ts";
   const { data } = $props();
 
   // TODO: fix this
-  const schema_domain = "http://localhost:5173";
-  const link = $derived(`${schema_domain}/${data.projectId}/submit`);
+  const link = generateURL({
+    pathname: `${data.projectId}/submit`,
+  }).href;
 
   let copyTimeout = $state(0);
   onMount(() => {
@@ -25,8 +27,10 @@
       <div class="rounded-lg bg-white p-6 flex flex-col gap-2">
         <h3>プロジェクトの詳細</h3>
         <p>プロジェクト名: {"name" in project ? project.name : "N/A"}</p>
-        <p>説明: {"description" in project ? (project.description) : "N/A"}</p>
-        <p>締め切り: {"closed_at" in project ? (project.closed_at ?? "まだ締め切っていません") : "N/A"}</p>
+        <p>説明: {"description" in project ? project.description : "N/A"}</p>
+        <p>
+          締め切り: {"closed_at" in project ? (project.closed_at ?? "まだ締め切っていません") : "N/A"}
+        </p>
 
         <label class="input input-bordered w-full">
           <img alt="" src={chain} class="h-[1rem] opacity-50 select-none" />
@@ -61,7 +65,7 @@
             },
           });
         }}
-        disabled={("closed_at" in project && project.closed_at) ? true : false}
+        disabled={"closed_at" in project && project.closed_at ? true : false}
       >
         締め切る
       </button>

@@ -10,6 +10,7 @@ pkgs.mkShell {
     # JS
     bun # runner / tester
     biome # style checker / linter ... replaced by deno because biome doesn't support HTML and svelte
+    nodejs-slim # required by drizzle?
     deno # used to format svelte
 
     wrangler
