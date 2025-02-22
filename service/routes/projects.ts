@@ -1,7 +1,7 @@
 import { db } from "../db/client.ts";
 import { accounts, matches, participants, projects, ratings, roles } from "../db/schema.ts";
 import { Hono } from "hono";
-import { eq, inArray, is } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { getCookie, setCookie } from "hono/cookie";
 import * as v from "valibot";
 import { HTTPException } from "hono/http-exception";
@@ -27,15 +27,15 @@ const route = new Hono<HonoOptions>()
       .from(projects)
       .where(eq(participants.account_id, account_resp[0].id))
       .innerJoin(participants, eq(projects.id, participants.project_id));
-    return c.json(project_resp.map(
-      (p) => ({
+    return c.json(
+      project_resp.map((p) => ({
         id: p.projects.id,
         name: p.projects.name,
         description: p.projects.description,
         closed_at: p.projects.closed_at,
         is_admin: p.participants.is_admin,
-      }),
-    ));
+      })),
+    );
   })
   .get(
     "/:projectId",
@@ -58,18 +58,30 @@ const route = new Hono<HonoOptions>()
     },
   )
   .post("/", json(ProjectSchema), async (c) => {
+    // TODO: 現在は参加者は一度しか submit できない
     const browser_id = getCookie(c, "browser_id");
-    const project_id = crypto.randomUUID();
     const body = c.req.valid("json");
-    await db(c)
+    const newProject = await db(c)
       .insert(projects)
       .values([
         {
-          id: project_id,
+          id: crypto.randomUUID(),
           name: body.name,
           description: body.description,
         },
-      ]);
+      ])
+      .returning();
+    await db(c)
+      .insert(roles)
+      .values(
+        body.roles.map((r) => ({
+          id: crypto.randomUUID(),
+          name: r.name,
+          min: r.min,
+          max: r.max,
+          project_id: newProject[0].id,
+        })),
+      );
     if (browser_id) {
       const account_resp = await db(c)
         .select()
@@ -82,64 +94,49 @@ const route = new Hono<HonoOptions>()
             id: crypto.randomUUID(),
             name: "anonymous admin",
             account_id: account_resp[0].id,
-            project_id: project_id,
+            project_id: newProject[0].id,
             is_admin: 1,
           },
         ]);
     } else {
-      const new_browser_id = crypto.randomUUID();
-      const account_id = crypto.randomUUID();
-      await db(c)
+      const newAccount = await db(c)
         .insert(accounts)
         .values([
           {
-            id: account_id,
-            browser_id: new_browser_id,
+            id: crypto.randomUUID(),
+            browser_id: crypto.randomUUID(),
             name: "anonymous",
           },
-        ]);
+        ])
+        .returning();
       await db(c)
         .insert(participants)
         .values([
           {
             id: crypto.randomUUID(),
             name: "anonymous admin",
-            account_id: account_id,
-            project_id: project_id,
+            account_id: newAccount[0].id,
+            project_id: newProject[0].id,
             is_admin: 1,
           },
         ]);
-      setCookie(c, "browser_id", new_browser_id);
+      setCookie(c, "browser_id", newAccount[0].browser_id);
     }
-
-    await db(c)
-      .insert(roles)
-      .values(
-        body.roles.map((r) => ({
-          id: crypto.randomUUID(),
-          name: r.name,
-          min: r.min,
-          max: r.max,
-          project_id: project_id,
-        })),
-      );
     return c.json({
-      name: body.name,
-      description: body.description,
-      role: body.roles,
+      id: newProject[0].id,
+      name: newProject[0].name,
     });
   })
-  .put(
-    "/:projectId/finalize",
-    param({ projectId: v.string() }),
-    async (c) => {
-      await db(c).update(projects).set({
+  .put("/:projectId/finalize", param({ projectId: v.string() }), async (c) => {
+    await db(c)
+      .update(projects)
+      .set({
         closed_at: new Date().toISOString(),
-      }).where(eq(projects.id, c.req.valid("param").projectId));
-      // TODO: ここでマッチ計算
-      return c.json({}, 200);
-    },
-  )
+      })
+      .where(eq(projects.id, c.req.valid("param").projectId));
+    // TODO: ここでマッチ計算
+    return c.json({}, 200);
+  })
   .post(
     "/:projectId/preferences",
     json(PreferenceSchema),
