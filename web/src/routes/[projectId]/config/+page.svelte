@@ -68,13 +68,14 @@
               done: true,
             },
           });
+          location.reload();
         }}
-        disabled={"closed_at" in project && project.closed_at ? true : false}
+        disabled={project.closed_at ? true : false}
       >
         締め切る
       </button>
     </section>
-  {:catch err}
+  {:catch}
     プロジェクトの読み込みに失敗しました
   {/await}
 </div>
