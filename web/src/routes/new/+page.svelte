@@ -55,20 +55,27 @@
           <div class="flex gap-2">
             <input
               type="text"
-              class="input bg-white"
+              class="input bg-white validator"
               placeholder="役職名"
+              minlength="1"
+              required
               bind:value={input.name}
             />
             <input
               type="number"
-              class="input bg-white"
+              class="input bg-white validator"
               placeholder="最大人数"
+              min={1}
+              required
               bind:value={input.max}
             />
             <input
               type="number"
-              class="input bg-white"
+              class="input bg-white validator"
               placeholder="最小人数"
+              min="0"
+              max={input.max}
+              required
               bind:value={input.min}
             />
             <button type="button" onclick={() => deleteInput(index)}>✖️</button>
