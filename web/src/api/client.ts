@@ -7,6 +7,7 @@ const baseUrl = import.meta.env.DEV ? "http://localhost:3000/" : "/";
 console.log(`[log] hono/client: baseUrl = ${baseUrl}`);
 
 export const client = hc<App>(baseUrl, {
+  fetch,
   init: {
     credentials: browser ? "include" : undefined,
   },
