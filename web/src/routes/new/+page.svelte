@@ -2,30 +2,46 @@
   import { goto } from "$app/navigation";
   import { client } from "~/api/client";
   import Header from "~/components/header.svelte";
+  import * as v from "valibot";
 
   let name = $state("");
-  let inputs = $state<{ name: string; max: number; min: number }[]>([
-    { name: "", max: 0, min: 0 },
-  ]);
+  let inputs = $state<
+    { name: string; max: number | undefined; min: number | undefined }[]
+  >([{ name: "", max: undefined, min: undefined }]);
 
   function addInput() {
-    inputs.push({ name: "", max: 0, min: 0 });
+    inputs.push({ name: "", max: undefined, min: undefined });
   }
   function deleteInput(index: number) {
     inputs.splice(index, 1);
   }
 
+  const InputSchema = v.array(
+    v.object({
+      name: v.pipe(v.string(), v.minLength(1)),
+      max: v.pipe(v.number(), v.minValue(1)),
+      min: v.pipe(v.number(), v.minValue(0)),
+    }),
+  );
+  const ProjectSchema = v.object({
+    name: v.pipe(v.string(), v.minLength(1)),
+    roles: InputSchema,
+    description: v.string(),
+  });
+
   async function postProject() {
-    const project = {
+    const project = v.parse(ProjectSchema, {
       name: name,
       roles: inputs,
-      description: "",
-    };
-    const response = await client.projects.$post({ json: project });
-    if (!response.ok) {
+      description: "", // TODO
+    });
+    const res = await client.projects.$post({
+      json: project,
+    });
+    if (!res.ok) {
       throw new Error("could not create project");
     }
-    return response.json();
+    return res.json();
   }
 </script>
 
