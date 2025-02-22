@@ -60,12 +60,9 @@
   <button
     class="btn m-8 btn-error"
     onclick={async () => {
-      await client.projects[":projectId"].$patch({
+      await client.projects[":projectId"].finalize.$put({
         param: {
           projectId: data.projectId,
-        },
-        json: {
-          done: true,
         },
       });
     }}
