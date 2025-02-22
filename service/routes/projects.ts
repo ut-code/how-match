@@ -8,6 +8,7 @@ import { HTTPException } from "hono/http-exception";
 import type { HonoOptions } from "../types.ts";
 import { json, param } from "../validator/hono.ts";
 import { PreferenceSchema, ProjectSchema } from "share/schema.ts";
+import { assignRoles } from "../../share/logic/min-flow.ts";
 
 const route = new Hono<HonoOptions>()
   .get("/mine", async (c) => {
@@ -30,15 +31,15 @@ const route = new Hono<HonoOptions>()
       .from(projects)
       .where(eq(participants.account_id, account.id))
       .innerJoin(participants, eq(projects.id, participants.project_id));
-    return c.json(project_resp.map(
-      (p) => ({
+    return c.json(
+      project_resp.map((p) => ({
         id: p.projects.id,
         name: p.projects.name,
         description: p.projects.description,
         closed_at: p.projects.closed_at,
         is_admin: p.participants.is_admin,
-      }),
-    ));
+      })),
+    );
   })
   .get(
     "/:projectId",
@@ -60,18 +61,32 @@ const route = new Hono<HonoOptions>()
     },
   )
   .post("/", json(ProjectSchema), async (c) => {
+    // TODO: 現在は参加者は一度しか submit できない
     const browser_id = getCookie(c, "browser_id");
-    const project_id = crypto.randomUUID();
     const body = c.req.valid("json");
-    await db(c)
+    const newProjectResp = await db(c)
       .insert(projects)
       .values([
         {
-          id: project_id,
+          id: crypto.randomUUID(),
           name: body.name,
           description: body.description,
         },
-      ]);
+      ])
+      .returning();
+    const newProject = newProjectResp[0];
+    if (!newProject) throw new HTTPException(404);
+    await db(c)
+      .insert(roles)
+      .values(
+        body.roles.map((r) => ({
+          id: crypto.randomUUID(),
+          name: r.name,
+          min: r.min,
+          max: r.max,
+          project_id: newProject.id,
+        })),
+      );
     if (browser_id) {
       const account_resp = await db(c)
         .select()
@@ -86,116 +101,114 @@ const route = new Hono<HonoOptions>()
             id: crypto.randomUUID(),
             name: "anonymous admin",
             account_id: account.id,
-            project_id: project_id,
+            project_id: newProject.id,
             is_admin: 1,
           },
         ]);
     } else {
-      const new_browser_id = crypto.randomUUID();
-      const account_id = crypto.randomUUID();
-      await db(c)
+      const newAccountResp = await db(c)
         .insert(accounts)
         .values([
           {
-            id: account_id,
-            browser_id: new_browser_id,
+            id: crypto.randomUUID(),
+            browser_id: crypto.randomUUID(),
             name: "anonymous",
           },
-        ]);
+        ])
+        .returning();
+      const newAccount = newAccountResp[0];
+      if (!newAccount) throw new HTTPException(404);
       await db(c)
         .insert(participants)
         .values([
           {
             id: crypto.randomUUID(),
             name: "anonymous admin",
-            account_id: account_id,
-            project_id: project_id,
+            account_id: newAccount.id,
+            project_id: newProject.id,
             is_admin: 1,
           },
         ]);
-      setCookie(c, "browser_id", new_browser_id);
+      setCookie(c, "browser_id", newAccount.browser_id);
     }
-
-    await db(c)
-      .insert(roles)
-      .values(
-        body.roles.map((r) => ({
-          id: crypto.randomUUID(),
-          name: r.name,
-          min: r.min,
-          max: r.max,
-          project_id: project_id,
-        })),
-      );
     return c.json({
-      id: project_id,
-      name: body.name,
-      description: body.description,
-      roles: body.roles,
+      id: newProject.id,
+      name: newProject.name,
     });
   })
-  .patch(
-    "/:projectId",
-    json(
-      v.object({
-        done: v.boolean(),
-      }),
-    ),
-    param({ projectId: v.string() }),
-    async (c) => {
-      // const browser_id = getCookie(c, "browser_id");
-      // if (!browser_id) {
-      //   return c.json({ message: "Unauthorized" }, 401);
-      // }
-      // const account_resp = await db(c)
-      //   .select()
-      //   .from(accounts)
-      //   .where(eq(accounts.browser_id, browser_id));
-      // if (account_resp.length === 0) {
-      //   return c.json({ message: "Unauthorized" }, 401);
-      // }
-      // const participant_resp = await db(c)
-      //   .select()
-      //   .from(participants)
-      //   .where(
-      //     eq(participants.account_id, account_resp[0].id) &&
-      //       eq(participants.project_id, c.req.param("projectId")),
-      //   );
-      // if (participant_resp.length === 0 || participant_resp[0].is_admin === 0) {
-      //   return c.json({ message: "Unauthorized" }, 401);
-      // }
+  .put("/:projectId/finalize", param({ projectId: v.string() }), async (c) => {
+    await db(c)
+      .update(projects)
+      .set({
+        closed_at: new Date().toISOString(),
+      })
+      .where(eq(projects.id, c.req.valid("param").projectId));
+    const ratingItems = await db(c)
+      .select()
+      .from(ratings)
+      .where(eq(ratings.project_id, c.req.valid("param").projectId));
+    const ratingsByParticipant = Map.groupBy(ratingItems, (item) => item.participant_id);
+    // for (const [index, rating] of ratingItems.entries()) {
+    //   ratingIndexIdMap.set(rating.id, index);
+    // }
+    const participantIndexIdMap: string[] = [];
+    // let ratingIndexIdMap: string[] = [];
+    // for (const [index, rating] of ratingItems.entries()) {
+    //   participantIndexIdMap.set(rating.participant_id, index);
+    // }
+    const ratingsArray: number[][] = [];
+    // ratingsByParticipant.values().forEach((participantRatings, i) => {
 
-      // await db(c)
-      //   .update(projects)
-      //   .set({
-      //     closed_at: new Date().toISOString(),
-      //   })
-      //   .where(eq(projects.id, c.req.param("projectId")));
+    //   ratingsArray.push(
+    //     participantRatings.sort((a, b) => a.role_id.localeCompare(b.role_id)).map((r) => r.score)
+    //   );
+    //   ratingIndexIdMap.set(participantRatings[0].id, ratingsArray.length - 1);
+    // }
+    // );
 
-      // // TODO: ここでマッチ計算
+    const roleIds = Array.from(ratingsByParticipant.values())[0].map((r) => r.role_id).sort(
+      (a, b) => a.localeCompare(b),
+    );
 
-      // return c.json({}, 200);
-      const done = c.req.valid("json").done;
-      switch (done) {
-        case true: {
-          await db(c)
-            .update(projects)
-            .set({
-              closed_at: new Date().toISOString(),
-            })
-            .where(eq(projects.id, c.req.valid("param").projectId));
-          // TODO: ここでマッチ計算
-          return c.json({}, 200);
-        }
-        case false: {
-          return c.json({}, 404);
-        }
-        default: {
-          done satisfies never;
-        }
-      }
-    },
-  )
+    // for (const participantRatings of ratingsByParticipant.values()) {
+    //  ratingIndexIdMap.push(participantRatings[0].id);
+    // }
+
+    for (const participantRatings of ratingsByParticipant.values()) {
+      participantIndexIdMap.push(participantRatings[0].id);
+      ratingsArray.push(
+        participantRatings.sort((a, b) => a.role_id.localeCompare(b.role_id)).map((r) => r.score),
+      );
+    }
+    console.log(ratingsArray);
+
+    const roleItems = await db(c)
+      .select()
+      .from(roles)
+      .where(eq(roles.project_id, c.req.valid("param").projectId));
+    const rolesArray: {
+      max: number;
+      min: number;
+    }[] = [];
+    for (const r of roleItems) {
+      rolesArray.push({ max: r.max, min: r.min });
+    }
+    console.log(rolesArray);
+    const result = assignRoles(
+      ratingsArray,
+      Array.from({ length: ratingsArray.length }, (_, i) => i),
+      rolesArray,
+    );
+    await db(c).insert(matches).values(
+      result.map((r, _i) => ({
+        id: crypto.randomUUID(),
+        role_id: roleIds[r.role],
+        participant_id: participantIndexIdMap[r.participant],
+        project_id: c.req.valid("param").projectId,
+      })),
+    );
+    return c.json({}, 200);
+  })
   .post(
     "/:projectId/preferences",
     json(PreferenceSchema),

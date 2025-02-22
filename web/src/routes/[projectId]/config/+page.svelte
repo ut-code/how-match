@@ -60,12 +60,9 @@
       <button
         class="btn mt-4 ml-8 btn-error"
         onclick={async () => {
-          await client.projects[":projectId"].$patch({
+          await client.projects[":projectId"].finalize.$put({
             param: {
               projectId: data.projectId,
-            },
-            json: {
-              done: true,
             },
           });
           location.reload();
@@ -78,4 +75,42 @@
   {:catch}
     プロジェクトの読み込みに失敗しました
   {/await}
+
+  <!-- 提出 -->
+  <!-- <section>
+  <a class="btn btn-primary m-8" href="./submit">提出する</a>
+  <label class="input input-bordered w-full">
+    <img alt="" src={chain} class="h-[1rem] opacity-50 select-none" />
+    <span class="select-none">提出用リンク</span>
+    <input type="url" class="x-selectable" value={link} readonly />
+    {#if copyTimeout === 0}
+      <button
+        class="btn btn-soft btn-primary"
+        onclick={async () => {
+          await navigator.clipboard.writeText(link);
+          copyTimeout = 20;
+        }}
+      >
+        copy
+      </button>
+    {:else}
+      <button disabled>copied!</button>
+    {/if}
+  </label>
+</section>
+
+  <section>
+    <button
+      class="btn m-8 btn-error"
+      onclick={async () => {
+        await client.projects[":projectId"].finalize.$put({
+          param: {
+            projectId: data.projectId,
+          },
+        });
+      }}
+    >
+      締め切る
+    </button>
+  </section> -->
 </div>
