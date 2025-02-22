@@ -1,7 +1,7 @@
 import { db } from "../db/client.ts";
 import { accounts, matches, participants, projects, ratings, roles } from "../db/schema.ts";
 import { Hono } from "hono";
-import { eq } from "drizzle-orm";
+import { eq, inArray, is } from "drizzle-orm";
 import { getCookie, setCookie } from "hono/cookie";
 import * as v from "valibot";
 import { HTTPException } from "hono/http-exception";
@@ -10,6 +10,33 @@ import { json, param } from "../validator/hono.ts";
 import { PreferenceSchema, ProjectSchema } from "../validator/schemas.ts";
 
 const route = new Hono<HonoOptions>()
+  .get("/mine", async (c) => {
+    const browser_id = getCookie(c, "browser_id");
+    if (!browser_id) {
+      return c.json({ message: "Unauthorized" }, 401);
+    }
+    const account_resp = await db(c)
+      .select()
+      .from(accounts)
+      .where(eq(accounts.browser_id, browser_id));
+    if (account_resp.length === 0) {
+      return c.json({ message: "Unauthorized" }, 401);
+    }
+    const project_resp = await db(c)
+      .select()
+      .from(projects)
+      .where(eq(participants.account_id, account_resp[0].id))
+      .innerJoin(participants, eq(projects.id, participants.project_id));
+    return c.json(project_resp.map(
+      (p) => ({
+        id: p.projects.id,
+        name: p.projects.name,
+        description: p.projects.description,
+        closed_at: p.projects.closed_at,
+        is_admin: p.participants.is_admin,
+      }),
+    ));
+  })
   .get(
     "/:projectId",
     param({
@@ -269,24 +296,22 @@ const route = new Hono<HonoOptions>()
       }
     },
   )
-  .get(
-    "/:projectId/result",
-    param({ projectId: v.string() }),
-    async (c) => {
-      const { projectId } = c.req.valid("param");
-      const match_res = await db(c).select({
+  .get("/:projectId/result", param({ projectId: v.string() }), async (c) => {
+    const { projectId } = c.req.valid("param");
+    const match_res = await db(c)
+      .select({
         role_id: matches.role_id,
         participant_id: matches.participant_id,
         role_name: roles.name,
         account_name: accounts.name,
-      }).from(matches).where(eq(matches.project_id, projectId)).innerJoin(roles, eq(matches.role_id, roles.id))
-        .innerJoin(participants, eq(matches.participant_id, participants.account_id)).innerJoin(
-          accounts,
-          eq(participants.account_id, accounts.id),
-        );
-      const match_result = match_res;
-      return c.json(match_result);
-    },
-  );
+      })
+      .from(matches)
+      .where(eq(matches.project_id, projectId))
+      .innerJoin(roles, eq(matches.role_id, roles.id))
+      .innerJoin(participants, eq(matches.participant_id, participants.account_id))
+      .innerJoin(accounts, eq(participants.account_id, accounts.id));
+    const match_result = match_res;
+    return c.json(match_result);
+  });
 
 export default route;
