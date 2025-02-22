@@ -1,13 +1,7 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
   import { generateURL } from "~/api/origins.svelte";
   import Header from "~/components/header.svelte";
-  const { data }: { data: { projectId: Promise<string | null> } } = $props(); // TODO: 適切な型付け
-  data.projectId.then((it) => {
-    if (!it) {
-      goto("/");
-    }
-  });
+  const { data }: { data: { projectId: string } } = $props(); // TODO: 適切な型付け
   const shareUrl = generateURL({
     pathname: `${data.projectId}/submit`,
   });
