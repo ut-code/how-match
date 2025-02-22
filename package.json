@@ -8,7 +8,7 @@
     "web"
   ],
   "scripts": {
-    "prepare": "trap 'kill 0' SIGINT; bun sync & bun prepare:self & wait",
+    "prepare": "bun sync && bun prepare:self",
     "prepare:self": "lefthook install",
     "sync": "trap 'kill 0' SIGINT; (cd service && bun sync) & (cd web && bun sync) & wait",
     "dev": "bun --env-file=./.env run :dev",
