@@ -1,0 +1,68 @@
+import { json, param } from "service/validator/hono.ts";
+import { Hono } from "hono";
+import { PreferenceSchema } from "share/schema";
+import { getBrowserID } from "service/features/auth/index.ts";
+import * as v from "valibot";
+import { participants, ratings } from "service/db/schema.ts";
+import { and, eq } from "drizzle-orm";
+import { db } from "service/db/client";
+import type { HonoOptions } from "service/types";
+import { HTTPException } from "hono/http-exception";
+
+const route = new Hono<HonoOptions>()
+  .post(
+    "/",
+    json(PreferenceSchema),
+    param({
+      projectId: v.string(),
+    }),
+    async (c) => {
+      const browser_id = await getBrowserID(c);
+      const { projectId } = c.req.valid("param");
+      const body = c.req.valid("json");
+
+      const participantResult = await db(c)
+        .select()
+        .from(participants)
+        .where(
+          and(
+            eq(participants.browser_id, browser_id),
+            eq(participants.project_id, projectId),
+            // 管理者も参加者として希望を出す場合、管理者の participant はいらない
+            eq(participants.is_admin, 0),
+          ),
+        )
+        .limit(1);
+
+      if (participantResult.length > 0) {
+        return c.json({ message: "すでに希望を提出済です" }, 409);
+      }
+
+      const participant = (
+        await db(c)
+          .insert(participants)
+          .values({
+            id: crypto.randomUUID(),
+            name: body.participantName,
+            browser_id: browser_id,
+            project_id: projectId,
+            is_admin: 0,
+          })
+          .returning()
+      )[0];
+      if (!participant) throw new HTTPException(500, { message: "failed to insert participant" });
+
+      await db(c).insert(ratings).values(
+        body.ratings.map((r) => ({
+          id: crypto.randomUUID(),
+          name: body.participantName,
+          participant_id: participant.id,
+          role_id: r.roleId,
+          score: r.score,
+          project_id: projectId,
+        })),
+      );
+      return c.json({ ok: true }, 201);
+    },
+  );
+export default route;
