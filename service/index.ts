@@ -9,7 +9,7 @@ const app = new Hono<HonoOptions>()
   .use(
     "/*",
     async (c, next) => {
-      const CORS_ALLOW_ORIGINS = env(c, "CORS_ALLOW_ORIGINS", "");
+      const CORS_ALLOW_ORIGINS = env(c, "CORS_ALLOW_ORIGINS", { fallback: "" });
       return await cors({
         origin: CORS_ALLOW_ORIGINS.split(","),
         credentials: true,
