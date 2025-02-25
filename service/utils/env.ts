@@ -2,8 +2,8 @@ import type { Context } from "hono";
 import { env as _env } from "hono/adapter";
 import { panic } from "./panic.ts";
 
-export function env(ctx: Context, name: string, fallback?: string) {
-  return _env(ctx)?.[name] ?? fallback ??
+export function env(ctx: Context, name: string, options: { fallback?: string } = {}) {
+  return _env(ctx)?.[name] ?? options.fallback ??
     panic(`env var "${name}" not found in environment!`);
 }
 
