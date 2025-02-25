@@ -5,7 +5,7 @@ import { type Client, createClient } from "~/api/client.ts";
 export const load: PageLoad = ({ params, fetch }) => {
   if (!params.projectId) error(404, "not found");
   const client: Client = createClient({ fetch });
-  const project = client.projects[":projectId"].$get({
+  const data = client.projects[":projectId"].$get({
     param: {
       projectId: params.projectId,
     },
@@ -13,6 +13,6 @@ export const load: PageLoad = ({ params, fetch }) => {
 
   return {
     projectId: params.projectId,
-    project,
+    data,
   };
 };

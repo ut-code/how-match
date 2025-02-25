@@ -12,11 +12,11 @@
 
   const project = data.project;
   // TODO: ローディング中の UI を追加
-  let participantName = $state(project.name); // ?
+  let participantName = $state<string>(data.prev?.name ?? "default username"); // ?
   let ratings = $state(
-    project.roles.map((role) => {
-      const score = undefined as undefined | number;
-      return { role, score: score };
+    data.roles.map((role) => {
+      const score = role.prev ?? undefined;
+      return { role, score };
     }),
   );
 
@@ -31,11 +31,22 @@
     });
     // TODO: handle it better
     if (!preference.success) throw new Error("failed to validate preference");
-    const res = await client.projects[":projectId"].preferences.$post({
-      json: preference.output,
-      param: { projectId: project.id },
-    });
-    return await res.json();
+
+    if (!data.prev) {
+      // POST
+      const res = await client.projects[":projectId"].preferences.$post({
+        json: preference.output,
+        param: { projectId: project.id },
+      });
+      return await res.json();
+    } else {
+      // PUT
+      const res = await client.projects[":projectId"].preferences.$put({
+        json: preference.output,
+        param: { projectId: project.id },
+      });
+      return await res.json();
+    }
   }
 </script>
 

@@ -6,6 +6,7 @@
   import { generateURL } from "~/api/origins.svelte.ts";
   import { page } from "$app/state";
   import { fly } from "svelte/transition";
+  import { replaceState } from "$app/navigation";
 
   const client: Client = createClient({ fetch });
   const { data } = $props();
@@ -18,7 +19,7 @@
       // replace ?created with none s.t. it won't show "created!" after reload
       const next = new URL(window.location.href);
       next.search = "";
-      window.history.pushState({}, "", next);
+      replaceState(next, {});
       setTimeout(() => {
         createdToastShown = false;
       }, 2000);
@@ -48,9 +49,10 @@
   <Header title="管理・設定" />
   <div class="mt-12 h-full bg-base-100 p-6 flex flex-col gap-4">
     <div class="rounded-lg bg-white p-6 flex flex-col gap-2">
-      {#await data.project}
+      {#await data.data}
         <span class="loading loading-xl"> </span>
-      {:then project}
+      {:then data}
+        {@const project = data.project}
         <h3>プロジェクトの詳細</h3>
         <p>プロジェクト名: {project.name}</p>
         <p>説明: {project.description}</p>
@@ -91,7 +93,7 @@
               onclick={async () => {
                 await client.projects[":projectId"].$patch({
                   param: {
-                    projectId: data.projectId,
+                    projectId: data.project.id,
                   },
                   json: {
                     done: true,

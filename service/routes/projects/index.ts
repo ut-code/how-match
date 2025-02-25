@@ -1,7 +1,7 @@
 import { db } from "service/db/client.ts";
-import { accounts, matches, participants, projects, roles } from "service/db/schema.ts";
+import { accounts, matches, participants, projects, ratings, roles } from "service/db/schema.ts";
 import { Hono } from "hono";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import * as v from "valibot";
 import { HTTPException } from "hono/http-exception";
 import type { HonoOptions } from "service/types.ts";
@@ -18,8 +18,8 @@ const route = new Hono<HonoOptions>()
     const project_resp = await db(c)
       .select()
       .from(projects)
-      .where(eq(participants.browser_id, browser_id))
-      .innerJoin(participants, eq(projects.id, participants.project_id));
+      .innerJoin(participants, eq(projects.id, participants.project_id))
+      .where(eq(participants.browser_id, browser_id));
     return c.json(project_resp.map(
       (p) => ({
         id: p.projects.id,
@@ -36,16 +36,51 @@ const route = new Hono<HonoOptions>()
       projectId: v.string(),
     }),
     async (c) => {
+      const browser_id = await getBrowserID(c);
       const projectId = c.req.valid("param").projectId;
-      const project_resp = await db(c).select().from(projects).where(eq(projects.id, projectId));
-      const project = project_resp[0];
-      if (!project) throw new HTTPException(404);
+      const project_resp = db(c).select().from(projects).where(eq(projects.id, projectId)).execute();
+      const project = project_resp.then((it) => {
+        const project = it[0];
+        if (!project) {
+          throw new HTTPException(404);
+        }
+        return project;
+      });
 
+      const prev_userdata = (await db(c).select({
+        id: participants.id,
+        name: participants.name,
+      }).from(participants).where(
+        and(
+          eq(participants.project_id, projectId),
+          eq(participants.browser_id, browser_id),
+        ),
+      ))[0];
       // エンティティの roles と被るため role_resp
-      const role_resp = await db(c).select().from(roles).where(eq(roles.project_id, projectId));
+      const role_resp = db(c)
+        .select({
+          id: roles.id,
+          name: roles.name,
+          min: roles.min,
+          max: roles.max,
+          prev: ratings.score,
+        })
+        .from(roles)
+        .where(eq(
+          roles.project_id,
+          projectId,
+        ))
+        .leftJoin(
+          ratings,
+          and(
+            eq(ratings.role_id, roles.id),
+            eq(ratings.participant_id, prev_userdata?.id ?? "never"), // omit if prev_userdata doesn't exist
+          ),
+        ).execute();
       return c.json({
-        ...project,
-        roles: role_resp,
+        project: await project,
+        roles: await role_resp,
+        prev: prev_userdata,
       });
     },
   )

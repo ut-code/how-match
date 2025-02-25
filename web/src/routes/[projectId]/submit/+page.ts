@@ -7,8 +7,8 @@ export const load: PageLoad = async ({ params, fetch }) => {
   const res = await client.projects[":projectId"].$get({
     param: { projectId: params.projectId },
   });
-  const project = await res.json();
-  if (!project) error(404, "Not found");
+  const data = await res.json();
+  if (!data.project) error(404, "Not found");
 
-  return { project };
+  return data;
 };

@@ -64,5 +64,37 @@ const route = new Hono<HonoOptions>()
       );
       return c.json({ ok: true }, 201);
     },
+  )
+  .put(
+    "/",
+    json(PreferenceSchema),
+    param({
+      projectId: v.string(),
+    }),
+    async (c) => {
+      const browser_id = await getBrowserID(c);
+      const { projectId } = c.req.valid("param");
+      const body = c.req.valid("json");
+      const participant = (await db(c)
+        .update(participants).set({
+          name: body.participantName,
+        })
+        .where(eq(participants.browser_id, browser_id))
+        .returning({ id: participants.id }))[0];
+      if (!participant) throw new HTTPException(500, { message: "failed to find participant" });
+
+      await db(c).delete(ratings).where(eq(ratings.participant_id, participant.id));
+      await db(c).insert(ratings).values(
+        body.ratings.map((r) => ({
+          id: crypto.randomUUID(),
+          name: body.participantName,
+          participant_id: participant.id,
+          role_id: r.roleId,
+          score: r.score,
+          project_id: projectId,
+        })),
+      );
+      return c.json({ ok: true }, 200);
+    },
   );
 export default route;
