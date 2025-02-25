@@ -1,4 +1,4 @@
-import { process_env } from "./utils/env.ts";
+import { process_env } from "./lib.ts";
 import { defineConfig } from "drizzle-kit";
 
 export default defineConfig({

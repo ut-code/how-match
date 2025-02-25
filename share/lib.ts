@@ -1,3 +1,7 @@
+export function panic(message: string): never {
+  throw new Error(message);
+}
+
 export function asserting<T>(cond: T | null | undefined, message?: string): T {
   if (cond == null) {
     throw new Error(`Assertion failed: ${message ?? "message not given"}`);

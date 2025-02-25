@@ -5,7 +5,7 @@ import { accounts, type SelectAccount } from "../../db/schema.ts";
 import { HTTPException } from "hono/http-exception";
 import { eq } from "drizzle-orm";
 import type { CookieOptions } from "hono/utils/cookie";
-import { env } from "../../utils/env.ts";
+import { env } from "../../lib.ts";
 
 function GET_COOKIE_SIGN(c: Context): string {
   return env(c, "COOKIE_SIGN");

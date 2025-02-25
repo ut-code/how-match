@@ -1,6 +1,6 @@
 import type { RequestEvent } from "@sveltejs/kit";
 import app from "service";
-import { panic } from "service/utils/panic";
+import { panic } from "share/lib.ts";
 
 async function hook(event: RequestEvent) {
   // @ts-ignore: TypeScript can't recognize platform type? FIXME: make it recognize App.env from src/app.d.ts
