@@ -1,8 +1,8 @@
-import type { HonoOptions } from "./types.ts";
+import type { HonoOptions } from "service/types.ts";
 import { Hono } from "hono";
-import projects from "./routes/projects.ts";
+import projects from "service/routes/projects/index.ts";
 import { cors } from "hono/cors";
-import { env } from "./lib.ts";
+import { env } from "service/lib.ts";
 
 const app = new Hono<HonoOptions>()
   .basePath("/api")

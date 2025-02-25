@@ -1,13 +1,13 @@
-import { db } from "../db/client.ts";
-import { accounts, matches, participants, projects, ratings, roles } from "../db/schema.ts";
+import { db } from "service/db/client.ts";
+import { accounts, matches, participants, projects, ratings, roles } from "service/db/schema.ts";
 import { Hono } from "hono";
 import { and, eq } from "drizzle-orm";
 import * as v from "valibot";
 import { HTTPException } from "hono/http-exception";
-import type { HonoOptions } from "../types.ts";
-import { json, param } from "../validator/hono.ts";
+import type { HonoOptions } from "service/types.ts";
+import { json, param } from "service/validator/hono.ts";
 import { PreferenceSchema, ProjectSchema } from "share/schema.ts";
-import { getBrowserID } from "../features/auth/index.ts";
+import { getBrowserID } from "service/features/auth/index.ts";
 
 const route = new Hono<HonoOptions>()
   .get("/mine", async (c) => {
