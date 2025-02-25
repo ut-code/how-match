@@ -35,7 +35,7 @@ const route = new Hono<HonoOptions>()
         .limit(1);
 
       if (participantResult.length > 0) {
-        return c.json({ message: "すでに希望を提出済です" }, 409);
+        throw new HTTPException(409, { message: "すでに希望を提出済です" });
       }
 
       const participant = (

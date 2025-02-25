@@ -6,6 +6,7 @@
   import Header from "~/components/header.svelte";
   import type { PageProps } from "./$types.ts";
   import RolesSelector from "./roles-selector.svelte";
+  import type { Preference } from "share/types.ts";
 
   const { data }: PageProps = $props();
   const client = createClient({ fetch });
@@ -21,8 +22,10 @@
   );
 
   async function postPreference() {
+    formState = "submitting";
+
     const preference = safeParse(PreferenceSchema, {
-      accountId: null, // ?
+      browserId: null,
       participantName: participantName,
       ratings: ratings.map((rating) => ({
         roleId: rating.role.id,
@@ -32,21 +35,28 @@
     // TODO: handle it better
     if (!preference.success) throw new Error("failed to validate preference");
 
+    let created: { ok: boolean };
     if (data.prev) {
       // PUT
       const res = await client.projects[":projectId"].preferences.$put({
         json: preference.output,
         param: { projectId: project.id },
       });
-      return await res.json();
+      created = await res.json();
+    } else {
+      // POST
+      const res = await client.projects[":projectId"].preferences.$post({
+        json: preference.output,
+        param: { projectId: project.id },
+      });
+      created = await res.json();
     }
-    // POST
-    const res = await client.projects[":projectId"].preferences.$post({
-      json: preference.output,
-      param: { projectId: project.id },
-    });
-    return await res.json();
+    goto("/done");
+    formState = "done";
   }
+
+  let formState = $state<"ready" | "submitting" | "error" | "done">("ready");
+  const formVerb = $derived(data.prev ? "更新" : "送信");
 </script>
 
 <div>
@@ -61,7 +71,6 @@
       onsubmit={async (e) => {
         e.preventDefault();
         await postPreference();
-        goto("/done");
       }}
     >
       <div class="hm-blocks-container">
@@ -82,7 +91,23 @@
         </div>
         <RolesSelector bind:ratings />
         <div class="flex justify-end">
-          <button type="submit" class="btn btn-primary">送信</button>
+          {#if formState === "ready"}
+            <button type="submit" class="btn btn-primary">
+              {formVerb}
+            </button>
+          {:else if formState === "submitting"}
+            <button type="submit" class="btn btn-primary" disabled>
+              <span class="loading loading-spinner"></span> {formVerb}中...
+            </button>
+          {:else if formState === "error"}
+            <button type="submit" class="btn btn-primary" disabled>
+              <span class="loading loading-spinner"></span> {formVerb}に失敗しました
+            </button>
+          {:else if formState === "done"}
+            <button type="submit" class="btn btn-primary" disabled>
+              完了
+            </button>
+          {/if}
         </div>
       </div>
     </form>

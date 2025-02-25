@@ -12,7 +12,7 @@ export const ProjectSchema = object({
 });
 
 export const PreferenceSchema = object({
-  accountId: nullable(string()), // TODO: non-null でよいのでは
+  browserId: nullable(string()), // TODO: non-null でよいのでは
   participantName: string(),
   ratings: array(object({
     roleId: string(),

@@ -25,22 +25,34 @@
     form.roles.splice(index, 1);
   }
 
+  let formState = $state<"ready" | "submitting" | "error" | "done">("ready");
   async function postProject() {
-    const val = safeParse(ProjectSchema, form);
-    if (!val.success) {
-      const error = new Error(
-        "[TODO: make it into the UI] Failed to validate schema, issues:",
-      );
-      console.error(error, val.issues);
-      throw error;
+    try {
+      formState = "submitting";
+      const val = safeParse(ProjectSchema, form);
+      if (!val.success) {
+        const error = new Error(
+          "[TODO: make it into the UI] Failed to validate schema, issues:",
+        );
+        console.error(error, val.issues);
+        throw error;
+      }
+      const res = await client.projects.$post({
+        json: val.output,
+      });
+      if (!res.ok) {
+        throw new Error("failed to create project");
+      }
+      const project = await res.json();
+      goto(`/${project.id}/config?created`);
+      formState = "done";
+    } catch (err) {
+      console.error(err);
+      formState = "error";
+      setTimeout(() => {
+        formState = "ready";
+      }, 1500);
     }
-    const res = await client.projects.$post({
-      json: val.output,
-    });
-    if (!res.ok) {
-      throw new Error("failed to create project");
-    }
-    return await res.json();
   }
 </script>
 
@@ -50,8 +62,7 @@
     method="POST"
     onsubmit={async (e) => {
       e.preventDefault();
-      const project = await postProject();
-      goto(`/${project.id}/config?created`);
+      await postProject();
     }}
   >
     <div class="hm-blocks-container">
@@ -116,7 +127,20 @@
         </button>
       </div>
       <div class="flex justify-end">
-        <button type="submit" class="btn btn-primary">作成</button>
+        {#if formState === "ready"}
+          <button type="submit" class="btn btn-primary">作成</button>
+        {:else if formState === "done"}
+          <button type="submit" class="btn btn-primary" disabled>完了</button>
+        {:else if formState === "submitting"}
+          <button type="submit" class="btn btn-primary" disabled>
+            <span class="loading loading-spinner"></span>
+            作成中...
+          </button>
+        {:else if formState === "error"}
+          <button type="submit" class="btn btn-error" disabled>
+            <span class="text-error"> 作成に失敗しました。 </span>
+          </button>
+        {/if}
       </div>
     </div>
   </form>

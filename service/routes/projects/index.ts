@@ -47,13 +47,14 @@ const route = new Hono<HonoOptions>()
         return project;
       });
 
-      const prev_userdata = (await db(c).select({
+      const prev_participant_data = (await db(c).select({
         id: participants.id,
         name: participants.name,
       }).from(participants).where(
         and(
           eq(participants.project_id, projectId),
           eq(participants.browser_id, browser_id),
+          eq(participants.is_admin, 0),
         ),
       ))[0];
       // エンティティの roles と被るため role_resp
@@ -74,13 +75,13 @@ const route = new Hono<HonoOptions>()
           ratings,
           and(
             eq(ratings.role_id, roles.id),
-            eq(ratings.participant_id, prev_userdata?.id ?? "never"), // omit if prev_userdata doesn't exist
+            eq(ratings.participant_id, prev_participant_data?.id ?? "never"), // omit if prev_userdata doesn't exist
           ),
         ).execute();
       return c.json({
         project: await project,
         roles: await role_resp,
-        prev: prev_userdata,
+        prev: prev_participant_data,
       });
     },
   )
