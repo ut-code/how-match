@@ -42,6 +42,7 @@
               <input
                 name={role.name}
                 type="radio"
+                required
                 class="peer h-5 w-5 cursor-pointer appearance-none rounded-full border border-slate-300 checked:border-slate-400 transition-all"
                 id="{role.name}-{radioIndex}"
                 value={radioIndex}
