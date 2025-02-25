@@ -1,8 +1,8 @@
 <script lang="ts">
-  import Header from "~/components/header.svelte";
   import { onMount } from "svelte";
   import { onDestroy } from "svelte";
   import { generateURL } from "~/api/origins.svelte.ts";
+  import Header from "~/components/header.svelte";
 
   const { data } = $props();
   const link = generateURL({

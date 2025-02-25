@@ -1,7 +1,7 @@
 <script lang="ts">
-  import Header from "~/components/header.svelte";
-  import { type Client, createClient } from "~/api/client.ts";
   import { onMount } from "svelte";
+  import { type Client, createClient } from "~/api/client.ts";
+  import Header from "~/components/header.svelte";
 
   const client: Client = createClient({ fetch });
   async function getMyProjects(options?: { signal: AbortSignal }) {

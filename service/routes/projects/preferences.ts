@@ -1,13 +1,13 @@
-import { json, param } from "service/validator/hono.ts";
-import { Hono } from "hono";
-import { PreferenceSchema } from "share/schema";
-import { getBrowserID } from "service/features/auth/index.ts";
-import * as v from "valibot";
-import { participants, ratings } from "service/db/schema.ts";
 import { and, eq } from "drizzle-orm";
-import { db } from "service/db/client";
-import type { HonoOptions } from "service/types";
+import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
+import { db } from "service/db/client";
+import { participants, ratings } from "service/db/schema.ts";
+import { getBrowserID } from "service/features/auth/index.ts";
+import type { HonoOptions } from "service/types";
+import { json, param } from "service/validator/hono.ts";
+import { PreferenceSchema } from "share/schema";
+import * as v from "valibot";
 
 const route = new Hono<HonoOptions>()
   .post(

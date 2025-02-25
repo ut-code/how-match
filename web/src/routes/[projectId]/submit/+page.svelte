@@ -1,11 +1,11 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import Header from "~/components/header.svelte";
-  import { createClient } from "~/api/client";
-  import type { PageProps } from "./$types.ts";
-  import RolesSelector from "./roles-selector.svelte";
   import { PreferenceSchema } from "share/schema.ts";
   import { safeParse } from "valibot";
+  import { createClient } from "~/api/client";
+  import Header from "~/components/header.svelte";
+  import type { PageProps } from "./$types.ts";
+  import RolesSelector from "./roles-selector.svelte";
 
   const { data }: PageProps = $props();
   const client = createClient({ fetch });
@@ -32,14 +32,7 @@
     // TODO: handle it better
     if (!preference.success) throw new Error("failed to validate preference");
 
-    if (!data.prev) {
-      // POST
-      const res = await client.projects[":projectId"].preferences.$post({
-        json: preference.output,
-        param: { projectId: project.id },
-      });
-      return await res.json();
-    } else {
+    if (data.prev) {
       // PUT
       const res = await client.projects[":projectId"].preferences.$put({
         json: preference.output,
@@ -47,6 +40,12 @@
       });
       return await res.json();
     }
+    // POST
+    const res = await client.projects[":projectId"].preferences.$post({
+      json: preference.output,
+      param: { projectId: project.id },
+    });
+    return await res.json();
   }
 </script>
 

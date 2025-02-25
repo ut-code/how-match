@@ -1,10 +1,10 @@
+import { eq } from "drizzle-orm";
 import type { Context } from "hono";
 import { getSignedCookie, setSignedCookie } from "hono/cookie";
+import { HTTPException } from "hono/http-exception";
+import type { CookieOptions } from "hono/utils/cookie";
 import { db } from "service/db/client.ts";
 import { accounts, type SelectAccount } from "service/db/schema.ts";
-import { HTTPException } from "hono/http-exception";
-import { eq } from "drizzle-orm";
-import type { CookieOptions } from "hono/utils/cookie";
 import { env } from "service/lib.ts";
 
 function GET_COOKIE_SIGN(c: Context): string {

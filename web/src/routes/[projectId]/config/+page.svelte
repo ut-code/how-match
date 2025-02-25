@@ -1,12 +1,12 @@
 <script lang="ts">
-  import Header from "~/components/header.svelte";
-  import { onMount } from "svelte";
-  import { type Client, createClient } from "~/api/client";
-  import chain from "~/icons/Chain.svg";
-  import { generateURL } from "~/api/origins.svelte.ts";
-  import { page } from "$app/state";
-  import { fly } from "svelte/transition";
   import { replaceState } from "$app/navigation";
+  import { page } from "$app/state";
+  import { onMount } from "svelte";
+  import { fly } from "svelte/transition";
+  import { type Client, createClient } from "~/api/client";
+  import { generateURL } from "~/api/origins.svelte.ts";
+  import Header from "~/components/header.svelte";
+  import chain from "~/icons/Chain.svg";
 
   const client: Client = createClient({ fetch });
   const { data } = $props();
