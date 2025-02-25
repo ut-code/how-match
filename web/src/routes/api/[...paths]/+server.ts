@@ -9,5 +9,6 @@ async function hook(event: RequestEvent) {
 
 export const GET = hook;
 export const POST = hook;
+export const PUT = hook;
 export const PATCH = hook;
 export const DELETE = hook;
