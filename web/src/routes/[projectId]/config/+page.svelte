@@ -15,13 +15,12 @@
   onMount(() => {
     if (newlyCreated) {
       createdToastShown = true;
+      // replace ?created with none s.t. it won't show "created!" after reload
+      const next = new URL(window.location.href);
+      next.search = "";
+      window.history.pushState({}, "", next);
       setTimeout(() => {
         createdToastShown = false;
-
-        // replace ?created with none s.t. it won't show "created!" after reload
-        const next = new URL(window.location.href);
-        next.search = "";
-        window.history.pushState({}, "", next);
       }, 2000);
     }
   });
@@ -84,7 +83,9 @@
               class="btn btn-primary m-4"
               href="./submit"
               class:btn-disabled={project.closed_at ? true : false}
-            >提出の画面へ</a>
+            >
+              提出の画面へ
+            </a>
             <button
               class="btn btn-error m-4"
               onclick={async () => {
