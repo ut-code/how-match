@@ -30,10 +30,10 @@ pre-commit:
       run: cd service; bun run cf-typegen
       stage_fixed: true
     # JS
-    deno-fmt:
+    biome-fmt:
       tags: js style
       glob: "*.{js,ts,svelte,html,md}"
-      run: deno fmt {staged_files}
+      run: biome format {staged_files} --fix
       stage_fixed: true
     biome-lint:
       tags: js lint

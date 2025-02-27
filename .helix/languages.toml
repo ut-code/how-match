@@ -1,5 +1,5 @@
-[language-server]
-deno = { command = "deno", args = ["lsp"] }
+# [language-server]
+# deno = { command = "deno", args = ["lsp"] }
 
 [[language]]
 name = "nix"
@@ -30,4 +30,8 @@ language-servers = ["tailwindcss-ls", "svelteserver"]
 
 [[language]]
 name = "typescript"
-formatter = { command = "deno", args = ["fmt", "-"] }
+formatter = { command = "biome", args = [
+  "format",
+  "--stdin-file-path",
+  "a.ts",
+] }

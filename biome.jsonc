@@ -10,7 +10,8 @@
     "ignore": []
   },
   "formatter": {
-    "enabled": false, // turned off until HTML + svelte full support
+    "enabled": true, // HTML-ish support when?
+    "lineWidth": 120,
     "indentStyle": "space",
     "indentWidth": 2
   },

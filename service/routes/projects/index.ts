@@ -13,6 +13,7 @@ import preferenceRoutes from "./preferences.ts";
 
 const route = new Hono<HonoOptions>()
   .route("/:projectId/preferences", preferenceRoutes)
+
   .get("/mine", async (c) => {
     const browser_id = await getBrowserID(c);
     const project_resp = await db(c)
@@ -20,16 +21,17 @@ const route = new Hono<HonoOptions>()
       .from(projects)
       .innerJoin(participants, eq(projects.id, participants.project_id))
       .where(eq(participants.browser_id, browser_id));
-    return c.json(project_resp.map(
-      (p) => ({
+    return c.json(
+      project_resp.map((p) => ({
         id: p.projects.id,
         name: p.projects.name,
         description: p.projects.description,
         closed_at: p.projects.closed_at,
         is_admin: p.participants.is_admin,
-      }),
-    ));
+      })),
+    );
   })
+
   .get(
     "/:projectId",
     param({
@@ -47,16 +49,21 @@ const route = new Hono<HonoOptions>()
         return project;
       });
 
-      const prev_participant_data = (await db(c).select({
-        id: participants.id,
-        name: participants.name,
-      }).from(participants).where(
-        and(
-          eq(participants.project_id, projectId),
-          eq(participants.browser_id, browser_id),
-          eq(participants.is_admin, 0),
-        ),
-      ))[0];
+      const prev_participant_data = (
+        await db(c)
+          .select({
+            id: participants.id,
+            name: participants.name,
+          })
+          .from(participants)
+          .where(
+            and(
+              eq(participants.project_id, projectId),
+              eq(participants.browser_id, browser_id),
+              eq(participants.is_admin, 0),
+            ),
+          )
+      )[0];
       // エンティティの roles と被るため role_resp
       const role_resp = db(c)
         .select({
@@ -67,17 +74,15 @@ const route = new Hono<HonoOptions>()
           prev: ratings.score,
         })
         .from(roles)
-        .where(eq(
-          roles.project_id,
-          projectId,
-        ))
+        .where(eq(roles.project_id, projectId))
         .leftJoin(
           ratings,
           and(
             eq(ratings.role_id, roles.id),
             eq(ratings.participant_id, prev_participant_data?.id ?? "never"), // omit if prev_userdata doesn't exist
           ),
-        ).execute();
+        )
+        .execute();
       return c.json({
         project: await project,
         roles: await role_resp,
@@ -89,15 +94,18 @@ const route = new Hono<HonoOptions>()
     const browser_id = await getBrowserID(c);
     const project_id = crypto.randomUUID();
     const body = c.req.valid("json");
-    const project_resp = (await db(c)
-      .insert(projects)
-      .values([
-        {
-          id: project_id,
-          name: body.name,
-          description: body.description,
-        },
-      ]).returning())[0];
+    const project_resp = (
+      await db(c)
+        .insert(projects)
+        .values([
+          {
+            id: project_id,
+            name: body.name,
+            description: body.description,
+          },
+        ])
+        .returning()
+    )[0];
     if (!project_resp) throw new HTTPException(500, { message: "failed to create project" });
     await db(c)
       .insert(participants)
@@ -121,7 +129,8 @@ const route = new Hono<HonoOptions>()
           max: r.max,
           project_id: project_id,
         })),
-      ).returning();
+      )
+      .returning();
     return c.json({
       ...project_resp,
       roles: roles_resp,

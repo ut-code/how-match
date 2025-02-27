@@ -17,11 +17,10 @@ jobs:
         with:
           bun-version: 1.2.2
       - uses: biomejs/setup-biome@v2
-      - uses: denoland/setup-deno@v2
       - run: bun install --frozen-lockfile
       - run: bun check
       - run: biome lint .
-      - run: deno fmt --check
+      - run: biome format .
   nix-checks:
     name: Nix checks
     runs-on: ubuntu-latest

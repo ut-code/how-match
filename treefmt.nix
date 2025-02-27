@@ -1,22 +1,4 @@
 let
-  deno-includes = [
-    "*.css"
-    "*.html"
-    "*.js"
-    "*.json"
-    "*.jsonc"
-    "*.jsx"
-    "*.less"
-    "*.markdown"
-    "*.md"
-    "*.sass"
-    "*.scss"
-    "*.ts"
-    "*.tsx"
-    "*.yaml"
-    "*.yml"
-    "*.svelte"
-  ];
   global-excludes = [
     "node_modules"
     ".gitignore"
@@ -41,8 +23,6 @@ in {
     mdformat.enable = true;
 
     # JS
-    deno.enable = true;
-    deno.includes = deno-includes;
     biome.enable = true;
 
     # Nix
