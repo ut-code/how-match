@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, exists } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { db } from "service/db/client.ts";
@@ -126,6 +126,27 @@ const route = new Hono<HonoOptions>()
       ...project_resp,
       roles: roles_resp,
     });
+  })
+  .delete("/:projectId", param({ projectId: v.pipe(v.string(), v.uuid()) }), async (c) => {
+    const browser_id = await getBrowserID(c);
+    const { projectId: project_id } = c.req.valid("param");
+    const d = db(c);
+    await d
+      .delete(projects)
+      .where(
+        and(
+          eq(projects.id, project_id),
+          exists(
+            d.select().from(participants).where(
+              and(
+                eq(participants.browser_id, browser_id),
+                eq(participants.is_admin, 1),
+              ),
+            ),
+          ),
+        ),
+      );
+    return c.json({ ok: true }, 200);
   })
   .patch(
     "/:projectId",
