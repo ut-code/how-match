@@ -1,46 +1,46 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { onDestroy } from "svelte";
-  import { generateURL } from "~/api/origins.svelte.ts";
-  import Header from "~/components/header.svelte";
+import { onMount } from "svelte";
+import { onDestroy } from "svelte";
+import { generateURL } from "~/api/origins.svelte.ts";
+import Header from "~/components/header.svelte";
 
-  const { data } = $props();
-  const link = generateURL({
-    pathname: `${data.projectId}/result`,
-  });
+const { data } = $props();
+const link = generateURL({
+  pathname: `${data.projectId}/result`,
+});
 
-  let copyTimeout = 0;
-  // TODO: make a proper loading
-  let matchList: {
-    role_id: string;
-    participant_id: string;
-    role_name: string;
-    account_name: string;
-    project_name: string;
-    project_desc: string;
-  }[] = $state([]);
+let copyTimeout = 0;
+// TODO: make a proper loading
+let matchList: {
+  role_id: string;
+  participant_id: string;
+  role_name: string;
+  account_name: string;
+  project_name: string;
+  project_desc: string;
+}[] = $state([]);
 
-  onMount(async () => {
-    try {
-      // fetchを使用してエンドポイントから結果を取得
-      const response = await fetch(link);
-      if (!response.ok) {
-        throw new Error("Failed to fetch matches");
-      }
-      const match_result = await response.json();
-      matchList = match_result; // 取得したデータをmatchListにセット
-    } catch (error) {
-      console.error("Failed to fetch matches:", error);
+onMount(async () => {
+  try {
+    // fetchを使用してエンドポイントから結果を取得
+    const response = await fetch(link);
+    if (!response.ok) {
+      throw new Error("Failed to fetch matches");
     }
-  });
+    const match_result = await response.json();
+    matchList = match_result; // 取得したデータをmatchListにセット
+  } catch (error) {
+    console.error("Failed to fetch matches:", error);
+  }
+});
 
-  const interval = setInterval(() => {
-    if (copyTimeout > 0) {
-      copyTimeout--;
-    }
-  }, 100);
+const interval = setInterval(() => {
+  if (copyTimeout > 0) {
+    copyTimeout--;
+  }
+}, 100);
 
-  onDestroy(() => clearInterval(interval));
+onDestroy(() => clearInterval(interval));
 </script>
 
 <div>

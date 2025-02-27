@@ -4,7 +4,9 @@ export const participants = sqliteTable("participants", {
   id: text("id").notNull().primaryKey(),
   name: text().notNull(),
   browser_id: text("browser_id").notNull(),
-  project_id: text("project_id").references(() => projects.id, { onDelete: "cascade" }).notNull(),
+  project_id: text("project_id")
+    .references(() => projects.id, { onDelete: "cascade" })
+    .notNull(),
   is_admin: integer("is_admin").notNull(),
 });
 
@@ -26,24 +28,36 @@ export const roles = sqliteTable("roles", {
   name: text().notNull(),
   min: integer().notNull(),
   max: integer().notNull(),
-  project_id: text("project_id").references(() => projects.id, { onDelete: "cascade" }).notNull(),
+  project_id: text("project_id")
+    .references(() => projects.id, { onDelete: "cascade" })
+    .notNull(),
 });
 
 export const ratings = sqliteTable("ratings", {
   id: text().notNull().primaryKey(),
-  participant_id: text("participant_id").references(() => participants.id, { onDelete: "cascade" })
+  participant_id: text("participant_id")
+    .references(() => participants.id, { onDelete: "cascade" })
     .notNull(),
-  role_id: text("role_id").references(() => roles.id, { onDelete: "cascade" }).notNull(),
+  role_id: text("role_id")
+    .references(() => roles.id, { onDelete: "cascade" })
+    .notNull(),
   score: integer().notNull(),
-  project_id: text("project_id").references(() => projects.id, { onDelete: "cascade" }).notNull(),
+  project_id: text("project_id")
+    .references(() => projects.id, { onDelete: "cascade" })
+    .notNull(),
 });
 
 export const matches = sqliteTable("matches", {
   id: text().notNull().primaryKey(),
-  role_id: text("role_id").references(() => roles.id, { onDelete: "cascade" }).notNull(),
-  participant_id: text("participant_id").references(() => participants.id, { onDelete: "cascade" })
+  role_id: text("role_id")
+    .references(() => roles.id, { onDelete: "cascade" })
     .notNull(),
-  project_id: text("project_id").references(() => projects.id, { onDelete: "cascade" }).notNull(),
+  participant_id: text("participant_id")
+    .references(() => participants.id, { onDelete: "cascade" })
+    .notNull(),
+  project_id: text("project_id")
+    .references(() => projects.id, { onDelete: "cascade" })
+    .notNull(),
 });
 
 export type InsertParticipant = typeof participants.$inferInsert;

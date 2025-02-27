@@ -1,40 +1,40 @@
 <script lang="ts">
-  import { replaceState } from "$app/navigation";
-  import { page } from "$app/state";
-  import { onMount } from "svelte";
-  import { fly } from "svelte/transition";
-  import { type Client, createClient } from "~/api/client";
-  import { generateURL } from "~/api/origins.svelte.ts";
-  import Header from "~/components/header.svelte";
-  import chain from "~/icons/Chain.svg";
+import { replaceState } from "$app/navigation";
+import { page } from "$app/state";
+import { onMount } from "svelte";
+import { fly } from "svelte/transition";
+import { type Client, createClient } from "~/api/client";
+import { generateURL } from "~/api/origins.svelte.ts";
+import Header from "~/components/header.svelte";
+import chain from "~/icons/Chain.svg";
 
-  const client: Client = createClient({ fetch });
-  const { data } = $props();
+const client: Client = createClient({ fetch });
+const { data } = $props();
 
-  const newlyCreated = page.url.searchParams.get("created") !== null;
-  let createdToastShown = $state(false);
-  onMount(() => {
-    if (newlyCreated) {
-      createdToastShown = true;
-      // replace ?created with none s.t. it won't show "created!" after reload
-      const next = new URL(window.location.href);
-      next.search = "";
-      replaceState(next, {});
-      setTimeout(() => {
-        createdToastShown = false;
-      }, 2000);
-    }
-  });
+const newlyCreated = page.url.searchParams.get("created") !== null;
+let createdToastShown = $state(false);
+onMount(() => {
+  if (newlyCreated) {
+    createdToastShown = true;
+    // replace ?created with none s.t. it won't show "created!" after reload
+    const next = new URL(window.location.href);
+    next.search = "";
+    replaceState(next, {});
+    setTimeout(() => {
+      createdToastShown = false;
+    }, 2000);
+  }
+});
 
-  const link = generateURL({
-    pathname: `${data.projectId}/submit`,
-  }).href;
+const link = generateURL({
+  pathname: `${data.projectId}/submit`,
+}).href;
 
-  let copyTimeout = $state(0);
-  onMount(() => {
-    const id = setInterval(() => (copyTimeout > 0 ? copyTimeout-- : null), 100);
-    return () => clearTimeout(id);
-  });
+let copyTimeout = $state(0);
+onMount(() => {
+  const id = setInterval(() => (copyTimeout > 0 ? copyTimeout-- : null), 100);
+  return () => clearTimeout(id);
+});
 </script>
 
 <div class="toast-start toast-top absolute">

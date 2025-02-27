@@ -4,7 +4,7 @@ import { getSignedCookie, setSignedCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import type { CookieOptions } from "hono/utils/cookie";
 import { db } from "service/db/client.ts";
-import { accounts, type SelectAccount } from "service/db/schema.ts";
+import { type SelectAccount, accounts } from "service/db/schema.ts";
 import { env } from "service/lib.ts";
 
 function GET_COOKIE_SIGN(c: Context): string {
@@ -74,11 +74,7 @@ export async function getBrowserID(c: Context): Promise<string> {
 async function _findAccount(c: Context, auth: AuthInfo): Promise<SelectAccount | undefined> {
   switch (auth.kind) {
     case "none": {
-      const accountsResult = await db(c)
-        .select()
-        .from(accounts)
-        .where(eq(accounts.name, auth.info.name))
-        .limit(1);
+      const accountsResult = await db(c).select().from(accounts).where(eq(accounts.name, auth.info.name)).limit(1);
       return accountsResult[0]; // findUnique をしたかった
     }
     default:

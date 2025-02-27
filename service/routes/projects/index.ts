@@ -140,21 +140,17 @@ const route = new Hono<HonoOptions>()
     const browser_id = await getBrowserID(c);
     const { projectId: project_id } = c.req.valid("param");
     const d = db(c);
-    await d
-      .delete(projects)
-      .where(
-        and(
-          eq(projects.id, project_id),
-          exists(
-            d.select().from(participants).where(
-              and(
-                eq(participants.browser_id, browser_id),
-                eq(participants.is_admin, 1),
-              ),
-            ),
-          ),
+    await d.delete(projects).where(
+      and(
+        eq(projects.id, project_id),
+        exists(
+          d
+            .select()
+            .from(participants)
+            .where(and(eq(participants.browser_id, browser_id), eq(participants.is_admin, 1))),
         ),
-      );
+      ),
+    );
     return c.json({ ok: true }, 200);
   })
   .patch(

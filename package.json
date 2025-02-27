@@ -2,11 +2,7 @@
   "name": "how-match",
   "type": "module",
   "private": true,
-  "workspaces": [
-    "share",
-    "service",
-    "web"
-  ],
+  "workspaces": ["share", "service", "web"],
   "scripts": {
     "prepare": "bun sync && bun prepare:self",
     "prepare:self": "lefthook install",

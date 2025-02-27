@@ -1,5 +1,5 @@
 import { vValidator } from "@hono/valibot-validator";
-import { type BaseIssue, type BaseSchema, object, type ObjectEntries } from "valibot";
+import { type BaseIssue, type BaseSchema, type ObjectEntries, object } from "valibot";
 
 export function param<T extends ObjectEntries>(values: T) {
   return vValidator("param", object(values));

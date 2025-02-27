@@ -1,6 +1,6 @@
 <script lang="ts">
-  import Icon123 from "~icons/material-symbols/123";
-  let { title } = $props();
+import Icon123 from "~icons/material-symbols/123";
+let { title } = $props();
 </script>
 
 <header class="fixed top-0 left-0 w-full z-30 border-b border-primary bg-white">

@@ -28,10 +28,8 @@
     "noUncheckedIndexedAccess": true,
     "paths": {
       "$features": ["./src/features"],
-      "$features/*": ["./src/features/*"]
-    }
+      "$features/*": ["./src/features/*"],
+    },
   },
-  "exclude": [
-    "node_modules"
-  ]
+  "exclude": ["node_modules"],
 }

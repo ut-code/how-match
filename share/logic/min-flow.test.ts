@@ -24,18 +24,20 @@ test("chatgpt-given example", () => {
     { min: 2, max: 3 }, // R4 の min/max
     { min: 1, max: 2 }, // R5 の min/max
   ];
-  const expected = [[
-    { participant: 0, role: 0 },
-    { participant: 1, role: 1 },
-    { participant: 2, role: 2 },
-    { participant: 3, role: 3 },
-    { participant: 4, role: 4 },
-    { participant: 5, role: 0 },
-    { participant: 6, role: 1 },
-    { participant: 7, role: 4 },
-    { participant: 8, role: 3 },
-    { participant: 9, role: 1 },
-  ]];
+  const expected = [
+    [
+      { participant: 0, role: 0 },
+      { participant: 1, role: 1 },
+      { participant: 2, role: 2 },
+      { participant: 3, role: 3 },
+      { participant: 4, role: 4 },
+      { participant: 5, role: 0 },
+      { participant: 6, role: 1 },
+      { participant: 7, role: 4 },
+      { participant: 8, role: 3 },
+      { participant: 9, role: 1 },
+    ],
+  ];
 
   const got = findAllOptimalAssignments(participants, roles, minMaxConstraints);
   console.log(got);

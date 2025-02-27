@@ -1,62 +1,62 @@
 <script lang="ts">
-  import { goto } from "$app/navigation";
-  import { PreferenceSchema } from "share/schema.ts";
-  import { safeParse } from "valibot";
-  import { createClient } from "~/api/client";
-  import Header from "~/components/header.svelte";
-  import type { PageProps } from "./$types.ts";
-  import RolesSelector from "./roles-selector.svelte";
-  import type { Preference } from "share/types.ts";
+import { goto } from "$app/navigation";
+import { PreferenceSchema } from "share/schema.ts";
+import type { Preference } from "share/types.ts";
+import { safeParse } from "valibot";
+import { createClient } from "~/api/client";
+import Header from "~/components/header.svelte";
+import type { PageProps } from "./$types.ts";
+import RolesSelector from "./roles-selector.svelte";
 
-  const { data }: PageProps = $props();
-  const client = createClient({ fetch });
+const { data }: PageProps = $props();
+const client = createClient({ fetch });
 
-  const project = data.project;
-  // TODO: ローディング中の UI を追加
-  let participantName = $state<string>(data.prev?.name ?? "default username"); // ?
-  let ratings = $state(
-    data.roles.map((role) => {
-      const score = role.prev ?? undefined;
-      return { role, score };
-    }),
-  );
+const project = data.project;
+// TODO: ローディング中の UI を追加
+let participantName = $state<string>(data.prev?.name ?? "default username"); // ?
+let ratings = $state(
+  data.roles.map((role) => {
+    const score = role.prev ?? undefined;
+    return { role, score };
+  }),
+);
 
-  async function postPreference() {
-    formState = "submitting";
+async function postPreference() {
+  formState = "submitting";
 
-    const preference = safeParse(PreferenceSchema, {
-      browserId: null,
-      participantName: participantName,
-      ratings: ratings.map((rating) => ({
-        roleId: rating.role.id,
-        score: rating.score,
-      })),
+  const preference = safeParse(PreferenceSchema, {
+    browserId: null,
+    participantName: participantName,
+    ratings: ratings.map((rating) => ({
+      roleId: rating.role.id,
+      score: rating.score,
+    })),
+  });
+  // TODO: handle it better
+  if (!preference.success) throw new Error("failed to validate preference");
+
+  let created: { ok: boolean };
+  if (data.prev) {
+    // PUT
+    const res = await client.projects[":projectId"].preferences.$put({
+      json: preference.output,
+      param: { projectId: project.id },
     });
-    // TODO: handle it better
-    if (!preference.success) throw new Error("failed to validate preference");
-
-    let created: { ok: boolean };
-    if (data.prev) {
-      // PUT
-      const res = await client.projects[":projectId"].preferences.$put({
-        json: preference.output,
-        param: { projectId: project.id },
-      });
-      created = await res.json();
-    } else {
-      // POST
-      const res = await client.projects[":projectId"].preferences.$post({
-        json: preference.output,
-        param: { projectId: project.id },
-      });
-      created = await res.json();
-    }
-    goto("/done");
-    formState = "done";
+    created = await res.json();
+  } else {
+    // POST
+    const res = await client.projects[":projectId"].preferences.$post({
+      json: preference.output,
+      param: { projectId: project.id },
+    });
+    created = await res.json();
   }
+  goto("/done");
+  formState = "done";
+}
 
-  let formState = $state<"ready" | "submitting" | "error" | "done">("ready");
-  const formVerb = $derived(data.prev ? "更新" : "送信");
+let formState = $state<"ready" | "submitting" | "error" | "done">("ready");
+const formVerb = $derived(data.prev ? "更新" : "送信");
 </script>
 
 <div>

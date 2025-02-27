@@ -6,16 +6,13 @@ import type { HonoOptions } from "service/types.ts";
 
 const app = new Hono<HonoOptions>()
   .basePath("/api")
-  .use(
-    "/*",
-    async (c, next) => {
-      const CORS_ALLOW_ORIGINS = env(c, "CORS_ALLOW_ORIGINS", { fallback: "" });
-      return await cors({
-        origin: CORS_ALLOW_ORIGINS.split(","),
-        credentials: true,
-      })(c, next);
-    },
-  )
+  .use("/*", async (c, next) => {
+    const CORS_ALLOW_ORIGINS = env(c, "CORS_ALLOW_ORIGINS", { fallback: "" });
+    return await cors({
+      origin: CORS_ALLOW_ORIGINS.split(","),
+      credentials: true,
+    })(c, next);
+  })
   .get("/", (c) => c.text("Hello from Hono!"))
   .route("/projects", projects);
 

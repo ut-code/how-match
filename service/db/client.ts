@@ -1,4 +1,4 @@
-import { drizzle as d1, type DrizzleD1Database } from "drizzle-orm/d1";
+import { type DrizzleD1Database, drizzle as d1 } from "drizzle-orm/d1";
 import { drizzle as libsql } from "drizzle-orm/libsql";
 import type { Context } from "hono";
 import type { HonoOptions } from "service/types.ts";
