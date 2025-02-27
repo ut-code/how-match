@@ -5,7 +5,7 @@
   "scripts": {
     "sync": "bun run cf-typegen",
     "deploy": "wrangler deploy",
-    "cf-typegen": "wrangler types && if command -v deno >/dev/null; then deno fmt ./worker-configuration.d.ts; fi",
+    "cf-typegen": "wrangler types && bun biome format ./worker-configuration.d.ts --fix",
     "db": "drizzle-kit",
     "dev:local": "DB_KIND=local bun run dev",
     "dev:tmp": "DB_KIND=memory bun run dev",
@@ -15,6 +15,7 @@
     "build": "bun run tsc"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@cloudflare/vitest-pool-workers": "^0.6.4",
     "@cloudflare/workers-types": "^4.20250204.0",
     "@types/better-sqlite3": "^7.6.12",

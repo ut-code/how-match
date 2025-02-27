@@ -20,6 +20,7 @@
     "clean": "rm -r node_modules; rm -r **/node_modules; rm -r web/.svelte-kit; rm -r service/.drizzle; true"
   },
   "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
     "@cloudflare/workers-types": "^4.20250204.0",
     "@types/bun": "^1.2.4",
     "lefthook": "^1.10.10"
