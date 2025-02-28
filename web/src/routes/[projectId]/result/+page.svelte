@@ -40,8 +40,8 @@ onDestroy(() => clearInterval(interval));
         {/each}
       {/if}
     {/await}
-    <div class="flex justify-start">
-      <button type="button" class="btn btn-primary">戻る</button>
+    <div class="flex justify-end">
+      <a href="/" class="btn btn-primary"> ホームに戻る </a>
     </div>
   </div>
 </div>
