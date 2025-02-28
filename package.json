@@ -17,7 +17,7 @@
     "check:type": "(cd web && bun check:type) && (cd service && bun check:type) && (cd share && bun run check:type)",
     "check:style": "biome lint . && bun prettier --check .",
     "fix": "bun fix:style",
-    "fix:style": "biome check --fix .",
+    "fix:style": "bun prettier --write . && biome lint . --fix --unsafe",
     "db": "cd service; rm ../local.db; DATABASE_URL=file:../local.db bun db push --force",
     "build": "(cd service && bun run build) && (cd web && bun run build)",
     "test": "cd share; bun run test",
