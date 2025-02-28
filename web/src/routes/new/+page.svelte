@@ -4,6 +4,8 @@
   import { safeParse } from "valibot";
   import { type Client, createClient } from "~/api/client";
   import Header from "~/components/header.svelte";
+  import MdiPlus from "virtual:icons/mdi/plus";
+  import MdiClose from "virtual:icons/mdi/close";
 
   const client: Client = createClient({ fetch });
   type Form = {
@@ -67,13 +69,13 @@
   >
     <div class="hm-blocks-container">
       <div class="hm-block">
-        <p>プロジェクト名</p>
+        <p>プロジェクトのタイトル</p>
         <input
           type="text"
-          class="input bg-white"
+          class="input bg-white text-base"
           required
           minlength="1"
-          placeholder="プロジェクト名"
+          placeholder="タイトル"
           bind:value={form.name}
         />
       </div>
@@ -81,7 +83,7 @@
         <p>プロジェクトの説明</p>
         <input
           type="text"
-          class="input bg-white"
+          class="input bg-white text-base"
           placeholder="説明"
           bind:value={form.description}
         />
@@ -92,7 +94,7 @@
           <div class="flex gap-2">
             <input
               type="text"
-              class="input bg-white validator"
+              class="input bg-white validator text-base grow-1"
               placeholder="役職名"
               minlength="1"
               required
@@ -100,7 +102,7 @@
             />
             <input
               type="number"
-              class="input bg-white validator"
+              class="input bg-white validator text-base"
               placeholder="最大人数"
               min={1}
               required
@@ -108,7 +110,7 @@
             />
             <input
               type="number"
-              class="input bg-white validator"
+              class="input bg-white validator text-base"
               placeholder="最小人数"
               min="0"
               max={role.max}
@@ -117,17 +119,20 @@
             />
             <button
               type="button"
-              class="cursor-pointer"
-              onclick={() => deleteRole(index)}>✖️</button
+              class="rounded-full btn btn-circle btn-ghost"
+              onclick={() => deleteRole(index)}
             >
+              <MdiClose class="w-12" />
+            </button>
           </div>
         {/each}
         <button
           type="button"
-          class="btn btn-primary flex justify-center"
+          class="btn btn-primary btn-soft flex justify-center"
           onclick={addRole}
         >
-          ＋追加
+          <MdiPlus />
+          追加
         </button>
       </div>
       <div class="flex justify-end">

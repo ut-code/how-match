@@ -7,6 +7,9 @@
   import { generateURL } from "~/api/origins.svelte.ts";
   import Header from "~/components/header.svelte";
   import chain from "~/icons/Chain.svg";
+  import MdiVote from "virtual:icons/mdi/vote";
+  import MdiStopCircle from "virtual:icons/mdi/stop-circle";
+  import MdiGraph from "virtual:icons/mdi/graph";
 
   const client: Client = createClient({ fetch });
   const { data } = $props();
@@ -56,7 +59,7 @@
   });
 </script>
 
-<Header title="管理・設定" />
+<Header title="管理" />
 <div class="mt-3 ml-3 toast-start toast-top absolute">
   {#if createdToastShown}
     <div class="alert alert-success z-31" transition:fly>
@@ -80,138 +83,152 @@
         message: {res.message}
       {:else}
         {@const project = res.data.project}
-        <h3>プロジェクトの詳細</h3>
-        <p>プロジェクト名: {project.name}</p>
-        <p>説明: {project.description}</p>
-        <p>
-          締め切り: {project.closed_at ?? "まだ締め切っていません"}
-        </p>
-
-        <label class="input input-bordered w-full">
-          <img alt="" src={chain} class="h-[1rem] opacity-50 select-none" />
-          <span class="select-none">提出用リンク</span>
-          <input type="url" class="x-selectable" value={link} readonly />
-          {#if copyTimeout === 0}
-            <button
-              class="btn btn-sm btn-soft btn-primary"
-              onclick={async () => {
-                await navigator.clipboard.writeText(link);
-                copyTimeout = 20;
-              }}
-            >
-              copy
-            </button>
-          {:else}
-            <button disabled>copied!</button>
-          {/if}
-        </label>
-        <!-- navigation -->
-        <section>
-          <div class="mt-6 ml-8">
-            <a
-              class="btn btn-outline m-4"
-              href="./submit"
-              class:btn-disabled={project.closed_at ? true : false}
-            >
-              提出の画面へ
-            </a>
-            <button
-              class="btn btn-primary btn-soft m-4"
-              disabled={project.closed_at ? true : false}
-              onclick={() => {
-                closeModalShown = true;
-              }}
-            >
-              締め切る
-            </button>
-            {#if project.closed_at}
-              <a
-                class="btn btn-primary btn-soft m-4"
-                href={`/${project.id}/result`}
-              >
-                結果を見る
-              </a>
-            {/if}
-            <button
-              class="btn btn-error btn-outline m-4"
-              onclick={() => {
-                removeModalShown = true;
-              }}
-            >
-              削除
-            </button>
+        <div class="flex flex-col gap-4">
+          <div class="flex flex-col gap-2">
+            <h2 class="text-xl">{project.name}</h2>
+            <p>{project.description}</p>
           </div>
-        </section>
-
-        {#if closeModalShown}
-          <dialog class="modal z-10" open>
-            <div class="modal-box border-1">
-              <h3>提出を締め切りますか？</h3>
-              <p>締め切ると提出ができなくなり、マッチングが計算されます。</p>
-              <div class="modal-action flex gap-4 items-center">
+          <div class="flex flex-col gap-2">
+            <h3 class="text-gray-500 text-sm">提出ページ</h3>
+            <label class="input input-bordered w-full">
+              <img alt="" src={chain} class="h-[1rem] opacity-50 select-none" />
+              <input type="url" class="x-selectable" value={link} readonly />
+              {#if copyTimeout === 0}
                 <button
-                  class="btn btn-outline"
-                  onclick={() => {
-                    closeModalShown = false;
-                  }}
-                >
-                  キャンセル
-                </button>
-                <button
-                  class="btn btn-primary m-4"
+                  class="btn btn-sm btn-soft btn-primary"
                   onclick={async () => {
-                    await client.projects[":projectId"].finalize.$put({
-                      param: {
-                        projectId: data.projectId,
-                      },
-                    });
-                    location.assign(`/${project.id}/config?closed`);
+                    await navigator.clipboard.writeText(link);
+                    copyTimeout = 20;
                   }}
-                  disabled={project.closed_at ? true : false}
                 >
-                  締め切る
+                  copy
                 </button>
-              </div>
+              {:else}
+                <button disabled>copied!</button>
+              {/if}
+            </label>
+            <div class="flex justify-end">
+              <a
+                class="btn btn-primary btn-soft btn-sm"
+                href="./submit"
+                class:btn-disabled={project.closed_at ? true : false}
+              >
+                <MdiVote />
+                参加者として提出する
+              </a>
             </div>
-          </dialog>
-        {/if}
+          </div>
+          <div class="flex flex-col gap-2">
+            <h3 class="text-gray-500 text-sm">締切</h3>
+            <p>
+              {project.closed_at ?? "まだ締め切っていません"}
+            </p>
+            <div class="flex justify-end">
+              <button
+                class="btn btn-primary btn-soft btn-sm"
+                disabled={project.closed_at ? true : false}
+                onclick={() => {
+                  closeModalShown = true;
+                }}
+              >
+                <MdiStopCircle />
+                今すぐ締め切る
+              </button>
+            </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <h3 class="text-gray-500 text-sm">一般</h3>
+            <div class="flex justify-end gap-2">
+              <button
+                class="btn btn-error btn-outline btn-sm"
+                onclick={() => {
+                  removeModalShown = true;
+                }}
+              >
+                プロジェクトを削除
+              </button>
+              {#if project.closed_at}
+                <a
+                  class="btn btn-primary btn-sm"
+                  href={`/${project.id}/result`}
+                >
+                  <MdiGraph />
+                  結果
+                </a>
+              {/if}
+            </div>
+          </div>
 
-        {#if removeModalShown}
-          <dialog class="modal z-10" open>
-            <div class="modal-box border-1">
-              <h3>プロジェクトを削除しますか？</h3>
-              <p>削除すると、参加者の提出やマッチング結果も消去されます。</p>
-              <div class="modal-action flex gap-4 items-center">
-                <button
-                  class="btn btn-outline"
-                  onclick={() => {
-                    removeModalShown = false;
-                  }}
-                >
-                  キャンセル
-                </button>
-                <button
-                  class="btn btn-error m-4"
-                  onclick={async () => {
-                    const resp = await client.projects[":projectId"].$delete({
-                      param: {
-                        projectId: data.projectId,
-                      },
-                    });
-                    if (resp.ok) {
-                      alert("削除しました。");
-                      location.assign("/");
-                    } else {
-                      alert("削除に失敗しました");
-                    }
-                  }}
-                >
-                  削除
-                </button>
+          {#if closeModalShown}
+            <dialog class="modal z-10" open>
+              <div class="modal-box border-1">
+                <h3>提出を締め切りますか？</h3>
+                <p>締め切ると提出ができなくなり、マッチングが計算されます。</p>
+                <div class="modal-action flex gap-4 items-center">
+                  <button
+                    class="btn btn-outline"
+                    onclick={() => {
+                      closeModalShown = false;
+                    }}
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    class="btn btn-primary m-4"
+                    onclick={async () => {
+                      await client.projects[":projectId"].finalize.$put({
+                        param: {
+                          projectId: data.projectId,
+                        },
+                      });
+                      location.assign(`/${project.id}/config?closed`);
+                    }}
+                    disabled={project.closed_at ? true : false}
+                  >
+                    締め切る
+                  </button>
+                </div>
               </div>
-            </div>
-          </dialog>
-        {/if}
+            </dialog>
+          {/if}
+
+          {#if removeModalShown}
+            <dialog class="modal z-10" open>
+              <div class="modal-box border-1">
+                <h3>プロジェクトを削除しますか？</h3>
+                <p>削除すると、参加者の提出やマッチング結果も消去されます。</p>
+                <div class="modal-action flex gap-4 items-center">
+                  <button
+                    class="btn btn-outline"
+                    onclick={() => {
+                      removeModalShown = false;
+                    }}
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    class="btn btn-error m-4"
+                    onclick={async () => {
+                      const resp = await client.projects[":projectId"].$delete({
+                        param: {
+                          projectId: data.projectId,
+                        },
+                      });
+                      if (resp.ok) {
+                        alert("削除しました。");
+                        location.assign("/");
+                      } else {
+                        alert("削除に失敗しました");
+                      }
+                    }}
+                  >
+                    削除
+                  </button>
+                </div>
+              </div>
+            </dialog>
+          {/if}
+        </div>
       {/if}
     {:catch}
       プロジェクトの読み込みに失敗しました
