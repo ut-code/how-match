@@ -111,14 +111,14 @@ onMount(() => {
           <section>
             <div class="mt-6 ml-8">
               <a
-                class="btn btn-primary m-4"
+                class="btn btn-outline m-4"
                 href="./submit"
                 class:btn-disabled={project.closed_at ? true : false}
               >
                 提出の画面へ
               </a>
               <button
-                class="btn btn-error m-4"
+                class="btn btn-primary btn-soft m-4"
                 disabled={project.closed_at ? true : false}
                 onclick={() => {
                   closeModalShown = true;
@@ -127,7 +127,7 @@ onMount(() => {
                 締め切る
               </button>
               <button
-                class="btn btn-error m-4"
+                class="btn btn-error btn-outline m-4"
                 onclick={() => {
                   removeModalShown = true;
                 }}
@@ -144,7 +144,7 @@ onMount(() => {
                 <p>締め切ると提出ができなくなり、マッチングが計算されます。</p>
                 <div class="modal-action flex gap-4 items-center">
                   <button
-                    class="btn btn-primary"
+                    class="btn btn-outline"
                     onclick={() => {
                       closeModalShown = false;
                     }}
@@ -152,7 +152,7 @@ onMount(() => {
                     キャンセル
                   </button>
                   <button
-                    class="btn btn-error m-4"
+                    class="btn btn-primary m-4"
                     onclick={async () => {
                       await client.projects[":projectId"].$patch({
                         param: {
@@ -180,7 +180,7 @@ onMount(() => {
                 <p>削除すると、参加者の提出やマッチング結果も消去されます。</p>
                 <div class="modal-action flex gap-4 items-center">
                   <button
-                    class="btn btn-primary"
+                    class="btn btn-outline"
                     onclick={() => {
                       removeModalShown = false;
                     }}
