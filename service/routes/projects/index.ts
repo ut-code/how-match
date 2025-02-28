@@ -204,7 +204,7 @@ const route = new Hono<HonoOptions>()
 
     const result = assignRoles(ratingsArray, at(ratingsArray, 0).length, minMaxConstraints);
 
-    db(c)
+    await db(c)
       .insert(matches)
       .values(
         result.map((r) => ({
@@ -213,8 +213,7 @@ const route = new Hono<HonoOptions>()
           role_id: roleConstraints[r.role]?.id ?? "-",
           participant_id: participantIndexIdMap[r.participant] ?? "-",
         })),
-      )
-      .execute();
+      );
 
     return c.json({}, 200);
   })
