@@ -1,5 +1,5 @@
 import { expect, test } from "bun:test";
-import { findAllOptimalAssignments } from "./min-flow.ts";
+import { assignRoles } from "./min-flow.ts";
 
 test("chatgpt-given example", () => {
   // **例**
@@ -16,7 +16,7 @@ test("chatgpt-given example", () => {
     [1, 5, 4, 3, 2], // P10 の希望
   ];
 
-  const roles = [0, 1, 2, 3, 4]; // 役割 ID
+  const roles = 5;
   const minMaxConstraints = [
     { min: 1, max: 3 }, // R1 の min/max
     { min: 2, max: 4 }, // R2 の min/max
@@ -25,21 +25,19 @@ test("chatgpt-given example", () => {
     { min: 1, max: 2 }, // R5 の min/max
   ];
   const expected = [
-    [
-      { participant: 0, role: 0 },
-      { participant: 1, role: 1 },
-      { participant: 2, role: 2 },
-      { participant: 3, role: 3 },
-      { participant: 4, role: 4 },
-      { participant: 5, role: 0 },
-      { participant: 6, role: 1 },
-      { participant: 7, role: 4 },
-      { participant: 8, role: 3 },
-      { participant: 9, role: 1 },
-    ],
+    { participant: 0, role: 0 },
+    { participant: 1, role: 1 },
+    { participant: 2, role: 2 },
+    { participant: 3, role: 3 },
+    { participant: 4, role: 4 },
+    { participant: 5, role: 0 },
+    { participant: 6, role: 1 },
+    { participant: 7, role: 4 },
+    { participant: 8, role: 3 },
+    { participant: 9, role: 1 },
   ];
 
-  const got = findAllOptimalAssignments(participants, roles, minMaxConstraints);
+  const got = assignRoles(participants, roles, minMaxConstraints);
   console.log(got);
 
   expect(got).toEqual(expected);

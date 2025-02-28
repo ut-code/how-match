@@ -6,6 +6,7 @@ import { accounts, matches, participants, projects, ratings, roles } from "servi
 import { getBrowserID } from "service/features/auth/index.ts";
 import type { HonoOptions } from "service/types.ts";
 import { json, param } from "service/validator/hono.ts";
+import { assignRoles } from "share/logic/min-flow.ts";
 import { ProjectSchema } from "share/schema.ts";
 import * as v from "valibot";
 
@@ -204,6 +205,49 @@ const route = new Hono<HonoOptions>()
             })
             .where(eq(projects.id, c.req.valid("param").projectId));
           // TODO: ここでマッチ計算
+
+          const participantsData = await db(c)
+            .select()
+            .from(ratings)
+            .where(eq(ratings.project_id, c.req.valid("param").projectId))
+            .orderBy(ratings.participant_id, ratings.role_id);
+
+          const ratingsByParticipant = Map.groupBy(participantsData, (item) => item.participant_id);
+
+          const ratingsArray: number[][] = []; // TODO: 型付けをマシにする
+          const participantIndexIdMap: string[] = [];
+
+          ratingsByParticipant.forEach((r) => {
+            ratingsArray.push(r.map((item) => item.score));
+            participantIndexIdMap.push(r[0]?.participant_id ?? "-");
+          });
+
+          const roleConstraints = await db(c)
+            .select()
+            .from(roles)
+            .where(eq(roles.project_id, c.req.valid("param").projectId))
+            .orderBy(roles.id);
+          const minMaxConstraints = roleConstraints.map((role) => ({
+            min: role.min,
+            max: role.max,
+          }));
+
+          const result = assignRoles(ratingsArray, ratingsArray[0]?.length ?? 0, minMaxConstraints);
+
+          console.log(result);
+
+          db(c)
+            .insert(matches)
+            .values(
+              result.map((r) => ({
+                id: crypto.randomUUID(),
+                project_id: c.req.valid("param").projectId,
+                role_id: roleConstraints[r.role]?.id ?? "-",
+                participant_id: participantIndexIdMap[r.participant] ?? "-",
+              })),
+            )
+            .execute();
+
           return c.json({}, 200);
         }
         case false: {
