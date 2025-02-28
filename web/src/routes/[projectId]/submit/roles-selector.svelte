@@ -1,13 +1,13 @@
 <script lang="ts">
-import type { Role } from "share/types.ts";
-type Props = {
-  ratings: {
-    role: Role;
-    score: number | undefined;
-  }[];
-  closed: boolean;
-};
-const { ratings = $bindable(), closed }: Props = $props();
+  import type { Role } from "share/types.ts";
+  type Props = {
+    ratings: {
+      role: Role;
+      score: number | undefined;
+    }[];
+    closed: boolean;
+  };
+  const { ratings = $bindable(), closed }: Props = $props();
 </script>
 
 {#each ratings as rating, radioIndex (radioIndex)}

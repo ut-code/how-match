@@ -1,6 +1,3 @@
-# [language-server]
-# deno = { command = "deno", args = ["lsp"] }
-
 [[language]]
 name = "nix"
 formatter.command = "alejandra"
@@ -26,17 +23,9 @@ language-servers = [
 
 [[language]]
 name = "svelte"
-formatter = { command = "biome", args = [
-  "format",
-  "--stdin-file-path",
-  "a.svelte",
-] }
+formatter = { command = "prettier", args = ["--parser=svelte"] }
 language-servers = ["tailwindcss-ls", "svelteserver"]
 
 [[language]]
 name = "typescript"
-formatter = { command = "biome", args = [
-  "format",
-  "--stdin-file-path",
-  "a.ts",
-] }
+formatter = { command = "prettier", args = ["--parser=typescript"] }

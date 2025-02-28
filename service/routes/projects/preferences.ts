@@ -86,12 +86,20 @@ const route = new Hono<HonoOptions>()
           .set({
             name: body.participantName,
           })
-          .where(and(eq(participants.browser_id, browser_id), eq(participants.is_admin, 0)))
+          .where(
+            and(
+              eq(participants.browser_id, browser_id),
+              eq(participants.is_admin, 0),
+            ),
+          )
           .returning({ id: participants.id })
       )[0];
-      if (!participant) throw new HTTPException(500, { message: "failed to find participant" });
+      if (!participant)
+        throw new HTTPException(500, { message: "failed to find participant" });
 
-      await db(c).delete(ratings).where(eq(ratings.participant_id, participant.id));
+      await db(c)
+        .delete(ratings)
+        .where(eq(ratings.participant_id, participant.id));
       await db(c)
         .insert(ratings)
         .values(

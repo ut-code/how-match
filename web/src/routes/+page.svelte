@@ -1,36 +1,36 @@
 <script lang="ts">
-import { onMount } from "svelte";
-import { type Client, createClient } from "~/api/client.ts";
-import Header from "~/components/header.svelte";
+  import { onMount } from "svelte";
+  import { type Client, createClient } from "~/api/client.ts";
+  import Header from "~/components/header.svelte";
 
-const client: Client = createClient({ fetch });
-async function getMyProjects(options?: { signal: AbortSignal }) {
-  const res = await client.projects.mine.$get(options);
-  if (!res.ok) {
-    return null;
+  const client: Client = createClient({ fetch });
+  async function getMyProjects(options?: { signal: AbortSignal }) {
+    const res = await client.projects.mine.$get(options);
+    if (!res.ok) {
+      return null;
+    }
+    return await res.json();
   }
-  return await res.json();
-}
 
-type Project = {
-  id: string;
-  name: string;
-  description: string | null;
-  closed_at: string | null;
-  is_admin: number;
-};
-let projects = $state<Project[] | null>(null);
+  type Project = {
+    id: string;
+    name: string;
+    description: string | null;
+    closed_at: string | null;
+    is_admin: number;
+  };
+  let projects = $state<Project[] | null>(null);
 
-onMount(() => {
-  const ctrl = new AbortController();
-  getMyProjects({ signal: ctrl.signal })
-    .then((data) => {
-      projects = data;
-    })
-    .catch(console.error);
+  onMount(() => {
+    const ctrl = new AbortController();
+    getMyProjects({ signal: ctrl.signal })
+      .then((data) => {
+        projects = data;
+      })
+      .catch(console.error);
 
-  return () => ctrl.abort();
-});
+    return () => ctrl.abort();
+  });
 </script>
 
 <div>

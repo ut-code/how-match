@@ -1,57 +1,59 @@
 <script lang="ts">
-import { goto } from "$app/navigation";
-import { ProjectSchema } from "share/schema";
-import { safeParse } from "valibot";
-import { type Client, createClient } from "~/api/client";
-import Header from "~/components/header.svelte";
+  import { goto } from "$app/navigation";
+  import { ProjectSchema } from "share/schema";
+  import { safeParse } from "valibot";
+  import { type Client, createClient } from "~/api/client";
+  import Header from "~/components/header.svelte";
 
-const client: Client = createClient({ fetch });
-type Form = {
-  name: string;
-  description: string;
-  roles: { name: string; max: number | undefined; min: number | undefined }[];
-};
+  const client: Client = createClient({ fetch });
+  type Form = {
+    name: string;
+    description: string;
+    roles: { name: string; max: number | undefined; min: number | undefined }[];
+  };
 
-const form = $state<Form>({
-  name: "",
-  description: "",
-  roles: [{ name: "", max: undefined, min: undefined }],
-});
+  const form = $state<Form>({
+    name: "",
+    description: "",
+    roles: [{ name: "", max: undefined, min: undefined }],
+  });
 
-function addRole() {
-  form.roles.push({ name: "", max: undefined, min: undefined });
-}
-function deleteRole(index: number) {
-  form.roles.splice(index, 1);
-}
-
-let formState = $state<"ready" | "submitting" | "error" | "done">("ready");
-async function postProject() {
-  try {
-    formState = "submitting";
-    const val = safeParse(ProjectSchema, form);
-    if (!val.success) {
-      const error = new Error("[TODO: make it into the UI] Failed to validate schema, issues:");
-      console.error(error, val.issues);
-      throw error;
-    }
-    const res = await client.projects.$post({
-      json: val.output,
-    });
-    if (!res.ok) {
-      throw new Error("failed to create project");
-    }
-    const project = await res.json();
-    goto(`/${project.id}/config?created`);
-    formState = "done";
-  } catch (err) {
-    console.error(err);
-    formState = "error";
-    setTimeout(() => {
-      formState = "ready";
-    }, 1500);
+  function addRole() {
+    form.roles.push({ name: "", max: undefined, min: undefined });
   }
-}
+  function deleteRole(index: number) {
+    form.roles.splice(index, 1);
+  }
+
+  let formState = $state<"ready" | "submitting" | "error" | "done">("ready");
+  async function postProject() {
+    try {
+      formState = "submitting";
+      const val = safeParse(ProjectSchema, form);
+      if (!val.success) {
+        const error = new Error(
+          "[TODO: make it into the UI] Failed to validate schema, issues:",
+        );
+        console.error(error, val.issues);
+        throw error;
+      }
+      const res = await client.projects.$post({
+        json: val.output,
+      });
+      if (!res.ok) {
+        throw new Error("failed to create project");
+      }
+      const project = await res.json();
+      goto(`/${project.id}/config?created`);
+      formState = "done";
+    } catch (err) {
+      console.error(err);
+      formState = "error";
+      setTimeout(() => {
+        formState = "ready";
+      }, 1500);
+    }
+  }
 </script>
 
 <div>

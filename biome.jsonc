@@ -10,7 +10,7 @@
     "ignore": [],
   },
   "formatter": {
-    "enabled": true, // HTML-ish support when?
+    "enabled": false, // HTML-ish support when?
     "lineWidth": 120,
     "indentStyle": "space",
     "indentWidth": 2,

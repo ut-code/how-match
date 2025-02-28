@@ -1,18 +1,18 @@
 <script lang="ts">
-import { onDestroy } from "svelte";
-import Header from "~/components/header.svelte";
+  import { onDestroy } from "svelte";
+  import Header from "~/components/header.svelte";
 
-const { data } = $props();
+  const { data } = $props();
 
-let copyTimeout = 0;
+  let copyTimeout = 0;
 
-const interval = setInterval(() => {
-  if (copyTimeout > 0) {
-    copyTimeout--;
-  }
-}, 100);
+  const interval = setInterval(() => {
+    if (copyTimeout > 0) {
+      copyTimeout--;
+    }
+  }, 100);
 
-onDestroy(() => clearInterval(interval));
+  onDestroy(() => clearInterval(interval));
 </script>
 
 <div>

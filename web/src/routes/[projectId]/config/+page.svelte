@@ -1,60 +1,60 @@
 <script lang="ts">
-import { goto, replaceState } from "$app/navigation";
-import { page } from "$app/state";
-import { redirect } from "@sveltejs/kit";
-import { onMount } from "svelte";
-import { fly } from "svelte/transition";
-import { type Client, createClient } from "~/api/client";
-import { generateURL } from "~/api/origins.svelte.ts";
-import Header from "~/components/header.svelte";
-import chain from "~/icons/Chain.svg";
+  import { goto, replaceState } from "$app/navigation";
+  import { page } from "$app/state";
+  import { redirect } from "@sveltejs/kit";
+  import { onMount } from "svelte";
+  import { fly } from "svelte/transition";
+  import { type Client, createClient } from "~/api/client";
+  import { generateURL } from "~/api/origins.svelte.ts";
+  import Header from "~/components/header.svelte";
+  import chain from "~/icons/Chain.svg";
 
-const client: Client = createClient({ fetch });
-const { data } = $props();
+  const client: Client = createClient({ fetch });
+  const { data } = $props();
 
-const newlyCreated = page.url.searchParams.get("created") !== null;
-const justClosed = page.url.searchParams.get("closed") !== null;
-let createdToastShown = $state(false);
-let closedToastShown = $state(false);
-let closeModalShown = $state(false);
-let removeModalShown = $state(false);
+  const newlyCreated = page.url.searchParams.get("created") !== null;
+  const justClosed = page.url.searchParams.get("closed") !== null;
+  let createdToastShown = $state(false);
+  let closedToastShown = $state(false);
+  let closeModalShown = $state(false);
+  let removeModalShown = $state(false);
 
-onMount(() => {
-  if (newlyCreated) {
-    createdToastShown = true;
-    // replace ?created with none s.t. it won't show "created!" after reload
-    const next = new URL(window.location.href);
-    next.search = "";
-    setTimeout(() => {
-      replaceState(next, {});
-    });
-    setTimeout(() => {
-      createdToastShown = false;
-    }, 2000);
-  }
-  if (justClosed) {
-    closedToastShown = true;
-    // replace ?closed with none s.t. it won't show "closed!" after reload
-    const next = new URL(window.location.href);
-    next.search = "";
-    setTimeout(() => {
-      replaceState(next, {});
-    });
-    setTimeout(() => {
-      closedToastShown = false;
-    }, 2000);
-  }
-});
+  onMount(() => {
+    if (newlyCreated) {
+      createdToastShown = true;
+      // replace ?created with none s.t. it won't show "created!" after reload
+      const next = new URL(window.location.href);
+      next.search = "";
+      setTimeout(() => {
+        replaceState(next, {});
+      });
+      setTimeout(() => {
+        createdToastShown = false;
+      }, 2000);
+    }
+    if (justClosed) {
+      closedToastShown = true;
+      // replace ?closed with none s.t. it won't show "closed!" after reload
+      const next = new URL(window.location.href);
+      next.search = "";
+      setTimeout(() => {
+        replaceState(next, {});
+      });
+      setTimeout(() => {
+        closedToastShown = false;
+      }, 2000);
+    }
+  });
 
-const link = generateURL({
-  pathname: `${data.projectId}/submit`,
-}).href;
+  const link = generateURL({
+    pathname: `${data.projectId}/submit`,
+  }).href;
 
-let copyTimeout = $state(0);
-onMount(() => {
-  const id = setInterval(() => (copyTimeout > 0 ? copyTimeout-- : null), 100);
-  return () => clearTimeout(id);
-});
+  let copyTimeout = $state(0);
+  onMount(() => {
+    const id = setInterval(() => (copyTimeout > 0 ? copyTimeout-- : null), 100);
+    return () => clearTimeout(id);
+  });
 </script>
 
 <div class="mt-3 ml-3 toast-start toast-top absolute">

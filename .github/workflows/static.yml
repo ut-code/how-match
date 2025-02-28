@@ -20,7 +20,7 @@ jobs:
       - run: bun install --frozen-lockfile
       - run: bun check
       - run: biome lint .
-      - run: biome format .
+      - run: bun prettier --check .
   nix-checks:
     name: Nix checks
     runs-on: ubuntu-latest

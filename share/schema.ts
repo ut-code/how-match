@@ -1,4 +1,13 @@
-import { array, minLength, minValue, nullable, number, object, pipe, string } from "valibot";
+import {
+  array,
+  minLength,
+  minValue,
+  nullable,
+  number,
+  object,
+  pipe,
+  string,
+} from "valibot";
 
 export const RoleSchema = object({
   name: pipe(string(), minLength(1)),

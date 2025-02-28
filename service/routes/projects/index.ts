@@ -2,7 +2,13 @@ import { and, eq, exists } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { db } from "service/db/client.ts";
-import { matches, participants, projects, ratings, roles } from "service/db/schema.ts";
+import {
+  matches,
+  participants,
+  projects,
+  ratings,
+  roles,
+} from "service/db/schema.ts";
 import { getBrowserID } from "service/features/auth/index.ts";
 import type { HonoOptions } from "service/types.ts";
 import { json, param } from "service/validator/hono.ts";
@@ -42,7 +48,11 @@ const route = new Hono<HonoOptions>()
     async (c) => {
       const browser_id = await getBrowserID(c);
       const projectId = c.req.valid("param").projectId;
-      const project_resp = db(c).select().from(projects).where(eq(projects.id, projectId)).execute();
+      const project_resp = db(c)
+        .select()
+        .from(projects)
+        .where(eq(projects.id, projectId))
+        .execute();
       const project = project_resp.then((it) => {
         const project = it[0];
         if (!project) {
@@ -108,7 +118,8 @@ const route = new Hono<HonoOptions>()
         ])
         .returning()
     )[0];
-    if (!project_resp) throw new HTTPException(500, { message: "failed to create project" });
+    if (!project_resp)
+      throw new HTTPException(500, { message: "failed to create project" });
     await db(c)
       .insert(participants)
       .values([
@@ -138,23 +149,32 @@ const route = new Hono<HonoOptions>()
       roles: roles_resp,
     });
   })
-  .delete("/:projectId", param({ projectId: v.pipe(v.string(), v.uuid()) }), async (c) => {
-    const browser_id = await getBrowserID(c);
-    const { projectId: project_id } = c.req.valid("param");
-    const d = db(c);
-    await d.delete(projects).where(
-      and(
-        eq(projects.id, project_id),
-        exists(
-          d
-            .select()
-            .from(participants)
-            .where(and(eq(participants.browser_id, browser_id), eq(participants.is_admin, 1))),
+  .delete(
+    "/:projectId",
+    param({ projectId: v.pipe(v.string(), v.uuid()) }),
+    async (c) => {
+      const browser_id = await getBrowserID(c);
+      const { projectId: project_id } = c.req.valid("param");
+      const d = db(c);
+      await d.delete(projects).where(
+        and(
+          eq(projects.id, project_id),
+          exists(
+            d
+              .select()
+              .from(participants)
+              .where(
+                and(
+                  eq(participants.browser_id, browser_id),
+                  eq(participants.is_admin, 1),
+                ),
+              ),
+          ),
         ),
-      ),
-    );
-    return c.json({ ok: true }, 200);
-  })
+      );
+      return c.json({ ok: true }, 200);
+    },
+  )
 
   .put("/:projectId/finalize", param({ projectId: v.string() }), async (c) => {
     const browser_id = await getBrowserID(c);
@@ -165,7 +185,10 @@ const route = new Hono<HonoOptions>()
     const participant_resp = await db(c)
       .select()
       .from(participants)
-      .where(eq(participants.browser_id, browser_id) && eq(participants.project_id, c.req.param("projectId")));
+      .where(
+        eq(participants.browser_id, browser_id) &&
+          eq(participants.project_id, c.req.param("projectId")),
+      );
     if (participant_resp[0]?.is_admin !== 1) {
       return c.json({ message: "Unauthorized" }, 401);
     }
@@ -183,7 +206,10 @@ const route = new Hono<HonoOptions>()
       .where(eq(ratings.project_id, projectId))
       .orderBy(ratings.participant_id, ratings.role_id);
 
-    const ratingsByParticipant = Map.groupBy(participantsData, (item) => item.participant_id);
+    const ratingsByParticipant = Map.groupBy(
+      participantsData,
+      (item) => item.participant_id,
+    );
 
     const ratingsArray: number[][] = []; // TODO: 型付けをマシにする
     const participantIndexIdMap: string[] = [];
@@ -193,13 +219,21 @@ const route = new Hono<HonoOptions>()
       participantIndexIdMap.push(r[0]?.participant_id ?? "-");
     });
 
-    const roleConstraints = await db(c).select().from(roles).where(eq(roles.project_id, projectId)).orderBy(roles.id);
+    const roleConstraints = await db(c)
+      .select()
+      .from(roles)
+      .where(eq(roles.project_id, projectId))
+      .orderBy(roles.id);
     const minMaxConstraints = roleConstraints.map((role) => ({
       min: role.min,
       max: role.max,
     }));
 
-    const result = assignRoles(ratingsArray, at(ratingsArray, 0).length, minMaxConstraints);
+    const result = assignRoles(
+      ratingsArray,
+      at(ratingsArray, 0).length,
+      minMaxConstraints,
+    );
 
     await db(c)
       .insert(matches)

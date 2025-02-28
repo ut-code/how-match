@@ -29,10 +29,10 @@ pre-commit:
       run: cd service; bun run cf-typegen
       stage_fixed: true
     # JS
-    biome-fmt:
+    prettier:
       tags: js style
-      glob: "*.{js,ts,svelte,html,md}"
-      run: biome format {staged_files} --fix
+      glob: "*.{js,ts,svelte,json,jsonc,yaml,html,md}"
+      run: bun prettier {staged_files} --write
       stage_fixed: true
     biome-lint:
       tags: js lint

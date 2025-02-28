@@ -1,5 +1,5 @@
 <script lang="ts">
-let { title } = $props();
+  let { title } = $props();
 </script>
 
 <header

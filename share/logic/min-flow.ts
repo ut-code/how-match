@@ -24,7 +24,9 @@ export function assignRoles(
     sumMax += minMaxConstraints[j]?.max ?? 0;
   }
   if (sumMin > P) {
-    throw new Error("割当可能な participant 数が制約を満たしません（sum(min) > participants.length）");
+    throw new Error(
+      "割当可能な participant 数が制約を満たしません（sum(min) > participants.length）",
+    );
   }
 
   // 拡張用配列：dummy role を追加するかどうか
@@ -55,7 +57,11 @@ export function assignRoles(
   // distribution: dist[0..M_ext-1] で、各 extended role j に割り当てる参加者数
   // 条件: extendedConstraints[j].min <= d[j] <= extendedConstraints[j].max,  ∑ d[j] = P
   const distributions: number[][] = [];
-  function enumerateDistribution(index: number, current: number[], remaining: number) {
+  function enumerateDistribution(
+    index: number,
+    current: number[],
+    remaining: number,
+  ) {
     if (index === M_ext) {
       if (remaining === 0) {
         distributions.push(current.slice());
@@ -129,7 +135,10 @@ export function assignRoles(
   const result: { participant: number; role: number }[] = [];
   for (let i = 0; i < P; i++) {
     // const assignedRole = bestMatching.roleForColumn[bestMatching.assignment[i]];
-    const assignedRole = at(bestMatching.roleForColumn, at(bestMatching.assignment, i));
+    const assignedRole = at(
+      bestMatching.roleForColumn,
+      at(bestMatching.assignment, i),
+    );
     // dummy roleの場合は -1 として返す（必要に応じて処理してください）
     result.push({ participant: i, role: assignedRole < M ? assignedRole : -1 });
   }
