@@ -20,11 +20,11 @@ const { ratings = $bindable(), closed }: Props = $props();
       class="gap-2 grid grid-cols-7 justify-items-center text-sm"
     >
       <div></div>
-      <div>1</div>
-      <div>2</div>
-      <div>3</div>
-      <div>4</div>
-      <div>5</div>
+      <div class="text-lg">1</div>
+      <div class="text-lg">2</div>
+      <div class="text-lg">3</div>
+      <div class="text-lg">4</div>
+      <div class="text-lg">5</div>
       <div></div>
 
       <div>希望しない</div>
@@ -47,7 +47,7 @@ const { ratings = $bindable(), closed }: Props = $props();
               name={role.name}
               type="radio"
               required
-              class="radio"
+              class="radio radio-lg"
               id="{role.name}-{radioIndex}"
               value={radioIndex}
               bind:group={rating.score}
