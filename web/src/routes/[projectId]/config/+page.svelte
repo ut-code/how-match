@@ -1,6 +1,7 @@
 <script lang="ts">
-import { replaceState } from "$app/navigation";
+import { goto, replaceState } from "$app/navigation";
 import { page } from "$app/state";
+import { redirect } from "@sveltejs/kit";
 import { onMount } from "svelte";
 import { fly } from "svelte/transition";
 import { type Client, createClient } from "~/api/client";
@@ -12,16 +13,35 @@ const client: Client = createClient({ fetch });
 const { data } = $props();
 
 const newlyCreated = page.url.searchParams.get("created") !== null;
+const justClosed = page.url.searchParams.get("closed") !== null;
 let createdToastShown = $state(false);
+let closedToastShown = $state(false);
+let closeModalShown = $state(false);
+let removeModalShown = $state(false);
+
 onMount(() => {
   if (newlyCreated) {
     createdToastShown = true;
     // replace ?created with none s.t. it won't show "created!" after reload
     const next = new URL(window.location.href);
     next.search = "";
-    replaceState(next, {});
+    setTimeout(() => {
+      replaceState(next, {});
+    });
     setTimeout(() => {
       createdToastShown = false;
+    }, 2000);
+  }
+  if (justClosed) {
+    closedToastShown = true;
+    // replace ?closed with none s.t. it won't show "closed!" after reload
+    const next = new URL(window.location.href);
+    next.search = "";
+    setTimeout(() => {
+      replaceState(next, {});
+    });
+    setTimeout(() => {
+      closedToastShown = false;
     }, 2000);
   }
 });
@@ -37,18 +57,23 @@ onMount(() => {
 });
 </script>
 
-<div class="toast-start toast-top absolute">
+<div class="mt-3 ml-3 toast-start toast-top absolute">
   {#if createdToastShown}
     <div class="alert alert-success z-31" transition:fly>
       <span class="z-31">プロジェクトを作成しました。</span>
+    </div>
+  {/if}
+  {#if closedToastShown}
+    <div class="alert alert-success z-31" transition:fly>
+      <span class="z-31">提出を締め切りました。</span>
     </div>
   {/if}
 </div>
 
 <div>
   <Header title="管理・設定" />
-  <div class="mt-12 h-full bg-base-100 p-6 flex flex-col gap-4">
-    <div class="rounded-lg bg-white p-6 flex flex-col gap-2">
+  <div class="hm-blocks-container">
+    <div class="hm-block">
       {#await data.stream}
         <span class="loading loading-xl"> </span>
       {:then res}
@@ -86,49 +111,105 @@ onMount(() => {
           <section>
             <div class="mt-6 ml-8">
               <a
-                class="btn btn-primary m-4"
+                class="btn btn-outline m-4"
                 href="./submit"
                 class:btn-disabled={project.closed_at ? true : false}
               >
                 提出の画面へ
               </a>
               <button
-                class="btn btn-error m-4"
-                onclick={async () => {
-                  await client.projects[":projectId"].$patch({
-                    param: {
-                      projectId: data.projectId,
-                    },
-                    json: {
-                      done: true,
-                    },
-                  });
-                  location.reload();
-                }}
+                class="btn btn-primary btn-soft m-4"
                 disabled={project.closed_at ? true : false}
+                onclick={() => {
+                  closeModalShown = true;
+                }}
               >
                 締め切る
               </button>
               <button
-                class="btn btn-error m-4"
-                onclick={async () => {
-                  const resp = await client.projects[":projectId"].$delete({
-                    param: {
-                      projectId: data.projectId,
-                    },
-                  });
-                  if (resp.ok) {
-                    alert("削除しました。");
-                  } else {
-                    alert("削除に失敗しました");
-                  }
+                class="btn btn-error btn-outline m-4"
+                onclick={() => {
+                  removeModalShown = true;
                 }}
-                disabled={project.closed_at ? true : false}
               >
                 削除
               </button>
             </div>
           </section>
+
+          {#if closeModalShown}
+            <dialog class="modal z-10" open>
+              <div class="modal-box border-1">
+                <h3>提出を締め切りますか？</h3>
+                <p>締め切ると提出ができなくなり、マッチングが計算されます。</p>
+                <div class="modal-action flex gap-4 items-center">
+                  <button
+                    class="btn btn-outline"
+                    onclick={() => {
+                      closeModalShown = false;
+                    }}
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    class="btn btn-primary m-4"
+                    onclick={async () => {
+                      await client.projects[":projectId"].$patch({
+                        param: {
+                          projectId: data.projectId,
+                        },
+                        json: {
+                          done: true,
+                        },
+                      });
+                      location.assign(`/${project.id}/config?closed`);
+                    }}
+                    disabled={project.closed_at ? true : false}
+                  >
+                    締め切る
+                  </button>
+                </div>
+              </div>
+            </dialog>
+          {/if}
+
+          {#if removeModalShown}
+            <dialog class="modal z-10" open>
+              <div class="modal-box border-1">
+                <h3>プロジェクトを削除しますか？</h3>
+                <p>削除すると、参加者の提出やマッチング結果も消去されます。</p>
+                <div class="modal-action flex gap-4 items-center">
+                  <button
+                    class="btn btn-outline"
+                    onclick={() => {
+                      removeModalShown = false;
+                    }}
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    class="btn btn-error m-4"
+                    onclick={async () => {
+                      const resp = await client.projects[":projectId"].$delete({
+                        param: {
+                          projectId: data.projectId,
+                        },
+                      });
+                      if (resp.ok) {
+                        alert("削除しました。");
+                        location.assign("/");
+                      } else {
+                        alert("削除に失敗しました");
+                      }
+                    }}
+                  >
+                    削除
+                  </button>
+                </div>
+              </div>
+            </dialog>
+          {/if}
+        
         {/if}
       {:catch}
         プロジェクトの読み込みに失敗しました

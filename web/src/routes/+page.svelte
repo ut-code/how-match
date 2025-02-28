@@ -34,9 +34,9 @@ onMount(() => {
 </script>
 
 <div>
-  <Header title="how-match" />
-  <div class="mt-12 p-4 w-full">
-    <div class="p-2">
+  <Header title="" />
+  <div class="p-2 hm-blocks-container">
+    <div class="hm-block">
       <h2 class="text-xl">プロジェクトを新規作成する</h2>
       <div class="flex justify-center p-6">
         <a href="/new" class="btn btn-lg btn-primary">新規作成</a>
@@ -56,19 +56,19 @@ onMount(() => {
             {#each projects as project}
               <li class="list-row flex">
                 <span class="h-full flex-1">{project.name}</span>
-                {#if project.closed_at !== null && new Date(project.closed_at).getTime() < new Date().getTime()}
-                  <!-- 締切済み -->
-                  <a class="btn btn-accent" href="/{project.id}/result">
-                    結果を確認
-                  </a>
-                {:else}
-                  <a class="btn btn-primary" href="/{project.id}/submit">
-                    提出
+                {#if project.is_admin}
+                  <a class="btn btn-primary btn-sm btn-outline" href="/{project.id}/config">
+                    管理
                   </a>
                 {/if}
-                {#if project.is_admin}
-                  <a class="btn btn-primary" href="/{project.id}/config">
-                    管理
+                {#if project.closed_at !== null && new Date(project.closed_at).getTime() < new Date().getTime()}
+                  <!-- 締切済み -->
+                  <a class="btn btn-success btn-sm" href="/{project.id}/result">
+                    結果
+                  </a>
+                {:else}
+                  <a class="btn btn-primary btn-sm" href="/{project.id}/submit">
+                    提出
                   </a>
                 {/if}
               </li>
