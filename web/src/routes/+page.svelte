@@ -34,7 +34,7 @@ onMount(() => {
 </script>
 
 <div>
-  <Header title="how-match" />
+  <Header title="" />
   <div class="mt-12 p-4 w-full">
     <div class="p-2">
       <h2 class="text-xl">プロジェクトを新規作成する</h2>
