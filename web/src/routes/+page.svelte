@@ -2,6 +2,7 @@
   import { onMount } from "svelte";
   import { type Client, createClient } from "~/api/client.ts";
   import Header from "~/components/header.svelte";
+  import MdiWrench from "virtual:icons/mdi/wrench";
   import MdiVote from "virtual:icons/mdi/vote";
   import MdiCog from "virtual:icons/mdi/cog";
   import MdiGraph from "virtual:icons/mdi/graph";
@@ -42,7 +43,9 @@
     <div class="hm-block">
       <h2 class="text-xl">プロジェクトを作る</h2>
       <div class="flex justify-center p-2">
-        <a href="/new" class="btn btn-xl btn-primary">新規作成</a>
+        <a href="/new" class="btn btn-xl btn-primary"
+          ><MdiWrench class="mr-1" />新規作成</a
+        >
       </div>
     </div>
     {#if !projects}
