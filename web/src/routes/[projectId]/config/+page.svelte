@@ -16,6 +16,9 @@ const newlyCreated = page.url.searchParams.get("created") !== null;
 const justClosed = page.url.searchParams.get("closed") !== null;
 let createdToastShown = $state(false);
 let closedToastShown = $state(false);
+let closeModalShown = $state(false);
+let removeModalShown = $state(false);
+
 onMount(() => {
   if (newlyCreated) {
     createdToastShown = true;
@@ -69,8 +72,8 @@ onMount(() => {
 
 <div>
   <Header title="管理・設定" />
-  <div class="mt-12 h-full bg-base-100 p-6 flex flex-col gap-4">
-    <div class="rounded-lg bg-white p-6 flex flex-col gap-2">
+  <div class="hm-blocks-container">
+    <div class="hm-block">
       {#await data.stream}
         <span class="loading loading-xl"> </span>
       {:then res}
@@ -116,41 +119,97 @@ onMount(() => {
               </a>
               <button
                 class="btn btn-error m-4"
-                onclick={async () => {
-                  await client.projects[":projectId"].$patch({
-                    param: {
-                      projectId: data.projectId,
-                    },
-                    json: {
-                      done: true,
-                    },
-                  });
-                  location.assign(`/${project.id}/config?closed`);
-                }}
                 disabled={project.closed_at ? true : false}
+                onclick={() => {
+                  closeModalShown = true;
+                }}
               >
                 締め切る
               </button>
               <button
                 class="btn btn-error m-4"
-                onclick={async () => {
-                  const resp = await client.projects[":projectId"].$delete({
-                    param: {
-                      projectId: data.projectId,
-                    },
-                  });
-                  if (resp.ok) {
-                    alert("削除しました。");
-                  } else {
-                    alert("削除に失敗しました");
-                  }
+                onclick={() => {
+                  removeModalShown = true;
                 }}
-                disabled={project.closed_at ? true : false}
               >
                 削除
               </button>
             </div>
           </section>
+
+          {#if closeModalShown}
+            <dialog class="modal z-10" open>
+              <div class="modal-box border-1">
+                <h3>提出を締め切りますか？</h3>
+                <p>締め切ると提出ができなくなり、マッチングが計算されます。</p>
+                <div class="modal-action flex gap-4 items-center">
+                  <button
+                    class="btn btn-primary"
+                    onclick={() => {
+                      closeModalShown = false;
+                    }}
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    class="btn btn-error m-4"
+                    onclick={async () => {
+                      await client.projects[":projectId"].$patch({
+                        param: {
+                          projectId: data.projectId,
+                        },
+                        json: {
+                          done: true,
+                        },
+                      });
+                      location.assign(`/${project.id}/config?closed`);
+                    }}
+                    disabled={project.closed_at ? true : false}
+                  >
+                    締め切る
+                  </button>
+                </div>
+              </div>
+            </dialog>
+          {/if}
+
+          {#if removeModalShown}
+            <dialog class="modal z-10" open>
+              <div class="modal-box border-1">
+                <h3>プロジェクトを削除しますか？</h3>
+                <p>削除すると、参加者の提出やマッチング結果も消去されます。</p>
+                <div class="modal-action flex gap-4 items-center">
+                  <button
+                    class="btn btn-primary"
+                    onclick={() => {
+                      removeModalShown = false;
+                    }}
+                  >
+                    キャンセル
+                  </button>
+                  <button
+                    class="btn btn-error m-4"
+                    onclick={async () => {
+                      const resp = await client.projects[":projectId"].$delete({
+                        param: {
+                          projectId: data.projectId,
+                        },
+                      });
+                      if (resp.ok) {
+                        alert("削除しました。");
+                        location.assign("/");
+                      } else {
+                        alert("削除に失敗しました");
+                      }
+                    }}
+                  >
+                    削除
+                  </button>
+                </div>
+              </div>
+            </dialog>
+          {/if}
+        
         {/if}
       {:catch}
         プロジェクトの読み込みに失敗しました
