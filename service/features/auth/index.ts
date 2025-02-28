@@ -13,9 +13,13 @@ function GET_COOKIE_SIGN(c: Context): string {
 
 const cookie_identifier__browser_id = "howmatch.browser_id";
 // TODO: make it last forever or smth
+const cookieSecond = 1;
+const cookieMonth = 30 * 24 * 60 * 60 * cookieSecond;
+const maxAge = 3 * 12 * cookieMonth;
 const cookieOptions: CookieOptions = {
   httpOnly: true,
   secure: false,
+  maxAge,
 };
 
 type NoAuth = {
