@@ -2,13 +2,15 @@ import { and, eq, exists } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { db } from "service/db/client.ts";
-import { accounts, matches, participants, projects, ratings, roles } from "service/db/schema.ts";
+import { matches, participants, projects, ratings, roles } from "service/db/schema.ts";
 import { getBrowserID } from "service/features/auth/index.ts";
 import type { HonoOptions } from "service/types.ts";
 import { json, param } from "service/validator/hono.ts";
+import { assignRoles } from "share/logic/min-flow.ts";
 import { ProjectSchema } from "share/schema.ts";
 import * as v from "valibot";
 
+import { at } from "share/lib.ts";
 import preferenceRoutes from "./preferences.ts";
 
 const route = new Hono<HonoOptions>()
@@ -162,38 +164,6 @@ const route = new Hono<HonoOptions>()
     ),
     param({ projectId: v.string() }),
     async (c) => {
-      // const browser_id = getCookie(c, "browser_id");
-      // if (!browser_id) {
-      //   return c.json({ message: "Unauthorized" }, 401);
-      // }
-      // const account_resp = await db(c)
-      //   .select()
-      //   .from(accounts)
-      //   .where(eq(accounts.browser_id, browser_id));
-      // if (account_resp.length === 0) {
-      //   return c.json({ message: "Unauthorized" }, 401);
-      // }
-      // const participant_resp = await db(c)
-      //   .select()
-      //   .from(participants)
-      //   .where(
-      //     eq(participants.account_id, account_resp[0].id) &&
-      //       eq(participants.project_id, c.req.param("projectId")),
-      //   );
-      // if (participant_resp.length === 0 || participant_resp[0].is_admin === 0) {
-      //   return c.json({ message: "Unauthorized" }, 401);
-      // }
-
-      // await db(c)
-      //   .update(projects)
-      //   .set({
-      //     closed_at: new Date().toISOString(),
-      //   })
-      //   .where(eq(projects.id, c.req.param("projectId")));
-
-      // // TODO: ここでマッチ計算
-
-      // return c.json({}, 200);
       const done = c.req.valid("json").done;
       switch (done) {
         case true: {
@@ -203,7 +173,47 @@ const route = new Hono<HonoOptions>()
               closed_at: new Date().toISOString(),
             })
             .where(eq(projects.id, c.req.valid("param").projectId));
-          // TODO: ここでマッチ計算
+
+          const participantsData = await db(c)
+            .select()
+            .from(ratings)
+            .where(eq(ratings.project_id, c.req.valid("param").projectId))
+            .orderBy(ratings.participant_id, ratings.role_id);
+
+          const ratingsByParticipant = Map.groupBy(participantsData, (item) => item.participant_id);
+
+          const ratingsArray: number[][] = []; // TODO: 型付けをマシにする
+          const participantIndexIdMap: string[] = [];
+
+          ratingsByParticipant.forEach((r) => {
+            ratingsArray.push(r.map((item) => item.score));
+            participantIndexIdMap.push(r[0]?.participant_id ?? "-");
+          });
+
+          const roleConstraints = await db(c)
+            .select()
+            .from(roles)
+            .where(eq(roles.project_id, c.req.valid("param").projectId))
+            .orderBy(roles.id);
+          const minMaxConstraints = roleConstraints.map((role) => ({
+            min: role.min,
+            max: role.max,
+          }));
+
+          const result = assignRoles(ratingsArray, at(ratingsArray, 0).length, minMaxConstraints);
+
+          db(c)
+            .insert(matches)
+            .values(
+              result.map((r) => ({
+                id: crypto.randomUUID(),
+                project_id: c.req.valid("param").projectId,
+                role_id: roleConstraints[r.role]?.id ?? "-",
+                participant_id: participantIndexIdMap[r.participant] ?? "-",
+              })),
+            )
+            .execute();
+
           return c.json({}, 200);
         }
         case false: {
@@ -221,8 +231,8 @@ const route = new Hono<HonoOptions>()
       .select({
         role_id: matches.role_id,
         participant_id: matches.participant_id,
+        participant_name: participants.name,
         role_name: roles.name,
-        account_name: accounts.name,
         project_name: projects.name,
         project_desc: projects.description,
       })
@@ -232,7 +242,27 @@ const route = new Hono<HonoOptions>()
       .innerJoin(participants, eq(matches.participant_id, participants.id))
       // TODO: 非効率
       .innerJoin(projects, eq(matches.project_id, projects.id));
-    return c.json(match_result);
+    const participantsOnEachRole = match_result.reduce(
+      (acc, cur) => {
+        if (!acc[cur.role_id]) {
+          acc[cur.role_id] = {
+            role_name: cur.role_name,
+            participants: [],
+          };
+        }
+        acc[cur.role_id]?.participants.push({
+          participant_id: cur.participant_id,
+          participant_name: cur.participant_name,
+        });
+        return acc;
+      },
+      {} as Record<string, { role_name: string; participants: { participant_id: string; participant_name: string }[] }>,
+    );
+    return c.json({
+      participantsOnEachRole,
+      projectName: match_result[0]?.project_name,
+      projectDesc: match_result[0]?.project_desc,
+    });
   });
 
 export default route;
