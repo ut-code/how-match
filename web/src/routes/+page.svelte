@@ -62,7 +62,7 @@ onMount(() => {
                   </a>
                 {/if}
                 {#if project.closed_at}
-                  <a class="btn btn-primary btn-sm" href="/{project.id}/result">
+                  <a class="btn btn-primary btn-sm absolute right-0" href="/{project.id}/result">
                     結果
                   </a>
                 {/if}
