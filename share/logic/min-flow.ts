@@ -1,4 +1,4 @@
-import { at } from "../lib";
+import { at } from "../lib.ts";
 
 /**
  * 各 participant を 1 つの role に割り当て、各 role の割当人数が min, max を満たす中で総スコアが最大になる割当を返す。

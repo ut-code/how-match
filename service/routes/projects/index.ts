@@ -155,76 +155,69 @@ const route = new Hono<HonoOptions>()
     );
     return c.json({ ok: true }, 200);
   })
-  .patch(
-    "/:projectId",
-    json(
-      v.object({
-        done: v.boolean(),
-      }),
-    ),
-    param({ projectId: v.string() }),
-    async (c) => {
-      const done = c.req.valid("json").done;
-      switch (done) {
-        case true: {
-          await db(c)
-            .update(projects)
-            .set({
-              closed_at: new Date().toISOString(),
-            })
-            .where(eq(projects.id, c.req.valid("param").projectId));
 
-          const participantsData = await db(c)
-            .select()
-            .from(ratings)
-            .where(eq(ratings.project_id, c.req.valid("param").projectId))
-            .orderBy(ratings.participant_id, ratings.role_id);
+  .put("/:projectId/finalize", param({ projectId: v.string() }), async (c) => {
+    const browser_id = await getBrowserID(c);
+    if (!browser_id) {
+      return c.json({ message: "Unauthorized" }, 401);
+    }
+    const participant_resp = await db(c)
+      .select()
+      .from(participants)
+      .where(eq(participants.browser_id, browser_id) && eq(participants.project_id, c.req.param("projectId")));
+    if (participant_resp.length === 0 || at(participant_resp, 0).is_admin !== 1) {
+      return c.json({ message: "Unauthorized" }, 401);
+    }
 
-          const ratingsByParticipant = Map.groupBy(participantsData, (item) => item.participant_id);
+    await db(c)
+      .update(projects)
+      .set({
+        closed_at: new Date().toISOString(),
+      })
+      .where(eq(projects.id, c.req.valid("param").projectId));
 
-          const ratingsArray: number[][] = []; // TODO: 型付けをマシにする
-          const participantIndexIdMap: string[] = [];
+    const participantsData = await db(c)
+      .select()
+      .from(ratings)
+      .where(eq(ratings.project_id, c.req.valid("param").projectId))
+      .orderBy(ratings.participant_id, ratings.role_id);
 
-          ratingsByParticipant.forEach((r) => {
-            ratingsArray.push(r.map((item) => item.score));
-            participantIndexIdMap.push(r[0]?.participant_id ?? "-");
-          });
+    const ratingsByParticipant = Map.groupBy(participantsData, (item) => item.participant_id);
 
-          const roleConstraints = await db(c)
-            .select()
-            .from(roles)
-            .where(eq(roles.project_id, c.req.valid("param").projectId))
-            .orderBy(roles.id);
-          const minMaxConstraints = roleConstraints.map((role) => ({
-            min: role.min,
-            max: role.max,
-          }));
+    const ratingsArray: number[][] = []; // TODO: 型付けをマシにする
+    const participantIndexIdMap: string[] = [];
 
-          const result = assignRoles(ratingsArray, at(ratingsArray, 0).length, minMaxConstraints);
+    ratingsByParticipant.forEach((r) => {
+      ratingsArray.push(r.map((item) => item.score));
+      participantIndexIdMap.push(r[0]?.participant_id ?? "-");
+    });
 
-          db(c)
-            .insert(matches)
-            .values(
-              result.map((r) => ({
-                id: crypto.randomUUID(),
-                project_id: c.req.valid("param").projectId,
-                role_id: roleConstraints[r.role]?.id ?? "-",
-                participant_id: participantIndexIdMap[r.participant] ?? "-",
-              })),
-            )
-            .execute();
+    const roleConstraints = await db(c)
+      .select()
+      .from(roles)
+      .where(eq(roles.project_id, c.req.valid("param").projectId))
+      .orderBy(roles.id);
+    const minMaxConstraints = roleConstraints.map((role) => ({
+      min: role.min,
+      max: role.max,
+    }));
 
-          return c.json({}, 200);
-        }
-        case false: {
-          return c.json({}, 404);
-        }
-        default: {
-          done satisfies never;
-        }
-      }
-    },
-  )
+    const result = assignRoles(ratingsArray, at(ratingsArray, 0).length, minMaxConstraints);
+
+    db(c)
+      .insert(matches)
+      .values(
+        result.map((r) => ({
+          id: crypto.randomUUID(),
+          project_id: c.req.valid("param").projectId,
+          role_id: roleConstraints[r.role]?.id ?? "-",
+          participant_id: participantIndexIdMap[r.participant] ?? "-",
+        })),
+      )
+      .execute();
+
+    return c.json({}, 200);
+  })
   .get("/:projectId/result", param({ projectId: v.string() }), async (c) => {
     const { projectId } = c.req.valid("param");
     const match_result = await db(c)
