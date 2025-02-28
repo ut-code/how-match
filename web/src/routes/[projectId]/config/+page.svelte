@@ -1,6 +1,7 @@
 <script lang="ts">
-import { replaceState } from "$app/navigation";
+import { goto, replaceState } from "$app/navigation";
 import { page } from "$app/state";
+import { redirect } from "@sveltejs/kit";
 import { onMount } from "svelte";
 import { fly } from "svelte/transition";
 import { type Client, createClient } from "~/api/client";
@@ -12,16 +13,32 @@ const client: Client = createClient({ fetch });
 const { data } = $props();
 
 const newlyCreated = page.url.searchParams.get("created") !== null;
+const justClosed = page.url.searchParams.get("closed") !== null;
 let createdToastShown = $state(false);
+let closedToastShown = $state(false);
 onMount(() => {
   if (newlyCreated) {
     createdToastShown = true;
     // replace ?created with none s.t. it won't show "created!" after reload
     const next = new URL(window.location.href);
     next.search = "";
-    replaceState(next, {});
+    setTimeout(() => {
+      replaceState(next, {});
+    });
     setTimeout(() => {
       createdToastShown = false;
+    }, 2000);
+  }
+  if (justClosed) {
+    closedToastShown = true;
+    // replace ?closed with none s.t. it won't show "closed!" after reload
+    const next = new URL(window.location.href);
+    next.search = "";
+    setTimeout(() => {
+      replaceState(next, {});
+    });
+    setTimeout(() => {
+      closedToastShown = false;
     }, 2000);
   }
 });
@@ -37,10 +54,15 @@ onMount(() => {
 });
 </script>
 
-<div class="toast-start toast-top absolute">
+<div class="mt-3 ml-3 toast-start toast-top absolute">
   {#if createdToastShown}
     <div class="alert alert-success z-31" transition:fly>
       <span class="z-31">プロジェクトを作成しました。</span>
+    </div>
+  {/if}
+  {#if closedToastShown}
+    <div class="alert alert-success z-31" transition:fly>
+      <span class="z-31">提出を締め切りました。</span>
     </div>
   {/if}
 </div>
@@ -103,7 +125,7 @@ onMount(() => {
                       done: true,
                     },
                   });
-                  location.reload();
+                  location.assign(`/${project.id}/config?closed`);
                 }}
                 disabled={project.closed_at ? true : false}
               >
