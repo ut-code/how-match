@@ -44,16 +44,26 @@ onMount(() => {
       {#if !projects}
         <span>Welcome! this is being prerendered.</span>
       {:else}
-        <h2 class="text-xl">作成・提出したプロジェクト</h2>
-        {#if projects.length === 0}
-          <span>作成・提出したプロジェクトはありません。</span>
-        {:else}
-          <ul class="menu w-full">
+        <ul class="list w-full bg-base-200 rounded-box shadow-md">
+          <li class="p-4 pb-2 text-xl opacity-60 tracking-wide">
+            作成・提出したプロジェクト
+          </li>
+          {#if projects.length === 0}
+            <span>作成・提出したプロジェクトはありません。</span>
+          {:else}
             {#each projects as project}
-              <li class="w-full border-b border-gray-200 flex flex-row">
-                <a href="/{project.id}/submit" class="abcde h-full flex-1">
-                  <span>{project.name}</span>
-                </a>
+              <li class="list-row flex">
+                <span class="h-full flex-1">{project.name}</span>
+                {#if project.closed_at !== null && new Date(project.closed_at).getTime() < new Date().getTime()}
+                  <!-- 締切済み -->
+                  <a class="btn btn-accent" href="/{project.id}/result">
+                    結果を確認
+                  </a>
+                {:else}
+                  <a class="btn btn-primary" href="/{project.id}/submit">
+                    提出
+                  </a>
+                {/if}
                 {#if project.is_admin}
                   <a class="btn btn-primary" href="/{project.id}/config">
                     管理
@@ -61,8 +71,8 @@ onMount(() => {
                 {/if}
               </li>
             {/each}
-          </ul>
-        {/if}
+          {/if}
+        </ul>
       {/if}
     </div>
   </div>
