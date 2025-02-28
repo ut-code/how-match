@@ -49,7 +49,9 @@ onMount(() => {
             作成・提出したプロジェクト
           </li>
           {#if projects.length === 0}
-            <span>作成・提出したプロジェクトはありません。</span>
+            <li class="list-row flex">
+              作成・提出したプロジェクトはありません。
+            </li>
           {:else}
             {#each projects as project}
               <li class="list-row flex">
