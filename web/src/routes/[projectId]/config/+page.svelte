@@ -2,7 +2,6 @@
   import { replaceState } from "$app/navigation";
   import { page } from "$app/state";
   import { onMount } from "svelte";
-  import { fly } from "svelte/transition";
   import { type Client, createClient } from "~/api/client";
   import { generateURL } from "~/api/origins.svelte.ts";
   import Header from "~/components/header.svelte";
@@ -11,67 +10,50 @@
   import MdiStopCircle from "virtual:icons/mdi/stop-circle";
   import MdiGraph from "virtual:icons/mdi/graph";
 
+  import Toast from "~/providers/toast/toast.svelte";
+  import { ToastController } from "~/providers/toast/toast-control.svelte.ts";
+
   const client: Client = createClient({ fetch });
   const { data } = $props();
+  const toasts = new ToastController();
 
-  const newlyCreated = page.url.searchParams.get("created") !== null;
-  const justClosed = page.url.searchParams.get("closed") !== null;
-  let createdToastShown = $state(false);
-  let closedToastShown = $state(false);
   let closeModalShown = $state(false);
   let removeModalShown = $state(false);
 
   onMount(() => {
+    const newlyCreated = page.url.searchParams.get("created") !== null;
+    const justClosed = page.url.searchParams.get("closed") !== null;
     if (newlyCreated) {
-      createdToastShown = true;
-      // replace ?created with none s.t. it won't show "created!" after reload
-      const next = new URL(window.location.href);
-      next.search = "";
-      setTimeout(() => {
-        replaceState(next, {});
+      toasts.push({
+        kind: "success",
+        message: "プロジェクトを作成しました。",
+        timeout: 2000,
       });
-      setTimeout(() => {
-        createdToastShown = false;
-      }, 2000);
     }
     if (justClosed) {
-      closedToastShown = true;
-      // replace ?closed with none s.t. it won't show "closed!" after reload
-      const next = new URL(window.location.href);
-      next.search = "";
-      setTimeout(() => {
-        replaceState(next, {});
+      toasts.push({
+        kind: "success",
+        message: "提出を締め切りました。",
+        timeout: 2000,
       });
-      setTimeout(() => {
-        closedToastShown = false;
-      }, 2000);
     }
+    // replace ?created and ?closed with none s.t. it won't show "closed!" after reload
+    const next = new URL(window.location.href);
+    next.search = "";
+    setTimeout(() => {
+      replaceState(next, {});
+    });
   });
 
   const link = generateURL({
     pathname: `${data.projectId}/submit`,
   }).href;
 
-  let copyTimeout = $state(0);
-  onMount(() => {
-    const id = setInterval(() => (copyTimeout > 0 ? copyTimeout-- : null), 100);
-    return () => clearTimeout(id);
-  });
+  let copied = $state(false);
 </script>
 
 <Header title="管理" />
-<div class="mt-3 ml-3 toast-start toast-top absolute">
-  {#if createdToastShown}
-    <div class="alert alert-success z-31" transition:fly>
-      <span class="z-31">プロジェクトを作成しました。</span>
-    </div>
-  {/if}
-  {#if closedToastShown}
-    <div class="alert alert-success z-31" transition:fly>
-      <span class="z-31">提出を締め切りました。</span>
-    </div>
-  {/if}
-</div>
+<Toast {toasts} />
 
 <main class="hm-blocks-container">
   <div class="hm-block">
@@ -93,12 +75,14 @@
             <label class="input input-bordered w-full">
               <img alt="" src={chain} class="h-[1rem] opacity-50 select-none" />
               <input type="url" class="x-selectable" value={link} readonly />
-              {#if copyTimeout === 0}
+              {#if !copied}
                 <button
                   class="btn btn-sm btn-soft btn-primary"
                   onclick={async () => {
                     await navigator.clipboard.writeText(link);
-                    copyTimeout = 20;
+                    setTimeout(() => {
+                      copied = false;
+                    }, 2000);
                   }}
                 >
                   copy

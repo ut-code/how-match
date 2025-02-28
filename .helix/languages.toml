@@ -23,9 +23,9 @@ language-servers = [
 
 [[language]]
 name = "svelte"
-formatter = { command = "prettier", args = ["--parser=svelte"] }
+formatter = { command = "bun", args = ["prettier", "--parser", "svelte"] }
 language-servers = ["tailwindcss-ls", "svelteserver"]
 
 [[language]]
 name = "typescript"
-formatter = { command = "prettier", args = ["--parser=typescript"] }
+formatter = { command = "bun", args = ["prettier", "--parser", "typescript"] }
