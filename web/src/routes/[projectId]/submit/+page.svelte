@@ -1,9 +1,10 @@
 <script lang="ts">
 import { goto } from "$app/navigation";
 import { PreferenceSchema } from "share/schema.ts";
-import type { Preference } from "share/types.ts";
+import { classicNameResolver } from "typescript";
 import { safeParse } from "valibot";
 import { createClient } from "~/api/client";
+import { generateURL } from "~/api/origins.svelte.ts";
 import Header from "~/components/header.svelte";
 import type { PageProps } from "./$types.ts";
 import RolesSelector from "./roles-selector.svelte";
@@ -35,32 +36,50 @@ async function postPreference() {
   // TODO: handle it better
   if (!preference.success) throw new Error("failed to validate preference");
 
-  let created: { ok: boolean };
   if (data.prev) {
     // PUT
     const res = await client.projects[":projectId"].preferences.$put({
       json: preference.output,
       param: { projectId: project.id },
     });
-    created = await res.json();
+    if (!res.ok) throw new Error(`Failed to submit: got ${res.status} with text ${await res.text()}`);
   } else {
     // POST
     const res = await client.projects[":projectId"].preferences.$post({
       json: preference.output,
       param: { projectId: project.id },
     });
-    created = await res.json();
+    if (!res.ok) throw new Error(`Failed to submit: got ${res.status} with text ${await res.json()}`);
   }
   goto("/done");
   formState = "done";
 }
 
 let formState = $state<"ready" | "submitting" | "error" | "done">("ready");
+const closed = $derived.by(() => {
+  if (data.project.closed_at === null) return false;
+  return new Date(data.project.closed_at).getTime() < Date.now();
+});
 const formVerb = $derived(data.prev ? "更新" : "送信");
+
+const resultLink = $derived(
+  generateURL({
+    pathname: `${project.id}/result`,
+  }).href,
+);
 </script>
 
 <div>
   <Header title="希望の提出" />
+
+  {#if closed}
+    <div role="alert" class="alert alert-error m-6">
+      既に締め切られています
+      <a class="btn btn-primary" href={resultLink}>
+        結果を見る
+      </a>
+    </div>
+  {/if}
   {#if project === null}
     <div class="hm-blocks-container">
       <p>プロジェクトが見つかりませんでした</p>
@@ -73,7 +92,7 @@ const formVerb = $derived(data.prev ? "更新" : "送信");
         await postPreference();
       }}
     >
-      <div class="hm-blocks-container">
+<div class="hm-blocks-container">
         <div class="hm-block">
           <h3>{project.name}</h3>
           {#if project.description}
@@ -87,11 +106,16 @@ const formVerb = $derived(data.prev ? "更新" : "送信");
             class="input bg-white"
             placeholder="回答を入力"
             bind:value={participantName}
+            disabled={closed}
           />
         </div>
-        <RolesSelector bind:ratings />
+        <RolesSelector bind:ratings {closed}/>
         <div class="flex justify-end">
-          {#if formState === "ready"}
+          {#if closed}
+            <button type="submit" class="btn btn-primary" disabled>
+              既に締め切られています
+            </button>
+          {:else if formState === "ready"}
             <button type="submit" class="btn btn-primary">
               {formVerb}
             </button>
