@@ -35,15 +35,17 @@ onMount(() => {
 
 <div>
   <Header title="" />
-  <div class="mt-12 p-4 w-full">
-    <div class="p-2">
+  <div class="p-2 hm-blocks-container">
+    <div class="hm-block">
       <h2 class="text-xl">プロジェクトを新規作成する</h2>
       <div class="flex justify-center p-6">
         <a href="/new" class="btn btn-lg btn-primary">新規作成</a>
       </div>
-      {#if !projects}
-        <span>Welcome! this is being prerendered.</span>
-      {:else}
+    </div>
+    {#if !projects}
+      <span>Welcome! this is being prerendered.</span>
+    {:else}
+      <div class="hm-block">
         <h2 class="text-xl">作成・提出したプロジェクト</h2>
         {#if projects.length === 0}
           <span>作成・提出したプロジェクトはありません。</span>
@@ -55,15 +57,20 @@ onMount(() => {
                   <span>{project.name}</span>
                 </a>
                 {#if project.is_admin}
-                  <a class="btn btn-primary" href="/{project.id}/config">
+                  <a class="btn btn-primary btn-sm absolute right-13" href="/{project.id}/config">
                     管理
+                  </a>
+                {/if}
+                {#if project.closed_at}
+                  <a class="btn btn-primary btn-sm" href="/{project.id}/result">
+                    結果
                   </a>
                 {/if}
               </li>
             {/each}
           </ul>
         {/if}
-      {/if}
-    </div>
+      </div>
+    {/if}
   </div>
 </div>
