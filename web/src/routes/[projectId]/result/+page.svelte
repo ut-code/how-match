@@ -27,9 +27,9 @@ onDestroy(() => clearInterval(interval));
       {:else}
         {@const result = res.data}
         <div class="hm-block">
-        <h2 class="text-xl">{result.projectName}</h2>
-        <p>{result.projectDesc}</p>
-      </div>
+          <h2 class="text-xl">{result.projectName}</h2>
+          <p>{result.projectDesc}</p>
+        </div>
         {#each Object.entries(result.participantsOnEachRole) as [_roleId, role]}
           <div class="hm-block">
             <h2>{role.role_name}</h2>

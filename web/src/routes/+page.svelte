@@ -44,42 +44,51 @@ onMount(() => {
         </div>
       </section>
       <section>
-      {#if !projects}
-        <span>Welcome! this is being prerendered.</span>
-      {:else}
-        <ul class="list w-full bg-base-200 rounded-box shadow-md">
-          <li class="p-4 pb-2 text-xl opacity-60 tracking-wide">
-            作成・提出したプロジェクト
-          </li>
-          {#if projects.length === 0}
-            <li class="list-row flex">
-              作成・提出したプロジェクトはありません。
+        {#if !projects}
+          <span>Welcome! this is being prerendered.</span>
+        {:else}
+          <ul class="list w-full bg-base-200 rounded-box shadow-md">
+            <li class="p-4 pb-2 text-xl opacity-60 tracking-wide">
+              作成・提出したプロジェクト
             </li>
-          {:else}
-            {#each projects as project}
+            {#if projects.length === 0}
               <li class="list-row flex">
-                <span class="h-full flex-1">{project.name}</span>
-                {#if project.is_admin}
-                  <a class="btn btn-primary btn-sm btn-outline" href="/{project.id}/config">
-                    管理
-                  </a>
-                {/if}
-                {#if project.closed_at !== null && new Date(project.closed_at).getTime() < new Date().getTime()}
-                  <!-- 締切済み -->
-                  <a class="btn btn-success btn-sm" href="/{project.id}/result">
-                    結果
-                  </a>
-                {:else}
-                  <a class="btn btn-primary btn-sm" href="/{project.id}/submit">
-                    提出
-                  </a>
-                {/if}
+                作成・提出したプロジェクトはありません。
               </li>
-            {/each}
-          {/if}
-        </ul>
-      {/if}
-        </section>
+            {:else}
+              {#each projects as project}
+                <li class="list-row flex">
+                  <span class="h-full flex-1">{project.name}</span>
+                  {#if project.is_admin}
+                    <a
+                      class="btn btn-primary btn-sm btn-outline"
+                      href="/{project.id}/config"
+                    >
+                      管理
+                    </a>
+                  {/if}
+                  {#if project.closed_at !== null && new Date(project.closed_at).getTime() < new Date().getTime()}
+                    <!-- 締切済み -->
+                    <a
+                      class="btn btn-success btn-sm"
+                      href="/{project.id}/result"
+                    >
+                      結果
+                    </a>
+                  {:else}
+                    <a
+                      class="btn btn-primary btn-sm"
+                      href="/{project.id}/submit"
+                    >
+                      提出
+                    </a>
+                  {/if}
+                </li>
+              {/each}
+            {/if}
+          </ul>
+        {/if}
+      </section>
     </div>
   </div>
 </div>

@@ -12,13 +12,9 @@ const { ratings = $bindable(), closed }: Props = $props();
 
 {#each ratings as rating, radioIndex (radioIndex)}
   {@const role = rating.role}
-  <div
-    class="hm-block"
-  >
+  <div class="hm-block">
     <h3>役職：{role.name}</h3>
-    <div
-      class="gap-2 grid grid-cols-7 justify-items-center text-sm"
-    >
+    <div class="gap-2 grid grid-cols-7 justify-items-center text-sm">
       <div></div>
       <div class="text-lg">1</div>
       <div class="text-lg">2</div>

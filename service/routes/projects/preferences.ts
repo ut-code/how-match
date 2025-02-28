@@ -50,7 +50,10 @@ const route = new Hono<HonoOptions>()
           })
           .returning()
       )[0];
-      if (!participant) throw new HTTPException(500, { message: "failed to insert participant" });
+      if (!participant)
+        throw new HTTPException(500, {
+          message: "failed to insert participant",
+        });
 
       await db(c)
         .insert(ratings)

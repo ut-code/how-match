@@ -74,9 +74,7 @@ const resultLink = $derived(
   {#if closed}
     <div role="alert" class="alert alert-error m-6">
       既に締め切られています
-      <a class="btn btn-primary" href={resultLink}>
-        結果を見る
-      </a>
+      <a class="btn btn-primary" href={resultLink}> 結果を見る </a>
     </div>
   {/if}
   {#if project === null}
@@ -108,7 +106,7 @@ const resultLink = $derived(
             disabled={closed}
           />
         </div>
-        <RolesSelector bind:ratings {closed}/>
+        <RolesSelector bind:ratings {closed} />
         <div class="flex justify-end">
           {#if closed}
             <button type="submit" class="btn btn-primary" disabled>
@@ -120,11 +118,13 @@ const resultLink = $derived(
             </button>
           {:else if formState === "submitting"}
             <button type="submit" class="btn btn-primary" disabled>
-              <span class="loading loading-spinner"></span> {formVerb}中...
+              <span class="loading loading-spinner"></span>
+              {formVerb}中...
             </button>
           {:else if formState === "error"}
             <button type="submit" class="btn btn-primary" disabled>
-              <span class="loading loading-spinner"></span> {formVerb}に失敗しました
+              <span class="loading loading-spinner"></span>
+              {formVerb}に失敗しました
             </button>
           {:else if formState === "done"}
             <button type="submit" class="btn btn-primary" disabled>

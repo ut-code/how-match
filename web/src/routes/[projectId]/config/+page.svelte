@@ -127,7 +127,10 @@ onMount(() => {
                 締め切る
               </button>
               {#if project.closed_at}
-                <a class="btn btn-primary btn-soft m-4" href={`/${project.id}/result`}>
+                <a
+                  class="btn btn-primary btn-soft m-4"
+                  href={`/${project.id}/result`}
+                >
                   結果を見る
                 </a>
               {/if}

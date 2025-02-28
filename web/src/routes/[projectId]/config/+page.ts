@@ -13,7 +13,11 @@ export const load: PageLoad = ({ params, fetch }) => {
     })
     .then(async (res) => {
       if (res.ok) return { ok: true, data: await res.json() } as const;
-      return { ok: false, code: res.status, message: await res.text() } as const;
+      return {
+        ok: false,
+        code: res.status,
+        message: await res.text(),
+      } as const;
     });
 
   return {

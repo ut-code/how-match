@@ -245,7 +245,13 @@ const route = new Hono<HonoOptions>()
         });
         return acc;
       },
-      {} as Record<string, { role_name: string; participants: { participant_id: string; participant_name: string }[] }>,
+      {} as Record<
+        string,
+        {
+          role_name: string;
+          participants: { participant_id: string; participant_name: string }[];
+        }
+      >,
     );
     return c.json({
       participantsOnEachRole,
