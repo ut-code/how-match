@@ -154,12 +154,9 @@ onMount(() => {
                   <button
                     class="btn btn-primary m-4"
                     onclick={async () => {
-                      await client.projects[":projectId"].$patch({
+                      await client.projects[":projectId"].finalize.$put({
                         param: {
                           projectId: data.projectId,
-                        },
-                        json: {
-                          done: true,
                         },
                       });
                       location.assign(`/${project.id}/config?closed`);
