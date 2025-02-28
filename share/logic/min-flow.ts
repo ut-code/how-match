@@ -1,4 +1,4 @@
-//@ts-nocheck
+import { at } from "../lib";
 
 /**
  * 各 participant を 1 つの role に割り当て、各 role の割当人数が min, max を満たす中で総スコアが最大になる割当を返す。
@@ -13,8 +13,6 @@ export function assignRoles(
   countRoles: number,
   minMaxConstraints: { min: number; max: number }[],
 ): { participant: number; role: number }[] {
-  console.log(participants, countRoles, minMaxConstraints);
-
   const P = participants.length; // 参加者数
   const M = countRoles; // 実際の役割数
 
@@ -86,7 +84,7 @@ export function assignRoles(
     // 各 extended role j に対して、dist[j] 個のスロットを作成
     const roleForColumn: number[] = [];
     for (let j = 0; j < M_ext; j++) {
-      for (let k = 0; k < dist[j]; k++) {
+      for (let k = 0; k < at(dist, j); k++) {
         roleForColumn.push(j);
       }
     }
@@ -98,9 +96,9 @@ export function assignRoles(
     for (let i = 0; i < P; i++) {
       costMatrix[i] = [];
       for (let col = 0; col < P; col++) {
-        const roleIndex = roleForColumn[col];
-        const score = roleIndex < M ? participants[i][roleIndex] : 0;
-        costMatrix[i][col] = globalMax - score;
+        const roleIndex = at(roleForColumn, col);
+        const score = roleIndex < M ? at(at(participants, i), roleIndex) : 0;
+        at(costMatrix, i)[col] = globalMax - score;
       }
     }
 
@@ -108,8 +106,8 @@ export function assignRoles(
     const assignmentCols = hungarian(costMatrix);
     let totalScore = 0;
     for (let i = 0; i < P; i++) {
-      const roleIdx = roleForColumn[assignmentCols[i]];
-      totalScore += roleIdx < M ? participants[i][roleIdx] : 0;
+      const roleIdx = at(roleForColumn, at(assignmentCols, i));
+      totalScore += roleIdx < M ? at(at(participants, i), roleIdx) : 0;
     }
     if (totalScore > bestScore) {
       bestScore = totalScore;
@@ -130,7 +128,8 @@ export function assignRoles(
   // bestMatching.roleForColumn[slot] で、そのスロットがどの extended role に対応するかが分かる
   const result: { participant: number; role: number }[] = [];
   for (let i = 0; i < P; i++) {
-    const assignedRole = bestMatching.roleForColumn[bestMatching.assignment[i]];
+    // const assignedRole = bestMatching.roleForColumn[bestMatching.assignment[i]];
+    const assignedRole = at(bestMatching.roleForColumn, at(bestMatching.assignment, i));
     // dummy roleの場合は -1 として返す（必要に応じて処理してください）
     result.push({ participant: i, role: assignedRole < M ? assignedRole : -1 });
   }
@@ -163,7 +162,7 @@ function hungarian(cost: number[][]): number[] {
       let j1 = 0;
       for (let j = 1; j <= m; j++) {
         if (!used[j]) {
-          const cur = cost[i0 - 1][j - 1] - u[i0] - v[j];
+          const cur = at(at(cost, i0 - 1), j - 1) - at(u, i0) - at(v, j);
           if (cur < minv[j]) {
             minv[j] = cur;
             way[j] = j0;
