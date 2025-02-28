@@ -115,7 +115,11 @@
               required
               bind:value={role.min}
             />
-            <button type="button" onclick={() => deleteRole(index)}>✖️</button>
+            <button
+              type="button"
+              class="cursor-pointer"
+              onclick={() => deleteRole(index)}>✖️</button
+            >
           </div>
         {/each}
         <button
