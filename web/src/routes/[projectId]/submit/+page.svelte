@@ -1,7 +1,6 @@
 <script lang="ts">
 import { goto } from "$app/navigation";
 import { PreferenceSchema } from "share/schema.ts";
-import { classicNameResolver } from "typescript";
 import { safeParse } from "valibot";
 import { createClient } from "~/api/client";
 import { generateURL } from "~/api/origins.svelte.ts";
@@ -92,7 +91,7 @@ const resultLink = $derived(
         await postPreference();
       }}
     >
-<div class="hm-blocks-container">
+      <div class="hm-blocks-container">
         <div class="hm-block">
           <h3>{project.name}</h3>
           {#if project.description}
