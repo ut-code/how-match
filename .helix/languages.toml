@@ -26,6 +26,11 @@ language-servers = [
 
 [[language]]
 name = "svelte"
+formatter = { command = "biome", args = [
+  "format",
+  "--stdin-file-path",
+  "a.svelte",
+] }
 language-servers = ["tailwindcss-ls", "svelteserver"]
 
 [[language]]
