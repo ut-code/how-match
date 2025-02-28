@@ -126,6 +126,11 @@ onMount(() => {
               >
                 締め切る
               </button>
+              {#if project.closed_at}
+                <a class="btn btn-primary btn-soft m-4" href={`/${project.id}/result`}>
+                  結果を見る
+                </a>
+              {/if}
               <button
                 class="btn btn-error btn-outline m-4"
                 onclick={() => {
@@ -206,7 +211,6 @@ onMount(() => {
               </div>
             </dialog>
           {/if}
-        
         {/if}
       {:catch}
         プロジェクトの読み込みに失敗しました
