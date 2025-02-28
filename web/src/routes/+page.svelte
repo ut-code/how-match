@@ -51,7 +51,7 @@
     {#if !projects}
       <div class="flex justify-center p-4">
         <!-- TODO: 何もないときも常に loading になってしまう -->
-        <span class="loading loading-xl"></span>
+        <span>Welcome! this is being prerendered.</span>
       </div>
     {:else}
       <div class="hm-block">
