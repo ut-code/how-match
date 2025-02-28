@@ -83,7 +83,7 @@ const route = new Hono<HonoOptions>()
           .set({
             name: body.participantName,
           })
-          .where(eq(participants.browser_id, browser_id))
+          .where(and(eq(participants.browser_id, browser_id), eq(participants.is_admin, 0)))
           .returning({ id: participants.id })
       )[0];
       if (!participant) throw new HTTPException(500, { message: "failed to find participant" });
