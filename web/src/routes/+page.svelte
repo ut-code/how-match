@@ -37,10 +37,13 @@ onMount(() => {
   <Header title="" />
   <div class="p-2 hm-blocks-container">
     <div class="hm-block">
-      <h2 class="text-xl">プロジェクトを新規作成する</h2>
-      <div class="flex justify-center p-6">
-        <a href="/new" class="btn btn-lg btn-primary">新規作成</a>
-      </div>
+      <section>
+        <h2 class="text-xl">プロジェクトを新規作成する</h2>
+        <div class="flex justify-center p-6">
+          <a href="/new" class="btn btn-lg btn-primary">新規作成</a>
+        </div>
+      </section>
+      <section>
       {#if !projects}
         <span>Welcome! this is being prerendered.</span>
       {:else}
@@ -76,6 +79,7 @@ onMount(() => {
           {/if}
         </ul>
       {/if}
+        </section>
     </div>
   </div>
 </div>
