@@ -158,6 +158,7 @@ const route = new Hono<HonoOptions>()
 
   .put("/:projectId/finalize", param({ projectId: v.string() }), async (c) => {
     const browser_id = await getBrowserID(c);
+    const { projectId } = c.req.valid("param");
     if (!browser_id) {
       return c.json({ message: "Unauthorized" }, 401);
     }
@@ -165,7 +166,7 @@ const route = new Hono<HonoOptions>()
       .select()
       .from(participants)
       .where(eq(participants.browser_id, browser_id) && eq(participants.project_id, c.req.param("projectId")));
-    if (participant_resp.length === 0 || at(participant_resp, 0).is_admin !== 1) {
+    if (participant_resp[0]?.is_admin !== 1) {
       return c.json({ message: "Unauthorized" }, 401);
     }
 
@@ -174,12 +175,12 @@ const route = new Hono<HonoOptions>()
       .set({
         closed_at: new Date().toISOString(),
       })
-      .where(eq(projects.id, c.req.valid("param").projectId));
+      .where(eq(projects.id, projectId));
 
     const participantsData = await db(c)
       .select()
       .from(ratings)
-      .where(eq(ratings.project_id, c.req.valid("param").projectId))
+      .where(eq(ratings.project_id, projectId))
       .orderBy(ratings.participant_id, ratings.role_id);
 
     const ratingsByParticipant = Map.groupBy(participantsData, (item) => item.participant_id);
@@ -192,11 +193,7 @@ const route = new Hono<HonoOptions>()
       participantIndexIdMap.push(r[0]?.participant_id ?? "-");
     });
 
-    const roleConstraints = await db(c)
-      .select()
-      .from(roles)
-      .where(eq(roles.project_id, c.req.valid("param").projectId))
-      .orderBy(roles.id);
+    const roleConstraints = await db(c).select().from(roles).where(eq(roles.project_id, projectId)).orderBy(roles.id);
     const minMaxConstraints = roleConstraints.map((role) => ({
       min: role.min,
       max: role.max,
@@ -209,7 +206,7 @@ const route = new Hono<HonoOptions>()
       .values(
         result.map((r) => ({
           id: crypto.randomUUID(),
-          project_id: c.req.valid("param").projectId,
+          project_id: projectId,
           role_id: roleConstraints[r.role]?.id ?? "-",
           participant_id: participantIndexIdMap[r.participant] ?? "-",
         })),
