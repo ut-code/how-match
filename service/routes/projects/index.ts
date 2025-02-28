@@ -11,6 +11,7 @@ import { ProjectSchema } from "share/schema.ts";
 import * as v from "valibot";
 
 import preferenceRoutes from "./preferences.ts";
+import { at } from "share/lib.ts";
 
 const route = new Hono<HonoOptions>()
   .route("/:projectId/preferences", preferenceRoutes)
@@ -199,7 +200,7 @@ const route = new Hono<HonoOptions>()
             max: role.max,
           }));
 
-          const result = assignRoles(ratingsArray, ratingsArray[0]?.length ?? 0, minMaxConstraints);
+          const result = assignRoles(ratingsArray, at(ratingsArray, 0).length, minMaxConstraints);
 
           db(c)
             .insert(matches)
