@@ -2,7 +2,7 @@ import { and, eq, exists } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { db } from "service/db/client.ts";
-import { accounts, matches, participants, projects, ratings, roles } from "service/db/schema.ts";
+import { matches, participants, projects, ratings, roles } from "service/db/schema.ts";
 import { getBrowserID } from "service/features/auth/index.ts";
 import type { HonoOptions } from "service/types.ts";
 import { json, param } from "service/validator/hono.ts";
@@ -10,8 +10,8 @@ import { assignRoles } from "share/logic/min-flow.ts";
 import { ProjectSchema } from "share/schema.ts";
 import * as v from "valibot";
 
-import preferenceRoutes from "./preferences.ts";
 import { at } from "share/lib.ts";
+import preferenceRoutes from "./preferences.ts";
 
 const route = new Hono<HonoOptions>()
   .route("/:projectId/preferences", preferenceRoutes)
