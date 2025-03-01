@@ -79,7 +79,7 @@
                 <span class="h-full flex-1">{project.name}</span>
                 {#if project.is_admin}
                   <a
-                    class="btn btn-primary btn-sm btn-outline"
+                    class="btn btn-primary btn-outline"
                     href="/{project.id}/config"
                   >
                     <MdiCog />
@@ -87,12 +87,12 @@
                   </a>
                 {:else if project.closed_at !== null && new Date(project.closed_at).getTime() < new Date().getTime()}
                   <!-- 締切済み -->
-                  <a class="btn btn-primary btn-sm" href="/{project.id}/result">
+                  <a class="btn btn-primary" href="/{project.id}/result">
                     <MdiGraph />
                     結果
                   </a>
                 {:else}
-                  <a class="btn btn-primary btn-sm" href="/{project.id}/submit">
+                  <a class="btn btn-primary" href="/{project.id}/submit">
                     <MdiVote />
                     提出
                   </a>
