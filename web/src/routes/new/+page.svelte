@@ -59,7 +59,7 @@
 </script>
 
 <div>
-  <Header title="プロジェクトの作成" />
+  <Header title="作成" />
   <form
     method="POST"
     onsubmit={async (e) => {
@@ -69,7 +69,7 @@
   >
     <div class="hm-blocks-container">
       <div class="hm-block">
-        <p>プロジェクトのタイトル</p>
+        <h2 class="text-xl">プロジェクトのタイトル</h2>
         <input
           type="text"
           class="input bg-white text-base"
@@ -80,7 +80,7 @@
         />
       </div>
       <div class="hm-block">
-        <p>プロジェクトの説明</p>
+        <h2 class="text-xl">プロジェクトの説明</h2>
         <input
           type="text"
           class="input bg-white text-base"
@@ -89,7 +89,7 @@
         />
       </div>
       <div class="hm-block">
-        <p>設定する役職</p>
+        <h2 class="text-xl">設定する役職</h2>
         {#each form.roles as role, index}
           <div class="flex gap-2">
             <input
