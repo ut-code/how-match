@@ -12,13 +12,12 @@
 
   import Toast from "~/providers/toast/toast.svelte";
   import { ToastController } from "~/providers/toast/toast-control.svelte.ts";
+  import { ModalController } from "~/providers/modal/modal-controller.svelte.js";
+  import Modal from "~/providers/modal/modal.svelte";
 
   const client: Client = createClient({ fetch });
   const { data } = $props();
   const toasts = new ToastController();
-
-  let closeModalShown = $state(false);
-  let removeModalShown = $state(false);
 
   onMount(() => {
     const newlyCreated = page.url.searchParams.get("created") !== null;
@@ -50,10 +49,13 @@
   }).href;
 
   let copied = $state(false);
+
+  const modal = new ModalController();
 </script>
 
 <Header title="管理" />
 <Toast {toasts} />
+<Modal {modal} />
 
 <main class="hm-blocks-container">
   <div class="hm-block">
@@ -111,8 +113,30 @@
               <button
                 class="btn btn-primary btn-soft btn-sm"
                 disabled={project.closed_at ? true : false}
-                onclick={() => {
-                  closeModalShown = true;
+                onclick={async () => {
+                  await modal.show({
+                    title: "提出を締め切りますか？",
+                    content:
+                      "締め切ると提出ができなくなり、マッチングが計算されます。",
+                    buttons: [
+                      {
+                        class: "btn-outline",
+                        text: "キャンセル",
+                      },
+                      {
+                        class: "btn-primary",
+                        text: "締め切る",
+                        onclick: async () => {
+                          await client.projects[":projectId"].finalize.$put({
+                            param: {
+                              projectId: data.projectId,
+                            },
+                          });
+                          location.assign(`/${project.id}/config?closed`);
+                        },
+                      },
+                    ],
+                  });
                 }}
               >
                 <MdiStopCircle />
@@ -125,8 +149,34 @@
             <div class="flex justify-end gap-2">
               <button
                 class="btn btn-error btn-outline btn-sm"
-                onclick={() => {
-                  removeModalShown = true;
+                onclick={async () => {
+                  await modal.show({
+                    title: "プロジェクトを削除しますか？",
+                    content:
+                      "削除すると、参加者の提出やマッチング結果も消去されます。",
+                    buttons: [
+                      { text: "キャンセル", class: "btn-outline" },
+                      {
+                        text: "削除",
+                        class: "btn-error",
+                        onclick: async () => {
+                          const resp = await client.projects[
+                            ":projectId"
+                          ].$delete({
+                            param: {
+                              projectId: data.projectId,
+                            },
+                          });
+                          if (resp.ok) {
+                            alert("削除しました。");
+                            location.assign("/");
+                          } else {
+                            alert("削除に失敗しました");
+                          }
+                        },
+                      },
+                    ],
+                  });
                 }}
               >
                 プロジェクトを削除
@@ -142,76 +192,12 @@
               {/if}
             </div>
           </div>
-
-          {#if closeModalShown}
-            <dialog class="modal z-10" open>
-              <div class="modal-box border-1">
-                <h3>提出を締め切りますか？</h3>
-                <p>締め切ると提出ができなくなり、マッチングが計算されます。</p>
-                <div class="modal-action flex gap-4 items-center">
-                  <button
-                    class="btn btn-outline"
-                    onclick={() => {
-                      closeModalShown = false;
-                    }}
-                  >
-                    キャンセル
-                  </button>
-                  <button
-                    class="btn btn-primary m-4"
-                    onclick={async () => {
-                      await client.projects[":projectId"].finalize.$put({
-                        param: {
-                          projectId: data.projectId,
-                        },
-                      });
-                      location.assign(`/${project.id}/config?closed`);
-                    }}
-                    disabled={project.closed_at ? true : false}
-                  >
-                    締め切る
-                  </button>
-                </div>
-              </div>
-            </dialog>
-          {/if}
-
-          {#if removeModalShown}
-            <dialog class="modal z-10" open>
-              <div class="modal-box border-1">
-                <h3>プロジェクトを削除しますか？</h3>
-                <p>削除すると、参加者の提出やマッチング結果も消去されます。</p>
-                <div class="modal-action flex gap-4 items-center">
-                  <button
-                    class="btn btn-outline"
-                    onclick={() => {
-                      removeModalShown = false;
-                    }}
-                  >
-                    キャンセル
-                  </button>
-                  <button
-                    class="btn btn-error m-4"
-                    onclick={async () => {
-                      const resp = await client.projects[":projectId"].$delete({
-                        param: {
-                          projectId: data.projectId,
-                        },
-                      });
-                      if (resp.ok) {
-                        alert("削除しました。");
-                        location.assign("/");
-                      } else {
-                        alert("削除に失敗しました");
-                      }
-                    }}
-                  >
-                    削除
-                  </button>
-                </div>
-              </div>
-            </dialog>
-          {/if}
+          <button
+            class="btn btn-error btn-outline m-4"
+            onclick={async () => {}}
+          >
+            削除
+          </button>
         </div>
       {/if}
     {:catch}
