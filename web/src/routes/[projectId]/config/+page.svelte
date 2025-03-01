@@ -192,12 +192,6 @@
               {/if}
             </div>
           </div>
-          <button
-            class="btn btn-error btn-outline m-4"
-            onclick={async () => {}}
-          >
-            削除
-          </button>
         </div>
       {/if}
     {:catch}
