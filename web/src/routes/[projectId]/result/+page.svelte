@@ -32,16 +32,16 @@
         </div>
         {#each Object.entries(result.participantsOnEachRole) as [_roleId, role]}
           <div class="hm-block">
-            <h2>{role.role_name}</h2>
+            <h2 class="text-xl">{role.role_name}</h2>
             {#each role.participants as participant}
-              <p>{participant.participant_name}さん</p>
+              <p>{participant.participant_name} さん</p>
             {/each}
           </div>
         {/each}
       {/if}
     {/await}
     <div class="flex justify-end">
-      <a href="/" class="btn btn-primary"> ホームに戻る </a>
+      <a href="/" class="btn btn-primary">ホームに戻る</a>
     </div>
   </div>
 </div>

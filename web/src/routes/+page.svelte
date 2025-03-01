@@ -40,23 +40,35 @@
 <div>
   <Header title="" />
   <div class="p-2 hm-blocks-container">
-    <div class="hm-block">
-      <h2 class="text-xl">プロジェクトを作る</h2>
-      <div class="flex justify-center p-2">
-        <a href="/new" class="btn btn-xl btn-primary"
-          ><MdiWrench class="mr-1" />新規作成</a
-        >
+    <!-- <div class="hero bg-base-200">
+      <div class="hero-content text-center">
+        <div class="max-w-md">
+          <h1 class="text-5xl font-bold">プロジェクトを作る</h1>
+          <p class="py-6">
+            Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
+            excepturi exercitationem quasi. In deleniti eaque aut repudiandae et
+            a id nisi.
+          </p>
+          <button class="btn btn-primary">Get Started</button>
+        </div>
+      </div>
+    </div> -->
+    <div class="hm-block text-center">
+      <div class="max-w-md mx-auto py-6 px-2">
+        <h2 class="text-3xl">プロジェクトを作る</h2>
+        <a href="/new" class="btn btn-xl btn-primary mt-5">
+          <MdiWrench class="mr-1" />作成
+        </a>
       </div>
     </div>
     {#if !projects}
       <div class="flex justify-center p-4">
-        <!-- TODO: 何もないときも常に loading になってしまう -->
-        <span>Welcome! this is being prerendered.</span>
+        <span class="loading loading-xl"></span>
       </div>
     {:else}
       <div class="hm-block">
         <h2 class="text-xl">作成・提出したプロジェクト</h2>
-        <ul class="list w-full bg-base-200 my-1 rounded-lg">
+        <ul class="list w-full bg-base-200 my-1 rounded-xl">
           {#if projects.length === 0}
             <li class="list-row flex">
               作成・提出したプロジェクトはありません。
@@ -67,7 +79,7 @@
                 <span class="h-full flex-1">{project.name}</span>
                 {#if project.is_admin}
                   <a
-                    class="btn btn-primary btn-sm btn-outline"
+                    class="btn btn-primary btn-outline"
                     href="/{project.id}/config"
                   >
                     <MdiCog />
@@ -75,12 +87,12 @@
                   </a>
                 {:else if project.closed_at !== null && new Date(project.closed_at).getTime() < new Date().getTime()}
                   <!-- 締切済み -->
-                  <a class="btn btn-primary btn-sm" href="/{project.id}/result">
+                  <a class="btn btn-primary" href="/{project.id}/result">
                     <MdiGraph />
                     結果
                   </a>
                 {:else}
-                  <a class="btn btn-primary btn-sm" href="/{project.id}/submit">
+                  <a class="btn btn-primary" href="/{project.id}/submit">
                     <MdiVote />
                     提出
                   </a>

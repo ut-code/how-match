@@ -74,12 +74,18 @@
           </div>
           <div class="flex flex-col gap-2">
             <h3 class="text-gray-500 text-sm">提出ページ</h3>
-            <label class="input input-bordered w-full">
-              <img alt="" src={chain} class="h-[1rem] opacity-50 select-none" />
-              <input type="url" class="x-selectable" value={link} readonly />
+            <div class="flex gap-2">
+              <label class="input input-bordered w-full rounded-xl bg-gray-50">
+                <img
+                  alt=""
+                  src={chain}
+                  class="h-[1rem] opacity-50 select-none"
+                />
+                <input type="url" class="x-selectable" value={link} readonly />
+              </label>
               {#if !copied}
                 <button
-                  class="btn btn-sm btn-soft btn-primary"
+                  class="btn btn-soft btn-primary"
                   onclick={async () => {
                     await navigator.clipboard.writeText(link);
                     setTimeout(() => {
@@ -92,10 +98,10 @@
               {:else}
                 <button disabled>copied!</button>
               {/if}
-            </label>
+            </div>
             <div class="flex justify-end">
               <a
-                class="btn btn-primary btn-soft btn-sm"
+                class="btn btn-primary btn-soft"
                 href="./submit"
                 class:btn-disabled={project.closed_at ? true : false}
               >
@@ -111,7 +117,7 @@
             </p>
             <div class="flex justify-end">
               <button
-                class="btn btn-primary btn-soft btn-sm"
+                class="btn btn-primary btn-soft"
                 disabled={project.closed_at ? true : false}
                 onclick={async () => {
                   await modal.show({
@@ -148,7 +154,7 @@
             <h3 class="text-gray-500 text-sm">一般</h3>
             <div class="flex justify-end gap-2">
               <button
-                class="btn btn-error btn-outline btn-sm"
+                class="btn btn-error btn-outline"
                 onclick={async () => {
                   await modal.show({
                     title: "プロジェクトを削除しますか？",
@@ -188,10 +194,7 @@
                 プロジェクトを削除
               </button>
               {#if project.closed_at}
-                <a
-                  class="btn btn-primary btn-sm"
-                  href={`/${project.id}/result`}
-                >
+                <a class="btn btn-primary" href={`/${project.id}/result`}>
                   <MdiGraph />
                   結果
                 </a>

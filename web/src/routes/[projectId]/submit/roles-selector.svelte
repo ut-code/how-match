@@ -13,17 +13,17 @@
 {#each ratings as rating, radioIndex (radioIndex)}
   {@const role = rating.role}
   <div class="hm-block">
-    <h3>役職：{role.name}</h3>
+    <h2 class="text-xl">役職：{role.name}</h2>
     <div class="gap-2 grid grid-cols-7 justify-items-center text-sm">
       <div></div>
-      <div class="text-lg">1</div>
-      <div class="text-lg">2</div>
-      <div class="text-lg">3</div>
-      <div class="text-lg">4</div>
-      <div class="text-lg">5</div>
+      <div class="text-lg text-gray-500">1</div>
+      <div class="text-lg text-gray-500">2</div>
+      <div class="text-lg text-gray-500">3</div>
+      <div class="text-lg text-gray-500">4</div>
+      <div class="text-lg text-gray-500">5</div>
       <div></div>
 
-      <div>希望しない</div>
+      <div class="text-gray-500">希望しない</div>
 
       {@render radioButton(1)}
       {@render radioButton(2)}
@@ -31,7 +31,7 @@
       {@render radioButton(4)}
       {@render radioButton(5)}
 
-      <div>希望する</div>
+      <div class="text-gray-500">希望する</div>
 
       {#snippet radioButton(radioIndex: number)}
         <div class="inline-flex items-center">

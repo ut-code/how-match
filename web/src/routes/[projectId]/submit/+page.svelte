@@ -97,13 +97,13 @@
     >
       <div class="hm-blocks-container">
         <div class="hm-block">
-          <h3>{project.name}</h3>
+          <h2 class="text-xl">{project.name}</h2>
           {#if project.description}
             <p class="text-sm">{project.description}</p>
           {/if}
         </div>
         <div class="hm-block">
-          <h3>名前</h3>
+          <h2 class="text-xl">名前</h2>
           <input
             type="text"
             class="input bg-white"
