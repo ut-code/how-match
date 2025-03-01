@@ -1,22 +1,26 @@
 export type Toast = {
   message: string;
-  kind: "success";
-  timeout: number; // milliseconds
+  kind: "success" | "error";
+  timeout?: number; // milliseconds
 };
 type InternalToast = Toast & {
   id: string;
   class: string;
 };
 
+export const DEFAULT_TIMEOUT = 1500;
 export class ToastController {
   toasts: InternalToast[] = $state([]);
 
-  push(toast: Toast) {
+  push(toast: Toast): Promise<void> {
     const id = Math.random().toString();
     let class_: string;
     switch (toast.kind) {
       case "success":
         class_ = "alert-success";
+        break;
+      case "error":
+        class_ = "alert-error";
         break;
       default:
         class_ = toast.kind satisfies never;
@@ -28,11 +32,13 @@ export class ToastController {
       class: class_,
     });
 
-    $effect(() => {
-      const timeoutId = setTimeout(() => {
+    return new Promise((resolve) => {
+      const timeout = toast.timeout ?? DEFAULT_TIMEOUT;
+      console.log(timeout);
+      setTimeout(() => {
         this.toasts = this.toasts.filter((toast) => toast.id !== id);
-      }, toast.timeout);
-      return () => clearTimeout(timeoutId);
+        resolve();
+      }, timeout);
     });
   }
 }

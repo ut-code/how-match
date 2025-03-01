@@ -168,10 +168,16 @@
                             },
                           });
                           if (resp.ok) {
-                            alert("削除しました。");
+                            await toasts.push({
+                              message: "削除しました。",
+                              kind: "success",
+                            });
                             location.assign("/");
                           } else {
-                            alert("削除に失敗しました");
+                            toasts.push({
+                              message: "削除に失敗しました",
+                              kind: "error",
+                            });
                           }
                         },
                       },
