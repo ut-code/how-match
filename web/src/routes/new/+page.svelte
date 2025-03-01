@@ -119,7 +119,7 @@
             />
             <button
               type="button"
-              class="rounded-full btn btn-circle btn-ghost"
+              class="btn btn-circle btn-ghost"
               onclick={() => deleteRole(index)}
             >
               <MdiClose class="w-12" />

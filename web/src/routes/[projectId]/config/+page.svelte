@@ -74,7 +74,7 @@
           </div>
           <div class="flex flex-col gap-2">
             <h3 class="text-gray-500 text-sm">提出ページ</h3>
-            <label class="input input-bordered w-full">
+            <label class="input input-bordered w-full rounded-xl bg-gray-50">
               <img alt="" src={chain} class="h-[1rem] opacity-50 select-none" />
               <input type="url" class="x-selectable" value={link} readonly />
               {#if !copied}
