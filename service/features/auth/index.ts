@@ -15,7 +15,7 @@ const cookie_identifier__browser_id = "howmatch.browser_id";
 // TODO: make it last forever or smth
 const cookieSecond = 1;
 const cookieMonth = 30 * 24 * 60 * 60 * cookieSecond;
-const maxAge = 3 * 12 * cookieMonth;
+const maxAge = 1 * 12 * cookieMonth; // cannot be longer than 400 days
 const cookieOptions: CookieOptions = {
   httpOnly: true,
   secure: false,
@@ -84,6 +84,13 @@ export async function getBrowserID(c: Context): Promise<string> {
     cookie_identifier__browser_id,
   );
   if (cookie) {
+    await setSignedCookie(
+      c,
+      cookie_identifier__browser_id,
+      cookie,
+      GET_COOKIE_SIGN(c),
+      cookieOptions,
+    );
     return cookie;
   }
   const browser_id = crypto.randomUUID();
