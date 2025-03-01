@@ -106,7 +106,7 @@
           <h2 class="text-xl">名前</h2>
           <input
             type="text"
-            class="input bg-white"
+            class="input bg-white text-base"
             placeholder="回答を入力"
             bind:value={participantName}
             disabled={closed}
