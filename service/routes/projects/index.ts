@@ -15,6 +15,7 @@ import { json, param } from "service/validator/hono.ts";
 import { assignRoles } from "share/logic/min-flow.ts";
 import { ProjectSchema } from "share/schema.ts";
 import * as v from "valibot";
+import { multipleMatch } from "share/logic/multiple.ts";
 
 import { at } from "share/lib.ts";
 import preferenceRoutes from "./preferences.ts";
@@ -113,6 +114,7 @@ const route = new Hono<HonoOptions>()
             id: project_id,
             name: body.name,
             description: body.description,
+            // TODO:
           },
         ])
         .returning()
@@ -192,58 +194,118 @@ const route = new Hono<HonoOptions>()
       return c.json({ message: "Unauthorized" }, 401);
     }
 
+    const projectData = (
+      await db(c).select().from(projects).where(eq(projects.id, projectId))
+    )[0];
+
+    if (!projectData) {
+      throw new HTTPException(404, { message: "Project not found" });
+    }
+
+    if (projectData.closed_at) {
+      throw new HTTPException(409, { message: "Project already finalized" });
+    }
+
+    if (projectData.multiple_roles) {
+      // multiple mode
+      const participantsWithPreferences = await db(c)
+        .select({
+          id: participants.id,
+          rolesCount: participants.roles_count,
+          score: ratings.score,
+          roleId: ratings.role_id,
+        })
+        .from(participants)
+        .innerJoin(
+          ratings,
+          and(
+            eq(participants.id, ratings.participant_id),
+            eq(participants.project_id, ratings.project_id),
+          ),
+        )
+        .where(eq(participants.project_id, projectId));
+
+      const preferencesByParticipant = Map.groupBy(
+        participantsWithPreferences,
+        (p) => p.id,
+      );
+
+      const participantInput = Array.from(
+        preferencesByParticipant.entries(),
+      ).map(([participantId, preferences]) => ({
+        id: participantId,
+        rolesCount: preferences[0]?.rolesCount ?? 0,
+        preferences: preferences.map((p) => ({
+          roleId: p.roleId,
+          score: p.score,
+        })),
+      }));
+
+      const roleConstraints = await db(c)
+        .select()
+        .from(roles)
+        .where(eq(roles.project_id, projectId))
+        .orderBy(roles.id);
+
+      const roleInput = roleConstraints.map((role) => ({
+        id: role.id,
+        capacity: role.max, // multiple mode の場合、max と min は同一
+      }));
+
+      const matching = multipleMatch(participantInput, roleInput);
+    } else {
+      const participantsData = await db(c)
+        .select()
+        .from(ratings)
+        .where(eq(ratings.project_id, projectId))
+        .orderBy(ratings.participant_id, ratings.role_id);
+
+      const ratingsByParticipant = Map.groupBy(
+        participantsData,
+        (item) => item.participant_id,
+      );
+
+      const ratingsArray: number[][] = []; // TODO: 型付けをマシにする
+      const participantIndexIdMap: string[] = [];
+
+      ratingsByParticipant.forEach((r) => {
+        ratingsArray.push(r.map((item) => item.score));
+        participantIndexIdMap.push(r[0]?.participant_id ?? "-");
+      });
+
+      const roleConstraints = await db(c)
+        .select()
+        .from(roles)
+        .where(eq(roles.project_id, projectId))
+        .orderBy(roles.id);
+      const minMaxConstraints = roleConstraints.map((role) => ({
+        min: role.min,
+        max: role.max,
+      }));
+
+      const result = assignRoles(
+        ratingsArray,
+        at(ratingsArray, 0).length,
+        minMaxConstraints,
+      );
+
+      await db(c)
+        .insert(matches)
+        .values(
+          result.map((r) => ({
+            id: crypto.randomUUID(),
+            project_id: projectId,
+            role_id: roleConstraints[r.role]?.id ?? "-",
+            participant_id: participantIndexIdMap[r.participant] ?? "-",
+          })),
+        );
+    }
     await db(c)
       .update(projects)
       .set({
         closed_at: new Date().toISOString(),
       })
       .where(eq(projects.id, projectId));
-
-    const participantsData = await db(c)
-      .select()
-      .from(ratings)
-      .where(eq(ratings.project_id, projectId))
-      .orderBy(ratings.participant_id, ratings.role_id);
-
-    const ratingsByParticipant = Map.groupBy(
-      participantsData,
-      (item) => item.participant_id,
-    );
-
-    const ratingsArray: number[][] = []; // TODO: 型付けをマシにする
-    const participantIndexIdMap: string[] = [];
-
-    ratingsByParticipant.forEach((r) => {
-      ratingsArray.push(r.map((item) => item.score));
-      participantIndexIdMap.push(r[0]?.participant_id ?? "-");
-    });
-
-    const roleConstraints = await db(c)
-      .select()
-      .from(roles)
-      .where(eq(roles.project_id, projectId))
-      .orderBy(roles.id);
-    const minMaxConstraints = roleConstraints.map((role) => ({
-      min: role.min,
-      max: role.max,
-    }));
-
-    const result = assignRoles(
-      ratingsArray,
-      at(ratingsArray, 0).length,
-      minMaxConstraints,
-    );
-
-    await db(c)
-      .insert(matches)
-      .values(
-        result.map((r) => ({
-          id: crypto.randomUUID(),
-          project_id: projectId,
-          role_id: roleConstraints[r.role]?.id ?? "-",
-          participant_id: participantIndexIdMap[r.participant] ?? "-",
-        })),
-      );
 
     return c.json({}, 200);
   })
