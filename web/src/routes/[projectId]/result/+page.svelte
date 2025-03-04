@@ -24,18 +24,23 @@
         message: {res.message}
       {:else}
         {@const result = res.data}
+        {@const matches = Object.entries(result.participantsOnEachRole)}
         <div class="hm-block">
           <h2 class="text-xl">{result.projectName}</h2>
           <p>{result.projectDesc}</p>
         </div>
-        {#each Object.entries(result.participantsOnEachRole) as [_roleId, role]}
-          <div class="hm-block">
-            <h2 class="text-xl">{role.role_name}</h2>
-            {#each role.participants as participant}
-              <p>{participant.participant_name} さん</p>
-            {/each}
-          </div>
-        {/each}
+        {#if matches.length}
+          {#each matches as [_roleId, role]}
+            <div class="hm-block">
+              <h2 class="text-xl">{role.role_name}</h2>
+              {#each role.participants as participant}
+                <p>{participant.participant_name} さん</p>
+              {/each}
+            </div>
+          {/each}
+        {:else}
+          役職のある人はいません。
+        {/if}
       {/if}
     {/await}
     <div class="flex justify-end">
