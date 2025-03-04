@@ -57,6 +57,7 @@
         {@const project = projectRes.data.project}
         {@const alreadyClosed = project.closed_at !== null}
         {@const notEnoughPeople =
+          participants.length === 0 || // would error
           projectRes.data.roles
             .map((role) => role.min)
             // TODO: a person can join multiple roles
