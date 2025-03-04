@@ -85,9 +85,10 @@
               </label>
               {#if !copied}
                 <button
-                  class="btn btn-soft btn-primary"
+                  class="btn btn-soft btn-primary w-17"
                   onclick={async () => {
                     await navigator.clipboard.writeText(link);
+                    copied = true;
                     setTimeout(() => {
                       copied = false;
                     }, 2000);
@@ -96,7 +97,9 @@
                   copy
                 </button>
               {:else}
-                <button disabled>copied!</button>
+                <button class="btn btn-soft btn-primary w-17" disabled
+                  >copied!</button
+                >
               {/if}
             </div>
             <div class="flex justify-end">
