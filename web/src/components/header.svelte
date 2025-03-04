@@ -4,7 +4,7 @@
   let title = $state("");
 
   const titles = new Map([
-    ["result", "けっか"],
+    ["result", "結果"],
     ["submit", "希望の提出"],
     ["done", "希望の提出"],
     ["config", "管理"],
