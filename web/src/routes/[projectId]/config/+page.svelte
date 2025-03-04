@@ -44,9 +44,6 @@
 
   let copied = $state(false);
 
-
-  const modal = new ModalController();
-
   function sumRolesCount(
     participants: {
       id: string;
@@ -61,7 +58,6 @@
     }
     return sum;
   }
-
 </script>
 
 <main class="hm-blocks-container">
@@ -80,9 +76,9 @@
           projectRes.data.roles
             .map((role) => role.min)
             .reduce((a, b) => a + b) >
-          (project.multiple_roles === 1
-            ? sumRolesCount(participants)
-            : participants.length)}
+            (project.multiple_roles === 1
+              ? sumRolesCount(participants)
+              : participants.length)}
         {@const overCapacityPeople = // TODO: need to deel with exceeded constarints
           project.multiple_roles === 1 &&
           projectRes.data.roles
@@ -215,14 +211,16 @@
           >
             提出者がいません
           </div>
-          {#if participant.roles_count !== null}
-            <div class="text-xs opacity-60 list-col-grow border-b-base-200">
-              {participant.roles_count} roles
-            </div>
-          {/if}
-          {#if participant.is_admin}
-            <span class="badge badge-soft badge-info"> admin! </span>
-          {/if}
+          {#each participants as participant}
+            {#if participant.roles_count !== null}
+              <div class="text-xs opacity-60 list-col-grow border-b-base-200">
+                {participant.roles_count} roles
+              </div>
+            {/if}
+            {#if participant.is_admin}
+              <span class="badge badge-soft badge-info"> admin! </span>
+            {/if}
+          {/each}
         </li>
       {:else}
         {#each participants as participant}
