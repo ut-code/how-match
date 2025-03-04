@@ -59,14 +59,14 @@
 
 <main class="hm-blocks-container">
   <div class="hm-block">
-    {#await data.stream}
+    {#await data.project}
       <span class="loading loading-xl"> </span>
-    {:then res}
-      {#if !res.ok}
-        failed to load project. code: {res.code}
-        message: {res.message}
+    {:then projectRes}
+      {#if !projectRes.ok}
+        failed to load project. code: {projectRes.code}
+        message: {projectRes.message}
       {:else}
-        {@const project = res.data.project}
+        {@const project = projectRes.data.project}
         <div class="flex flex-col gap-4">
           <div class="flex flex-col gap-2">
             <h2 class="text-xl">{project.name}</h2>
@@ -210,4 +210,29 @@
       プロジェクトの読み込みに失敗しました
     {/await}
   </div>
+  {#await data.participants}
+    <span>
+      <span class="loading loading-xl loading-bars"></span>
+      提出したひとひとを読込中...
+    </span>
+  {:then participants}
+    <ul class="list bg-base-100 rounded-box shadow-md">
+      <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">
+        提出したひとひと
+      </li>
+
+      {#each participants as participant}
+        <li class="list-row">
+          <div
+            class="text-xs uppercase font-semibold opacity-60 list-col-grow border-b-base-200"
+          >
+            {participant.name}
+          </div>
+          {#if participant.is_admin}
+            <span class="badge badge-soft badge-info"> admin! </span>
+          {/if}
+        </li>
+      {/each}
+    </ul>
+  {/await}
 </main>

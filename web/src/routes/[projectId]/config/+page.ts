@@ -3,12 +3,13 @@ import { type Client, createClient } from "~/api/client.ts";
 import type { PageLoad } from "./$types.ts";
 
 export const load: PageLoad = ({ params, fetch }) => {
-  if (!params.projectId) error(404, "not found");
+  const projectId = params.projectId;
+  if (!projectId) error(404, "not found");
   const client: Client = createClient({ fetch });
-  const stream = client.projects[":projectId"]
+  const project = client.projects[":projectId"]
     .$get({
       param: {
-        projectId: params.projectId,
+        projectId,
       },
     })
     .then(async (res) => {
@@ -19,9 +20,17 @@ export const load: PageLoad = ({ params, fetch }) => {
         message: await res.text(),
       } as const;
     });
+  const participants = client.projects[":projectId"].participants
+    .$get({
+      param: {
+        projectId,
+      },
+    })
+    .then((it) => it.json());
 
   return {
-    projectId: params.projectId,
-    stream,
+    projectId,
+    project,
+    participants,
   };
 };
