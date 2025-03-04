@@ -83,6 +83,12 @@
           (project.multiple_roles === 1
             ? sumRolesCount(participants)
             : participants.length)}
+        {@const overCapacityPeople = // TODO: need to deel with exceeded constarints
+          project.multiple_roles === 1 &&
+          projectRes.data.roles
+            .map((role) => role.max)
+            .reduce((a, b) => a + b) < sumRolesCount(participants)}
+
         <div class="flex flex-col gap-4">
           <div class="flex flex-col gap-2">
             <h2 class="text-xl">{project.name}</h2>
@@ -138,7 +144,9 @@
               <div class="block">
                 <button
                   class="btn btn-primary btn-soft"
-                  disabled={alreadyClosed || notEnoughPeople}
+                  disabled={alreadyClosed ||
+                    notEnoughPeople ||
+                    overCapacityPeople}
                   onclick={async () => {
                     await actions.close(data.projectId);
                   }}
@@ -155,6 +163,11 @@
                   {#if notEnoughPeople}
                     <span class="validator-hint text-error text-xs">
                       参加者が不足しています
+                    </span>
+                  {/if}
+                  {#if overCapacityPeople}
+                    <span class="validator-hint text-error text-xs">
+                      参加者が超過しています
                     </span>
                   {/if}
                 </p>
