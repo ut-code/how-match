@@ -28,8 +28,6 @@ const route = new Hono<HonoOptions>()
           and(
             eq(participants.browser_id, browser_id),
             eq(participants.project_id, projectId),
-            // 管理者も参加者として希望を出す場合、管理者の participant はいらない
-            eq(participants.is_admin, 0),
           ),
         )
         .limit(1);
@@ -86,12 +84,7 @@ const route = new Hono<HonoOptions>()
           .set({
             name: body.participantName,
           })
-          .where(
-            and(
-              eq(participants.browser_id, browser_id),
-              eq(participants.is_admin, 0),
-            ),
-          )
+          .where(and(eq(participants.browser_id, browser_id)))
           .returning({ id: participants.id })
       )[0];
       if (!participant)

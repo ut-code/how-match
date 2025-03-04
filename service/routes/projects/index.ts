@@ -72,7 +72,6 @@ const route = new Hono<HonoOptions>()
             and(
               eq(participants.project_id, projectId),
               eq(participants.browser_id, browser_id),
-              eq(participants.is_admin, 0),
             ),
           )
       )[0];
