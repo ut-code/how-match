@@ -37,6 +37,7 @@
         "noDefaultExport": "off",
         "noNamespaceImport": "off",
         "useBlockStatements": "off",
+        "noParameterProperties": "off",
       },
       "complexity": {
         "noExcessiveCognitiveComplexity": "off",

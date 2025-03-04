@@ -45,6 +45,7 @@ const route = new Hono<HonoOptions>()
             browser_id: browser_id,
             project_id: projectId,
             is_admin: 0,
+            roles_count: body.rolesCount,
           })
           .returning()
       )[0];
@@ -83,6 +84,7 @@ const route = new Hono<HonoOptions>()
           .update(participants)
           .set({
             name: body.participantName,
+            roles_count: body.rolesCount || null,
           })
           .where(and(eq(participants.browser_id, browser_id)))
           .returning({ id: participants.id })

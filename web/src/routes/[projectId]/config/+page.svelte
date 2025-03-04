@@ -43,6 +43,21 @@
   }).href;
 
   let copied = $state(false);
+
+  function sumRolesCount(
+    participants: {
+      id: string;
+      name: string;
+      is_admin: number;
+      roles_count: number | null;
+    }[],
+  ) {
+    let sum = 0;
+    for (const participant of participants) {
+      sum += participant.roles_count ?? 0;
+    }
+    return sum;
+  }
 </script>
 
 <main class="hm-blocks-container">
@@ -60,8 +75,16 @@
           participants.length === 0 || // would error
           projectRes.data.roles
             .map((role) => role.min)
-            // TODO: a person can join multiple roles
-            .reduce((a, b) => a + b) > participants.length}
+            .reduce((a, b) => a + b) >
+            (project.multiple_roles === 1
+              ? sumRolesCount(participants)
+              : participants.length)}
+        {@const overCapacityPeople = // TODO: need to deel with exceeded constarints
+          project.multiple_roles === 1 &&
+          projectRes.data.roles
+            .map((role) => role.max)
+            .reduce((a, b) => a + b) < sumRolesCount(participants)}
+
         <div class="flex flex-col gap-4">
           <div class="flex flex-col gap-2">
             <h2 class="text-xl">{project.name}</h2>
@@ -117,7 +140,9 @@
               <div class="block">
                 <button
                   class="btn btn-primary btn-soft"
-                  disabled={alreadyClosed || notEnoughPeople}
+                  disabled={alreadyClosed ||
+                    notEnoughPeople ||
+                    overCapacityPeople}
                   onclick={async () => {
                     await actions.close(data.projectId);
                   }}
@@ -134,6 +159,11 @@
                   {#if notEnoughPeople}
                     <span class="validator-hint text-error text-xs">
                       参加者が不足しています
+                    </span>
+                  {/if}
+                  {#if overCapacityPeople}
+                    <span class="validator-hint text-error text-xs">
+                      参加者が超過しています
                     </span>
                   {/if}
                 </p>
@@ -181,6 +211,16 @@
           >
             提出者がいません
           </div>
+          {#each participants as participant}
+            {#if participant.roles_count !== null}
+              <div class="text-xs opacity-60 list-col-grow border-b-base-200">
+                {participant.roles_count} roles
+              </div>
+            {/if}
+            {#if participant.is_admin}
+              <span class="badge badge-soft badge-info"> admin! </span>
+            {/if}
+          {/each}
         </li>
       {:else}
         {#each participants as participant}

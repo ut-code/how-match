@@ -1,16 +1,3 @@
-// import { error } from "@sveltejs/kit";
-// import type { PageLoad } from "./$types.ts";
-
-// export const load: PageLoad = ({ params }) => {
-//   if (params.projectId) {
-//     return {
-//       projectId: params.projectId,
-//     };
-//   }
-
-//   error(404, "Not found");
-// };
-
 import { error } from "@sveltejs/kit";
 import { type Client, createClient } from "~/api/client.ts";
 import type { PageLoad } from "./$types.ts";

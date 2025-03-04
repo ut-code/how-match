@@ -8,6 +8,7 @@ export const participants = sqliteTable("participants", {
     .references(() => projects.id, { onDelete: "cascade" })
     .notNull(),
   is_admin: integer("is_admin").notNull(),
+  roles_count: integer("roles_count"),
 });
 
 export const accounts = sqliteTable("accounts", {
@@ -21,6 +22,7 @@ export const projects = sqliteTable("projects", {
   name: text().notNull(),
   description: text(),
   closed_at: text(),
+  multiple_roles: integer().notNull(),
 });
 
 export const roles = sqliteTable("roles", {

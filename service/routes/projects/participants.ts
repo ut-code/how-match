@@ -17,6 +17,7 @@ const route = new Hono<HonoOptions>().get(
         id: participants.id,
         name: participants.name,
         is_admin: participants.is_admin,
+        roles_count: participants.roles_count,
       })
       .from(participants)
       .where(
