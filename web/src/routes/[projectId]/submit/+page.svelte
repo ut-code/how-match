@@ -100,11 +100,13 @@
           {/if}
         </div>
         <div class="hm-block">
-          <h2 class="text-xl">名前</h2>
+          <label class="text-xl" for="input-name">名前</label>
           <input
+            id="input-name"
             type="text"
-            class="input bg-white text-base"
-            placeholder="回答を入力"
+            class="input validator bg-white text-base"
+            required
+            minlength="1"
             bind:value={participantName}
             disabled={closed}
           />
