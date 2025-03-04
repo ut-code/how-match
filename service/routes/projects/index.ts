@@ -18,9 +18,11 @@ import * as v from "valibot";
 
 import { at } from "share/lib.ts";
 import preferenceRoutes from "./preferences.ts";
+import participantRoute from "./participants.ts";
 
 const route = new Hono<HonoOptions>()
   .route("/:projectId/preferences", preferenceRoutes)
+  .route("/:projectId/participants", participantRoute)
 
   .get("/mine", async (c) => {
     const browser_id = await getBrowserID(c);

@@ -59,14 +59,20 @@
 
 <main class="hm-blocks-container">
   <div class="hm-block">
-    {#await data.stream}
+    {#await Promise.all([data.project, data.participants] as const)}
       <span class="loading loading-xl"> </span>
-    {:then res}
-      {#if !res.ok}
-        failed to load project. code: {res.code}
-        message: {res.message}
+    {:then [projectRes, participants]}
+      {#if !projectRes.ok}
+        failed to load project. code: {projectRes.code}
+        message: {projectRes.message}
       {:else}
-        {@const project = res.data.project}
+        {@const project = projectRes.data.project}
+        {@const alreadyClosed = project.closed_at !== null}
+        {@const notEnoughPeople =
+          projectRes.data.roles
+            .map((role) => role.min)
+            // TODO: a person can join multiple roles
+            .reduce((a, b) => a + b) > participants.length}
         <div class="flex flex-col gap-4">
           <div class="flex flex-col gap-2">
             <h2 class="text-xl">{project.name}</h2>
@@ -97,16 +103,16 @@
                   copy
                 </button>
               {:else}
-                <button class="btn btn-soft btn-primary w-17" disabled
-                  >copied!</button
-                >
+                <button class="btn btn-soft btn-primary w-17" disabled>
+                  copied!
+                </button>
               {/if}
             </div>
             <div class="flex justify-end">
               <a
                 class="btn btn-primary btn-soft"
                 href="./submit"
-                class:btn-disabled={project.closed_at ? true : false}
+                class:btn-disabled={alreadyClosed}
               >
                 <MdiVote />
                 参加者として提出する
@@ -119,38 +125,52 @@
               {project.closed_at ?? "まだ締め切っていません"}
             </p>
             <div class="flex justify-end">
-              <button
-                class="btn btn-primary btn-soft"
-                disabled={project.closed_at ? true : false}
-                onclick={async () => {
-                  await modal.show({
-                    title: "提出を締め切りますか？",
-                    content:
-                      "締め切ると提出ができなくなり、マッチングが計算されます。",
-                    buttons: [
-                      {
-                        class: "btn-outline",
-                        text: "キャンセル",
-                      },
-                      {
-                        class: "btn-primary",
-                        text: "締め切る",
-                        onclick: async () => {
-                          await client.projects[":projectId"].finalize.$put({
-                            param: {
-                              projectId: data.projectId,
-                            },
-                          });
-                          location.assign(`/${project.id}/config?closed`);
+              <div class="block">
+                <button
+                  class="btn btn-primary btn-soft"
+                  disabled={alreadyClosed || notEnoughPeople}
+                  onclick={async () => {
+                    await modal.show({
+                      title: "提出を締め切りますか？",
+                      content:
+                        "締め切ると提出ができなくなり、マッチングが計算されます。",
+                      buttons: [
+                        {
+                          class: "btn-outline",
+                          text: "キャンセル",
                         },
-                      },
-                    ],
-                  });
-                }}
-              >
-                <MdiStopCircle />
-                今すぐ締め切る
-              </button>
+                        {
+                          class: "btn-primary",
+                          text: "締め切る",
+                          onclick: async () => {
+                            await client.projects[":projectId"].finalize.$put({
+                              param: {
+                                projectId: data.projectId,
+                              },
+                            });
+                            location.assign(`/${project.id}/config?closed`);
+                          },
+                        },
+                      ],
+                    });
+                  }}
+                >
+                  <MdiStopCircle />
+                  今すぐ締め切る
+                </button>
+                <p>
+                  {#if alreadyClosed}
+                    <span class="validator-hint text-error text-sm">
+                      既に締め切られています
+                    </span>
+                  {/if}
+                  {#if notEnoughPeople}
+                    <span class="validator-hint text-error text-xs">
+                      参加者が不足しています
+                    </span>
+                  {/if}
+                </p>
+              </div>
             </div>
           </div>
           <div class="flex flex-col gap-2">
@@ -210,4 +230,29 @@
       プロジェクトの読み込みに失敗しました
     {/await}
   </div>
+  {#await data.participants}
+    <span>
+      <span class="loading loading-xl loading-bars"></span>
+      提出したひとひとを読込中...
+    </span>
+  {:then participants}
+    <ul class="list bg-base-100 rounded-box shadow-md">
+      <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">
+        提出したひとひと
+      </li>
+
+      {#each participants as participant}
+        <li class="list-row">
+          <div
+            class="text-xs uppercase font-semibold opacity-60 list-col-grow border-b-base-200"
+          >
+            {participant.name}
+          </div>
+          {#if participant.is_admin}
+            <span class="badge badge-soft badge-info"> admin! </span>
+          {/if}
+        </li>
+      {/each}
+    </ul>
+  {/await}
 </main>
