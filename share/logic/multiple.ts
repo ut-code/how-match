@@ -17,9 +17,11 @@ class Edge {
 
 class MinCostFlow {
   private graph: Edge[][];
+  private n: number;
 
-  constructor(private n: number) {
+  constructor(n: number) {
     this.graph = Array.from({ length: n }, () => []);
+    this.n = n;
   }
 
   addEdge(u: number, v: number, capacity: number, cost: number) {
@@ -268,7 +270,7 @@ function matchInternsExactlyK(
     roleIds: [] as string[],
   }));
   const graph = mcf.getGraph();
-  participants.forEach((intern, i) => {
+  participants.forEach((_intern, i) => {
     const internNode = i + 1;
     for (const e of graph[internNode]) {
       const hospitalIdx = e.to - (nInterns + 1);
@@ -321,10 +323,7 @@ export function multipleMatch(interns: Participant[], roles: Role[]) {
   //     { id: "H2", capacity: 2 },
   //   ];
 
-  const { matching, totalFlow, totalCost, feasible } = matchInternsExactlyK(
-    interns,
-    roles,
-  );
+  const { matching } = matchInternsExactlyK(interns, roles);
 
   return matching;
 
