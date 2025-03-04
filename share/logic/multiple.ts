@@ -199,7 +199,7 @@ function matchInternsExactlyK(
   participants: Participant[],
   roles: Role[],
 ): {
-  matching: { internId: string; hospitalIds: string[] }[];
+  matching: { participantId: string; roleIds: string[] }[];
   totalFlow: number;
   totalCost: number;
   feasible: boolean;
@@ -251,8 +251,8 @@ function matchInternsExactlyK(
     // 必要なフロー量を流しきれず、不可能
     return {
       matching: participants.map((it) => ({
-        internId: it.id,
-        hospitalIds: [],
+        participantId: it.id,
+        roleIds: [],
       })),
       totalFlow: flow,
       totalCost: cost,
@@ -264,8 +264,8 @@ function matchInternsExactlyK(
   //    「研修医 i -> 病院 j」辺で流量が1あれば i は j に所属。
   //    流量判定: 逆辺の capacity が 1増えていれば流れたとみなせる。
   const result = participants.map((it) => ({
-    internId: it.id,
-    hospitalIds: [] as string[],
+    participantId: it.id,
+    roleIds: [] as string[],
   }));
   const graph = mcf.getGraph();
   participants.forEach((intern, i) => {
@@ -279,7 +279,7 @@ function matchInternsExactlyK(
         if (revEdge.capacity > 0) {
           // intern i -> hospital j にフロー1
           const hId = roles[hospitalIdx].id;
-          result[i].hospitalIds.push(hId);
+          result[i].roleIds.push(hId);
         }
       }
     }
@@ -331,7 +331,7 @@ export function multipleMatch(interns: Participant[], roles: Role[]) {
   //   console.log("feasible:", feasible);
   //   console.log("flow:", totalFlow, "cost:", totalCost);
   //   for (let m of matching) {
-  //     console.log(`Intern ${m.internId} => [${m.hospitalIds.join(", ")}]`);
+  //     console.log(`Intern ${m.participantId} => [${m.roleIds.join(", ")}]`);
   //   }
 }
 // main();

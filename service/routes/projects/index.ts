@@ -255,8 +255,32 @@ const route = new Hono<HonoOptions>()
         capacity: role.max, // multiple mode の場合、max と min は同一
       }));
 
+      console.log(participantInput);
+      console.log(roleInput);
+
       const matching = multipleMatch(participantInput, roleInput);
+      console.log(matching);
+
+      const result: {
+        id: string;
+        project_id: string;
+        role_id: string;
+        participant_id: string;
+      }[] = [];
+      matching.forEach((m) => {
+        m.roleIds.forEach((roleId) => {
+          result.push({
+            id: crypto.randomUUID(),
+            project_id: projectId,
+            role_id: roleId,
+            participant_id: m.participantId,
+          });
+        });
+      });
+
+      await db(c).insert(matches).values(result);
     } else {
+      // default mode
       const participantsData = await db(c)
         .select()
         .from(ratings)
