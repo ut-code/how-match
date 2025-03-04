@@ -51,6 +51,21 @@
   let copied = $state(false);
 
   const modal = new ModalController();
+
+  function sumRolesCount(
+    participants: {
+      id: string;
+      name: string;
+      is_admin: number;
+      roles_count: number | null;
+    }[],
+  ) {
+    let sum = 0;
+    for (const participant of participants) {
+      sum += participant.roles_count ?? 0;
+    }
+    return sum;
+  }
 </script>
 
 <Header title="管理" />
@@ -71,8 +86,10 @@
         {@const notEnoughPeople =
           projectRes.data.roles
             .map((role) => role.min)
-            // TODO: a person can join multiple roles
-            .reduce((a, b) => a + b) > participants.length}
+            .reduce((a, b) => a + b) >
+          (project.multiple_roles === 1
+            ? sumRolesCount(participants)
+            : participants.length)}
         <div class="flex flex-col gap-4">
           <div class="flex flex-col gap-2">
             <h2 class="text-xl">{project.name}</h2>
@@ -248,6 +265,11 @@
           >
             {participant.name}
           </div>
+          {#if participant.roles_count !== null}
+            <div class="text-xs opacity-60 list-col-grow border-b-base-200">
+              {participant.roles_count} roles
+            </div>
+          {/if}
           {#if participant.is_admin}
             <span class="badge badge-soft badge-info"> admin! </span>
           {/if}
