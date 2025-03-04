@@ -1,5 +1,28 @@
 <script lang="ts">
-  let { title } = $props();
+  import { page } from "$app/state";
+
+  let title = $state("");
+
+  const titles = new Map([
+    ["result", "結果"],
+    ["submit", "希望の提出"],
+    ["done", "希望の提出"],
+    ["config", "管理"],
+    ["new", "作成"],
+  ]);
+  $effect(() => {
+    const path = page.url.pathname
+      .split("/")
+      .filter((it) => it !== "")
+      .at(-1);
+    const newTitle = path && titles.get(path);
+    if (newTitle) {
+      title = newTitle;
+    } else {
+      title = "";
+      console.warn("Unknown pathname:", path);
+    }
+  });
 </script>
 
 <header class="sticky top-0 left-0 w-full z-30 px-6 pt-6">

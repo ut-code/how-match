@@ -4,7 +4,6 @@
   import { safeParse } from "valibot";
   import { createClient } from "~/api/client";
   import { generateURL } from "~/api/origins.svelte.ts";
-  import Header from "~/components/header.svelte";
   import type { PageProps } from "./$types.ts";
   import RolesSelector from "./roles-selector.svelte";
 
@@ -13,7 +12,7 @@
 
   const project = data.project;
   // TODO: ローディング中の UI を追加
-  let participantName = $state<string>(data.prev?.name ?? "default username"); // ?
+  let participantName = $state<string>(data.prev?.name ?? "");
   let rolesCount = $state<number>(data.prev?.roles_count ?? 1);
   let ratings = $state(
     data.roles.map((role) => {
@@ -78,8 +77,6 @@
 </script>
 
 <div>
-  <Header title="希望の提出" />
-
   {#if closed}
     <div role="alert" class="alert alert-error m-6">
       既に締め切られています
@@ -106,11 +103,13 @@
           {/if}
         </div>
         <div class="hm-block">
-          <h2 class="text-xl">名前</h2>
+          <label class="text-xl" for="input-name">名前</label>
           <input
+            id="input-name"
             type="text"
-            class="input bg-white text-base"
-            placeholder="回答を入力"
+            class="input validator bg-white text-base"
+            required
+            minlength="1"
             bind:value={participantName}
             disabled={closed}
           />

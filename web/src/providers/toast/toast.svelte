@@ -2,8 +2,8 @@
   import { fly } from "svelte/transition";
   import type { ToastController } from "./toast-control.svelte";
 
-  type Props = { toasts: ToastController };
-  const { toasts }: Props = $props();
+  type Props = { toast: ToastController };
+  const { toast: toasts }: Props = $props();
 </script>
 
 <div class="mt-3 ml-3 toast-start toast-top absolute">

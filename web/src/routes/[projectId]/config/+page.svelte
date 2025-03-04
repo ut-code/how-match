@@ -2,35 +2,29 @@
   import { replaceState } from "$app/navigation";
   import { page } from "$app/state";
   import { onMount } from "svelte";
-  import { type Client, createClient } from "~/api/client";
   import { generateURL } from "~/api/origins.svelte.ts";
-  import Header from "~/components/header.svelte";
   import chain from "~/icons/Chain.svg";
   import MdiVote from "virtual:icons/mdi/vote";
   import MdiStopCircle from "virtual:icons/mdi/stop-circle";
   import MdiGraph from "virtual:icons/mdi/graph";
 
-  import Toast from "~/providers/toast/toast.svelte";
-  import { ToastController } from "~/providers/toast/toast-control.svelte.ts";
-  import { ModalController } from "~/providers/modal/modal-controller.svelte.js";
-  import Modal from "~/providers/modal/modal.svelte";
+  import { toast } from "~/globals.svelte.js";
+  import * as actions from "./actions.ts";
 
-  const client: Client = createClient({ fetch });
   const { data } = $props();
-  const toasts = new ToastController();
 
   onMount(() => {
     const newlyCreated = page.url.searchParams.get("created") !== null;
     const justClosed = page.url.searchParams.get("closed") !== null;
     if (newlyCreated) {
-      toasts.push({
+      toast.push({
         kind: "success",
         message: "プロジェクトを作成しました。",
         timeout: 2000,
       });
     }
     if (justClosed) {
-      toasts.push({
+      toast.push({
         kind: "success",
         message: "提出を締め切りました。",
         timeout: 2000,
@@ -50,6 +44,7 @@
 
   let copied = $state(false);
 
+
   const modal = new ModalController();
 
   function sumRolesCount(
@@ -66,11 +61,8 @@
     }
     return sum;
   }
-</script>
 
-<Header title="管理" />
-<Toast {toasts} />
-<Modal {modal} />
+</script>
 
 <main class="hm-blocks-container">
   <div class="hm-block">
@@ -84,6 +76,7 @@
         {@const project = projectRes.data.project}
         {@const alreadyClosed = project.closed_at !== null}
         {@const notEnoughPeople =
+          participants.length === 0 || // would error
           projectRes.data.roles
             .map((role) => role.min)
             .reduce((a, b) => a + b) >
@@ -139,7 +132,7 @@
           <div class="flex flex-col gap-2">
             <h3 class="text-gray-500 text-sm">締切</h3>
             <p>
-              {project.closed_at ?? "まだ締め切っていません"}
+              {project.closed_at ?? "締切が設定されていません"}
             </p>
             <div class="flex justify-end">
               <div class="block">
@@ -147,29 +140,7 @@
                   class="btn btn-primary btn-soft"
                   disabled={alreadyClosed || notEnoughPeople}
                   onclick={async () => {
-                    await modal.show({
-                      title: "提出を締め切りますか？",
-                      content:
-                        "締め切ると提出ができなくなり、マッチングが計算されます。",
-                      buttons: [
-                        {
-                          class: "btn-outline",
-                          text: "キャンセル",
-                        },
-                        {
-                          class: "btn-primary",
-                          text: "締め切る",
-                          onclick: async () => {
-                            await client.projects[":projectId"].finalize.$put({
-                              param: {
-                                projectId: data.projectId,
-                              },
-                            });
-                            location.assign(`/${project.id}/config?closed`);
-                          },
-                        },
-                      ],
-                    });
+                    await actions.close(data.projectId);
                   }}
                 >
                   <MdiStopCircle />
@@ -196,39 +167,7 @@
               <button
                 class="btn btn-error btn-outline"
                 onclick={async () => {
-                  await modal.show({
-                    title: "プロジェクトを削除しますか？",
-                    content:
-                      "削除すると、参加者の提出やマッチング結果も消去されます。",
-                    buttons: [
-                      { text: "キャンセル", class: "btn-outline" },
-                      {
-                        text: "削除",
-                        class: "btn-error",
-                        onclick: async () => {
-                          const resp = await client.projects[
-                            ":projectId"
-                          ].$delete({
-                            param: {
-                              projectId: data.projectId,
-                            },
-                          });
-                          if (resp.ok) {
-                            await toasts.push({
-                              message: "削除しました。",
-                              kind: "success",
-                            });
-                            location.assign("/");
-                          } else {
-                            toasts.push({
-                              message: "削除に失敗しました",
-                              kind: "error",
-                            });
-                          }
-                        },
-                      },
-                    ],
-                  });
+                  await actions.deleteProject(data.projectId);
                 }}
               >
                 プロジェクトを削除
@@ -250,20 +189,18 @@
   {#await data.participants}
     <span>
       <span class="loading loading-xl loading-bars"></span>
-      提出したひとひとを読込中...
+      提出した人を読込中...
     </span>
   {:then participants}
     <ul class="list bg-base-100 rounded-box shadow-md">
-      <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">
-        提出したひとひと
-      </li>
+      <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">提出した人</li>
 
-      {#each participants as participant}
+      {#if !participants.length}
         <li class="list-row">
           <div
-            class="text-xs uppercase font-semibold opacity-60 list-col-grow border-b-base-200"
+            class="text-xs font-semibold opacity-60 list-col-grow border-b-base-200"
           >
-            {participant.name}
+            提出者がいません
           </div>
           {#if participant.roles_count !== null}
             <div class="text-xs opacity-60 list-col-grow border-b-base-200">
@@ -274,7 +211,20 @@
             <span class="badge badge-soft badge-info"> admin! </span>
           {/if}
         </li>
-      {/each}
+      {:else}
+        {#each participants as participant}
+          <li class="list-row">
+            <div
+              class="text-xs font-semibold opacity-60 list-col-grow border-b-base-200"
+            >
+              {participant.name}
+            </div>
+            {#if participant.is_admin}
+              <span class="badge badge-soft badge-info"> admin! </span>
+            {/if}
+          </li>
+        {/each}
+      {/if}
     </ul>
   {/await}
 </main>
