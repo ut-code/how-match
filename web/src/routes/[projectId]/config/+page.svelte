@@ -174,18 +174,28 @@
     <ul class="list bg-base-100 rounded-box shadow-md">
       <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">提出した人</li>
 
-      {#each participants as participant}
+      {#if !participants.length}
         <li class="list-row">
           <div
-            class="text-xs uppercase font-semibold opacity-60 list-col-grow border-b-base-200"
+            class="text-xs font-semibold opacity-60 list-col-grow border-b-base-200"
           >
-            {participant.name}
+            提出者がいません
           </div>
-          {#if participant.is_admin}
-            <span class="badge badge-soft badge-info"> admin! </span>
-          {/if}
         </li>
-      {/each}
+      {:else}
+        {#each participants as participant}
+          <li class="list-row">
+            <div
+              class="text-xs font-semibold opacity-60 list-col-grow border-b-base-200"
+            >
+              {participant.name}
+            </div>
+            {#if participant.is_admin}
+              <span class="badge badge-soft badge-info"> admin! </span>
+            {/if}
+          </li>
+        {/each}
+      {/if}
     </ul>
   {/await}
 </main>
