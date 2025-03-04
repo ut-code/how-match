@@ -3,11 +3,11 @@
   import type { ToastController } from "./toast-control.svelte";
 
   type Props = { toast: ToastController };
-  const { toast }: Props = $props();
+  const { toast: toasts }: Props = $props();
 </script>
 
 <div class="mt-3 ml-3 toast-start toast-top absolute">
-  {#each toast.toasts as toast}
+  {#each toasts.toasts as toast}
     <div class="alert {toast.class}" transition:fly>
       <span>{toast.message}</span>
     </div>
