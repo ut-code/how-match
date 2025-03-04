@@ -12,7 +12,7 @@
 
   const project = data.project;
   // TODO: ローディング中の UI を追加
-  let participantName = $state<string>(data.prev?.name ?? "default username"); // ?
+  let participantName = $state<string>(data.prev?.name ?? "");
   let ratings = $state(
     data.roles.map((role) => {
       const score = role.prev ?? undefined;
