@@ -6,7 +6,7 @@
   const { toasts }: Props = $props();
 </script>
 
-<div class="mt-3 ml-3 toast-start toast-top absolute">
+<div class="mt-3 ml-10 toast-start toast-top fixed backdrop-blur-md opacity-90">
   {#each toasts.toasts as toast}
     <div class="alert {toast.class}" transition:fly>
       <span>{toast.message}</span>
