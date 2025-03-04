@@ -3,7 +3,6 @@
   import { ProjectSchema } from "share/schema";
   import { safeParse } from "valibot";
   import { type Client, createClient } from "~/api/client";
-  import Header from "~/components/header.svelte";
   import MdiPlus from "virtual:icons/mdi/plus";
   import MdiClose from "virtual:icons/mdi/close";
 
@@ -59,7 +58,6 @@
 </script>
 
 <div>
-  <Header title="作成" />
   <form
     method="POST"
     onsubmit={async (e) => {

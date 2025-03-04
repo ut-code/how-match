@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
-  import Header from "~/components/header.svelte";
 
   const { data } = $props();
 
@@ -16,7 +15,6 @@
 </script>
 
 <div>
-  <Header title="結果" />
   <div class="hm-blocks-container">
     {#await data.stream}
       <span class="loading loading-xl"> </span>

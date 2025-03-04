@@ -4,7 +4,6 @@
   import { safeParse } from "valibot";
   import { createClient } from "~/api/client";
   import { generateURL } from "~/api/origins.svelte.ts";
-  import Header from "~/components/header.svelte";
   import type { PageProps } from "./$types.ts";
   import RolesSelector from "./roles-selector.svelte";
 
@@ -75,8 +74,6 @@
 </script>
 
 <div>
-  <Header title="希望の提出" />
-
   {#if closed}
     <div role="alert" class="alert alert-error m-6">
       既に締め切られています

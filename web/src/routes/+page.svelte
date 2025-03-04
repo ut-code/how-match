@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { type Client, createClient } from "~/api/client.ts";
-  import Header from "~/components/header.svelte";
   import MdiWrench from "virtual:icons/mdi/wrench";
   import MdiVote from "virtual:icons/mdi/vote";
   import MdiCog from "virtual:icons/mdi/cog";
@@ -38,7 +37,6 @@
 </script>
 
 <div>
-  <Header title="" />
   <div class="p-2 hm-blocks-container">
     <!-- <div class="hero bg-base-200">
       <div class="hero-content text-center">
