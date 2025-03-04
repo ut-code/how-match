@@ -66,6 +66,7 @@ const route = new Hono<HonoOptions>()
           .select({
             id: participants.id,
             name: participants.name,
+            roles_count: participants.roles_count,
           })
           .from(participants)
           .where(
@@ -113,6 +114,7 @@ const route = new Hono<HonoOptions>()
             id: project_id,
             name: body.name,
             description: body.description,
+            multiple_roles: body.multipleRoles,
           },
         ])
         .returning()

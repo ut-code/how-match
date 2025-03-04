@@ -18,11 +18,13 @@ export const ProjectSchema = object({
   name: pipe(string(), minLength(1)),
   description: string(),
   roles: pipe(array(RoleSchema), minLength(1)),
+  multipleRoles: number(),
 });
 
 export const PreferenceSchema = object({
   browserId: nullable(string()), // TODO: non-null でよいのでは
   participantName: string(),
+  rolesCount: nullable(number()),
   ratings: array(
     object({
       roleId: string(),

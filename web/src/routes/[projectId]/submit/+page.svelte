@@ -14,12 +14,14 @@
   const project = data.project;
   // TODO: ローディング中の UI を追加
   let participantName = $state<string>(data.prev?.name ?? "default username"); // ?
+  let rolesCount = $state<number>(data.prev?.roles_count ?? 1);
   let ratings = $state(
     data.roles.map((role) => {
       const score = role.prev ?? undefined;
       return { role, score };
     }),
   );
+  console.log(data.roles);
 
   async function postPreference() {
     formState = "submitting";
@@ -27,6 +29,7 @@
     const preference = safeParse(PreferenceSchema, {
       browserId: null,
       participantName: participantName,
+      rolesCount: data.project.multiple_roles === 1 ? rolesCount : null,
       ratings: ratings.map((rating) => ({
         roleId: rating.role.id,
         score: rating.score,
@@ -112,6 +115,18 @@
             disabled={closed}
           />
         </div>
+        {#if project.multiple_roles == 1}
+          <div class="hm-block">
+            <h2 class="text-xl">配属される役職数の希望</h2>
+            <input
+              type="number"
+              class="input bg-white text-base"
+              placeholder="回答を入力"
+              bind:value={rolesCount}
+              disabled={closed}
+            />
+          </div>
+        {/if}
         <RolesSelector bind:ratings {closed} />
         <div class="flex justify-end">
           {#if closed}

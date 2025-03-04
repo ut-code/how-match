@@ -11,12 +11,20 @@
   type Form = {
     name: string;
     description: string;
+    multipleRoles: boolean;
+    roles: { name: string; max: number | undefined; min: number | undefined }[];
+  };
+  type PostForm = {
+    name: string;
+    description: string;
+    multipleRoles: number;
     roles: { name: string; max: number | undefined; min: number | undefined }[];
   };
 
   const form = $state<Form>({
     name: "",
     description: "",
+    multipleRoles: false,
     roles: [{ name: "", max: undefined, min: undefined }],
   });
 
@@ -31,7 +39,13 @@
   async function postProject() {
     try {
       formState = "submitting";
-      const val = safeParse(ProjectSchema, form);
+      let postForm: PostForm = {
+        name: form.name,
+        description: form.description,
+        multipleRoles: form.multipleRoles ? 1 : 0,
+        roles: form.roles,
+      };
+      const val = safeParse(ProjectSchema, postForm);
       if (!val.success) {
         const error = new Error(
           "[TODO: make it into the UI] Failed to validate schema, issues:",
@@ -86,6 +100,15 @@
           class="input bg-white text-base"
           placeholder="説明"
           bind:value={form.description}
+        />
+      </div>
+      <div class="hm-block">
+        <h2 class="text-xl">配属人数の指定</h2>
+        <input
+          type="checkbox"
+          class=" bg-white text-base"
+          placeholder=""
+          bind:checked={form.multipleRoles}
         />
       </div>
       <div class="hm-block">
