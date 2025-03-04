@@ -112,7 +112,7 @@
               <a
                 class="btn btn-primary btn-soft"
                 href="./submit"
-                class:btn-disabled={!alreadyClosed}
+                class:btn-disabled={alreadyClosed}
               >
                 <MdiVote />
                 参加者として提出する
