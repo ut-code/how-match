@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
+  import ThemeSwitcher from "~/components/theme-switcher.svelte";
 
   let title = $state("");
 
@@ -27,7 +28,7 @@
   });
 </script>
 
-<header class="sticky top-0 left-0 w-full z-30 px-6 pt-6">
+<header class="sticky top-0 left-0 w-full z-30 px-6 pt-6 flex-row">
   <div
     class="h-14 px-6 gap-8 flex items-center align-middle rounded-xl bg-white/60 backdrop-blur-md border border-gray-200"
   >
@@ -35,5 +36,7 @@
     <span class="text-xl">
       {title}
     </span>
+    <span class="flex-1"></span>
+    <ThemeSwitcher />
   </div>
 </header>

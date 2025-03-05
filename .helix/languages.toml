@@ -29,3 +29,6 @@ language-servers = ["tailwindcss-ls", "svelteserver"]
 [[language]]
 name = "typescript"
 formatter = { command = "bun", args = ["prettier", "--parser", "typescript"] }
+[[language]]
+name = "css"
+formatter = { command = "bun", args = ["prettier", "--parser", "css"] }

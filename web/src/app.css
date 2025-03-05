@@ -1,11 +1,16 @@
 @import "tailwindcss";
-@plugin "daisyui";
+
+@plugin "daisyui" {
+  themes:
+    light --default,
+    dark --prefersdark;
+}
 
 @plugin "daisyui/theme" {
   /* biome-ignore lint: daisyUI's property */
   name: "light";
   /* biome-ignore lint: daisyUI's property */
-  default: true;
+  /* default: true; */
   /* biome-ignore lint: daisyUI's property */
   prefersdark: true;
   /* TODO: ダークテーマは余裕があれば実装 */
