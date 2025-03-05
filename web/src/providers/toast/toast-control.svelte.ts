@@ -34,7 +34,6 @@ export class ToastController {
 
     return new Promise((resolve) => {
       const timeout = toast.timeout ?? DEFAULT_TIMEOUT;
-      console.log(timeout);
       setTimeout(() => {
         this.toasts = this.toasts.filter((toast) => toast.id !== id);
         resolve();

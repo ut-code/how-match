@@ -1,8 +1,8 @@
-import { and, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { db } from "service/db/client";
-import { participants, ratings } from "service/db/schema.ts";
+import { participants, ratings, roles } from "service/db/schema.ts";
 import { getBrowserID } from "service/features/auth/index.ts";
 import type { HonoOptions } from "service/types";
 import { json, param } from "service/validator/hono.ts";
@@ -79,12 +79,26 @@ const route = new Hono<HonoOptions>()
       const browser_id = await getBrowserID(c);
       const { projectId } = c.req.valid("param");
       const body = c.req.valid("json");
+
+      const d = db(c);
+
+      // this will always be .length = 1
+      const project = await d
+        .select({ rolesLen: count() })
+        .from(roles)
+        .where(eq(roles.project_id, projectId));
+      if (body.rolesCount > (project[0]?.rolesLen ?? 0)) {
+        throw new HTTPException(409, {
+          message: "you sent more count than there is role",
+        });
+      }
+
       const participant = (
         await db(c)
           .update(participants)
           .set({
             name: body.participantName,
-            roles_count: body.rolesCount || null,
+            roles_count: body.rolesCount,
           })
           .where(and(eq(participants.browser_id, browser_id)))
           .returning({ id: participants.id })

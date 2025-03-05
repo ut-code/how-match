@@ -10,7 +10,6 @@
   const { data }: PageProps = $props();
   const client = createClient({ fetch });
 
-  const project = data.project;
   // TODO: ローディング中の UI を追加
   let participantName = $state<string>(data.prev?.name ?? "");
   let rolesCount = $state<number>(data.prev?.roles_count ?? 1);
@@ -20,46 +19,52 @@
       return { role, score };
     }),
   );
-  console.log(data.roles);
 
   async function postPreference() {
     formState = "submitting";
-
-    const preference = safeParse(PreferenceSchema, {
-      browserId: null,
-      participantName: participantName,
-      rolesCount: data.project.multiple_roles === 1 ? rolesCount : null,
-      ratings: ratings.map((rating) => ({
-        roleId: rating.role.id,
-        score: rating.score,
-      })),
-    });
-    // TODO: handle it better
-    if (!preference.success) throw new Error("failed to validate preference");
-
-    if (data.prev) {
-      // PUT
-      const res = await client.projects[":projectId"].preferences.$put({
-        json: preference.output,
-        param: { projectId: project.id },
+    try {
+      const projectId = data.project.id;
+      const preference = safeParse(PreferenceSchema, {
+        participantName,
+        rolesCount: data.project.multiple_roles === 1 ? rolesCount : null,
+        ratings: ratings.map((rating) => ({
+          roleId: rating.role.id,
+          score: rating.score,
+        })),
       });
-      if (!res.ok)
-        throw new Error(
-          `Failed to submit: got ${res.status} with text ${await res.text()}`,
-        );
-    } else {
-      // POST
-      const res = await client.projects[":projectId"].preferences.$post({
-        json: preference.output,
-        param: { projectId: project.id },
-      });
-      if (!res.ok)
-        throw new Error(
-          `Failed to submit: got ${res.status} with text ${await res.json()}`,
-        );
+      // TODO: handle it better
+      if (!preference.success) throw new Error("failed to validate preference");
+
+      if (data.prev) {
+        // PUT
+        const res = await client.projects[":projectId"].preferences.$put({
+          json: preference.output,
+          param: { projectId },
+        });
+        if (!res.ok)
+          throw new Error(
+            `Failed to submit: got ${res.status} with text ${await res.text()}`,
+          );
+      } else {
+        // POST
+        const res = await client.projects[":projectId"].preferences.$post({
+          json: preference.output,
+          param: { projectId },
+        });
+        if (!res.ok)
+          throw new Error(
+            `Failed to submit: got ${res.status} with text ${await res.json()}`,
+          );
+      }
+      goto("/done");
+      formState = "done";
+    } catch (err) {
+      console.error(err);
+      formState = "error";
+      setTimeout(() => {
+        formState = "ready";
+      }, 1000);
     }
-    goto("/done");
-    formState = "done";
   }
 
   let formState = $state<"ready" | "submitting" | "error" | "done">("ready");
@@ -67,11 +72,13 @@
     if (data.project.closed_at === null) return false;
     return new Date(data.project.closed_at).getTime() < Date.now();
   });
+  const maxRoles = $derived(data.roles.length);
+
   const formVerb = $derived(data.prev ? "更新" : "送信");
 
   const resultLink = $derived(
     generateURL({
-      pathname: `${project.id}/result`,
+      pathname: `${data.project.id}/result`,
     }).href,
   );
 </script>
@@ -83,11 +90,12 @@
       <a class="btn btn-primary" href={resultLink}> 結果を見る </a>
     </div>
   {/if}
-  {#if project === null}
+  {#if data.project === null}
     <div class="hm-blocks-container">
       <p>プロジェクトが見つかりませんでした</p>
     </div>
   {:else}
+    {@const p = data.project}
     <form
       method="POST"
       onsubmit={async (e) => {
@@ -97,9 +105,9 @@
     >
       <div class="hm-blocks-container">
         <div class="hm-block">
-          <h2 class="text-xl">{project.name}</h2>
-          {#if project.description}
-            <p class="text-sm">{project.description}</p>
+          <h2 class="text-xl">{p.name}</h2>
+          {#if p.description}
+            <p class="text-sm">{p.description}</p>
           {/if}
         </div>
         <div class="hm-block">
@@ -114,43 +122,58 @@
             disabled={closed}
           />
         </div>
-        {#if project.multiple_roles == 1}
+        {#if p.multiple_roles == 1}
           <div class="hm-block">
             <h2 class="text-xl">配属される役職数の希望</h2>
             <input
               type="number"
-              class="input bg-white text-base"
-              placeholder="回答を入力"
+              class="input validator bg-white text-base"
               bind:value={rolesCount}
+              max={data.roles.length}
               disabled={closed}
             />
+            <div class="w-full max-w-xs">
+              <input
+                bind:value={rolesCount}
+                class="range range-primary"
+                type="range"
+                min="1"
+                max={maxRoles}
+                step="1"
+              />
+              <div class="flex justify-between px-2.5 mt-2 text-xs">
+                {#each { length: maxRoles } as _}
+                  <span class="select-none">|</span>
+                {/each}
+              </div>
+              <div class="flex justify-between px-2.5 mt-2 text-xs">
+                {#each Array.from( { length: maxRoles }, ).map((_, i) => i + 1) as val}
+                  <span class="select-none">{val}</span>
+                {/each}
+              </div>
+            </div>
           </div>
         {/if}
         <RolesSelector bind:ratings {closed} />
         <div class="flex justify-end">
-          {#if closed}
-            <button type="submit" class="btn btn-primary" disabled>
+          <button
+            type="submit"
+            class="btn btn-primary"
+            disabled={closed || formState !== "ready"}
+          >
+            {#if closed}
               既に締め切られています
-            </button>
-          {:else if formState === "ready"}
-            <button type="submit" class="btn btn-primary">
+            {:else if formState === "ready"}
               {formVerb}
-            </button>
-          {:else if formState === "submitting"}
-            <button type="submit" class="btn btn-primary" disabled>
+            {:else if formState === "submitting"}
               <span class="loading loading-spinner"></span>
               {formVerb}中...
-            </button>
-          {:else if formState === "error"}
-            <button type="submit" class="btn btn-primary" disabled>
-              <span class="loading loading-spinner"></span>
+            {:else if formState === "error"}
               {formVerb}に失敗しました
-            </button>
-          {:else if formState === "done"}
-            <button type="submit" class="btn btn-primary" disabled>
+            {:else if formState === "done"}
               完了
-            </button>
-          {/if}
+            {/if}
+          </button>
         </div>
       </div>
     </form>

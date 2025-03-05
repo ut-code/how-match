@@ -1,17 +1,5 @@
 <script lang="ts">
-  import { onDestroy } from "svelte";
-
   const { data } = $props();
-
-  let copyTimeout = 0;
-
-  const interval = setInterval(() => {
-    if (copyTimeout > 0) {
-      copyTimeout--;
-    }
-  }, 100);
-
-  onDestroy(() => clearInterval(interval));
 </script>
 
 <div>
@@ -29,7 +17,9 @@
           <h2 class="text-xl">{result.projectName}</h2>
           <p>{result.projectDesc}</p>
         </div>
-        {#if matches.length}
+        {#if !matches.length}
+          役職のある人はいません。
+        {:else}
           {#each matches as [_roleId, role]}
             <div class="hm-block">
               <h2 class="text-xl">{role.role_name}</h2>
@@ -38,8 +28,6 @@
               {/each}
             </div>
           {/each}
-        {:else}
-          役職のある人はいません。
         {/if}
       {/if}
     {/await}

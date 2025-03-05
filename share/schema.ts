@@ -2,7 +2,6 @@ import {
   array,
   minLength,
   minValue,
-  nullable,
   number,
   object,
   pipe,
@@ -22,9 +21,9 @@ export const ProjectSchema = object({
 });
 
 export const PreferenceSchema = object({
-  browserId: nullable(string()), // TODO: non-null でよいのでは
+  // browserId: string() -> validation の挟まるレイヤーでは存在しない、cookie からもってくるため
   participantName: string(),
-  rolesCount: nullable(number()),
+  rolesCount: number(),
   ratings: array(
     object({
       roleId: string(),

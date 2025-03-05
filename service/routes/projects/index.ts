@@ -255,11 +255,7 @@ const route = new Hono<HonoOptions>()
         capacity: role.max, // multiple mode の場合、max と min は同一
       }));
 
-      console.log(participantInput);
-      console.log(roleInput);
-
       const matching = multipleMatch(participantInput, roleInput);
-      console.log(matching);
 
       const result: {
         id: string;
