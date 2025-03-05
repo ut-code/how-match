@@ -1,20 +1,21 @@
 @import "tailwindcss";
 
 @plugin "daisyui" {
-  themes:
-    light --default,
-    dark --prefersdark;
+  themes: light, dark, retro;
 }
 
 @plugin "daisyui/theme" {
-  /* biome-ignore lint: daisyUI's property */
   name: "light";
-  /* biome-ignore lint: daisyUI's property */
-  prefersdark: true;
-  /* TODO: ダークテーマは余裕があれば実装 */
   --color-primary: #17af00;
   --color-secondary: teal;
   --color-base-100: #ebfff2;
+}
+@plugin "daisyui/theme" {
+  name: "dark";
+  prefersdark: true;
+  --color-secondary: teal;
+  --color-primary: #17af00;
+  /* --color-base-100: #001d0a; */
 }
 
 .btn {
@@ -22,7 +23,7 @@
 }
 
 .input {
-  @apply rounded-xl;
+  @apply rounded-xl dark:bg-base-100;
 }
 
 .hm-blocks-container {
@@ -30,5 +31,5 @@
 }
 
 .hm-block {
-  @apply rounded-xl bg-white p-6 flex flex-col gap-2 border border-gray-200;
+  @apply rounded-xl bg-base-300 p-6 flex flex-col gap-2 border border-gray-200 dark:border-gray-700;
 }
