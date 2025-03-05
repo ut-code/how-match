@@ -10,8 +10,6 @@
   /* biome-ignore lint: daisyUI's property */
   name: "light";
   /* biome-ignore lint: daisyUI's property */
-  /* default: true; */
-  /* biome-ignore lint: daisyUI's property */
   prefersdark: true;
   /* TODO: ダークテーマは余裕があれば実装 */
   --color-primary: #17af00;
