@@ -128,6 +128,7 @@ const route = new Hono<HonoOptions>()
       .insert(participants)
       .values([
         {
+          roles_count: 0,
           id: crypto.randomUUID(),
           name: "admin",
           browser_id,

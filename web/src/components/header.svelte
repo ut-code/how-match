@@ -4,6 +4,7 @@
   let title = $state("");
 
   const titles = new Map([
+    ["", ""],
     ["result", "結果"],
     ["submit", "希望の提出"],
     ["done", "希望の提出"],
@@ -11,16 +12,17 @@
     ["new", "作成"],
   ]);
   $effect(() => {
-    const path = page.url.pathname
-      .split("/")
-      .filter((it) => it !== "")
-      .at(-1);
+    const path =
+      page.url.pathname
+        .split("/")
+        .filter((it) => it !== "")
+        .at(-1) ?? "";
     const newTitle = path && titles.get(path);
-    if (newTitle) {
+    if (newTitle != null) {
       title = newTitle;
     } else {
       title = "";
-      console.warn("Unknown pathname:", path);
+      console.warn("Unknown pathname:", path, "at url", page.url);
     }
   });
 </script>
