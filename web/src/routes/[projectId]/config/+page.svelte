@@ -195,12 +195,12 @@
       プロジェクトの読み込みに失敗しました
     {/await}
   </div>
-  {#await data.participants}
+  {#await Promise.all([data.project, data.participants])}
     <span>
       <span class="loading loading-xl loading-bars"></span>
-      提出した人を読込中...
+      読込中...
     </span>
-  {:then participants}
+  {:then [project, participants]}
     <ul class="list bg-base-100 rounded-box shadow-md">
       <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">提出した人</li>
 
@@ -211,27 +211,20 @@
           >
             提出者がいません
           </div>
-          {#each participants as participant}
-            {#if participant.roles_count !== null}
-              <div class="text-xs opacity-60 list-col-grow border-b-base-200">
-                {participant.roles_count} roles
-              </div>
-            {/if}
-            {#if participant.is_admin}
-              <span class="badge badge-soft badge-info"> admin! </span>
-            {/if}
-          {/each}
         </li>
       {:else}
         {#each participants as participant}
           <li class="list-row">
-            <div
-              class="text-xs font-semibold opacity-60 list-col-grow border-b-base-200"
-            >
+            <div class="text-xs font-semibold opacity-60 border-b-base-200">
               {participant.name}
             </div>
+            <div class="text-xs opacity-60 list-col-grow border-b-base-200">
+              {#if !project.ok || project.data.project.multiple_roles}
+                wants {participant.roles_count} roles
+              {/if}
+            </div>
             {#if participant.is_admin}
-              <span class="badge badge-soft badge-info"> admin! </span>
+              <span class="badge badge-soft badge-info"> 管理者 </span>
             {/if}
           </li>
         {/each}

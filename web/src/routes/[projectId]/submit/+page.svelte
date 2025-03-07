@@ -12,7 +12,7 @@
 
   // TODO: ローディング中の UI を追加
   let participantName = $state<string>(data.prev?.name ?? "");
-  let rolesCount = $state<number>(data.prev?.roles_count ?? 1);
+  let rolesCount = $state<number>(data.prev?.roles_count || 1); // including 0
   let ratings = $state(
     data.roles.map((role) => {
       const score = role.prev ?? undefined;
