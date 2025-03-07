@@ -37,7 +37,7 @@
 </script>
 
 <div>
-  <div class="p-2 hm-blocks-container">
+  <div class="hm-blocks-container p-2">
     <!-- <div class="hero bg-base-200">
       <div class="hero-content text-center">
         <div class="max-w-md">
@@ -52,7 +52,7 @@
       </div>
     </div> -->
     <div class="hm-block text-center">
-      <div class="max-w-md mx-auto py-6 px-2">
+      <div class="mx-auto max-w-md px-2 py-6">
         <h2 class="text-3xl">プロジェクトを作る</h2>
         <a href="/new" class="btn btn-xl btn-primary mt-5">
           <MdiWrench class="mr-1" />作成
@@ -66,7 +66,7 @@
     {:else}
       <div class="hm-block">
         <h2 class="text-xl">作成・提出したプロジェクト</h2>
-        <ul class="list w-full bg-base-200 my-1 rounded-xl">
+        <ul class="list bg-base-200 my-1 w-full rounded-xl">
           {#if projects.length === 0}
             <li class="list-row flex">
               作成・提出したプロジェクトはありません。

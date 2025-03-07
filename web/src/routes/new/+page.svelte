@@ -129,7 +129,7 @@
           <div class="flex gap-2">
             <input
               type="text"
-              class="input bg-white validator text-base grow-1"
+              class="input validator grow-1 bg-white text-base"
               placeholder="役職名"
               minlength="1"
               required
@@ -138,7 +138,7 @@
             />
             <input
               type="number"
-              class="input bg-white validator text-base"
+              class="input validator bg-white text-base"
               placeholder="最大人数"
               min={1}
               required
@@ -146,7 +146,7 @@
             />
             <input
               type="number"
-              class="input bg-white validator text-base"
+              class="input validator bg-white text-base"
               placeholder="最小人数"
               min="0"
               max={role.max}
@@ -177,7 +177,7 @@
           <h2 class="text-xl">複数の役職につくことを許可する</h2>
           <input
             type="checkbox"
-            class="block mt-3 checkbox checkbox-lg checkbox-primary ml-auto mr-auto"
+            class="checkbox checkbox-lg checkbox-primary mt-3 mr-auto ml-auto block"
             placeholder=""
             indeterminate={multipleRoles_is_invalid}
             bind:checked={form.multipleRoles}

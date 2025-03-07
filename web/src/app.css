@@ -15,7 +15,7 @@
 }
 
 .btn {
-  @apply font-normal rounded-xl;
+  @apply rounded-xl font-normal;
 }
 
 .input {
@@ -23,9 +23,9 @@
 }
 
 .hm-blocks-container {
-  @apply h-full bg-base-100 p-6 flex flex-col gap-4;
+  @apply bg-base-100 flex h-full flex-col gap-4 p-6;
 }
 
 .hm-block {
-  @apply rounded-xl bg-white p-6 flex flex-col gap-2 border border-gray-200;
+  @apply flex flex-col gap-2 rounded-xl border border-gray-200 bg-white p-6;
 }

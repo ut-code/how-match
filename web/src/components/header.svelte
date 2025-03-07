@@ -27,11 +27,11 @@
   });
 </script>
 
-<header class="sticky top-0 left-0 w-full z-30 px-6 pt-6">
+<header class="sticky top-0 left-0 z-30 w-full px-6 pt-6">
   <div
-    class="h-14 px-6 gap-8 flex items-center align-middle rounded-xl bg-white/60 backdrop-blur-md border border-gray-200"
+    class="flex h-14 items-center gap-8 rounded-xl border border-gray-200 bg-white/60 px-6 align-middle backdrop-blur-md"
   >
-    <a class="font-bold text-xl cursor-pointer" href="/">how-match</a>
+    <a class="cursor-pointer text-xl font-bold" href="/">how-match</a>
     <span class="text-xl">
       {title}
     </span>

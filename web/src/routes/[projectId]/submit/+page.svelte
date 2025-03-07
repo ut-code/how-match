@@ -149,12 +149,12 @@
                 max={maxRoles}
                 step="1"
               />
-              <div class="flex justify-between px-2.5 mt-2 text-xs">
+              <div class="mt-2 flex justify-between px-2.5 text-xs">
                 {#each { length: maxRoles } as _}
                   <span class="select-none">|</span>
                 {/each}
               </div>
-              <div class="flex justify-between px-2.5 mt-2 text-xs">
+              <div class="mt-2 flex justify-between px-2.5 text-xs">
                 {#each Array.from( { length: maxRoles }, ).map((_, i) => i + 1) as val}
                   <span class="select-none">{val}</span>
                 {/each}
