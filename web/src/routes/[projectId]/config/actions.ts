@@ -1,5 +1,6 @@
 import { modal, toast } from "~/globals.svelte";
 import { createClient } from "~/api/client";
+import { goto, replaceState } from "$app/navigation";
 
 const client = createClient({ fetch });
 
@@ -21,7 +22,7 @@ export async function close(projectId: string) {
               projectId,
             },
           });
-          location.assign(`/${projectId}/config?closed`);
+          replaceState(`/${projectId}/config?closed`, {});
         },
       },
     ],
@@ -44,11 +45,12 @@ export async function deleteProject(projectId: string) {
             },
           });
           if (resp.ok) {
-            await toast.push({
-              message: "削除しました。",
-              kind: "success",
+            toast.push({
+              message: "プロジェクトを削除しました。",
+              kind: "error",
+              timeout: 4000,
             });
-            location.assign("/");
+            goto("/");
           } else {
             toast.push({
               message: "削除に失敗しました",

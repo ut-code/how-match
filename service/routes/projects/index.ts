@@ -51,7 +51,8 @@ const route = new Hono<HonoOptions>()
     async (c) => {
       const browser_id = await getBrowserID(c);
       const projectId = c.req.valid("param").projectId;
-      const project_resp = db(c)
+      const d = db(c);
+      const project_resp = d
         .select()
         .from(projects)
         .where(eq(projects.id, projectId))
@@ -65,7 +66,7 @@ const route = new Hono<HonoOptions>()
       });
 
       const prev_participant_data = (
-        await db(c)
+        await d
           .select({
             id: participants.id,
             name: participants.name,
@@ -80,7 +81,7 @@ const route = new Hono<HonoOptions>()
           )
       )[0];
       // エンティティの roles と被るため role_resp
-      const role_resp = db(c)
+      const role_resp = d
         .select({
           id: roles.id,
           name: roles.name,
@@ -130,7 +131,7 @@ const route = new Hono<HonoOptions>()
         {
           roles_count: 0,
           id: crypto.randomUUID(),
-          name: "admin",
+          name: "",
           browser_id,
           project_id: project_id,
           is_admin: 1,
