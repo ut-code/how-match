@@ -12,7 +12,7 @@
 
   // TODO: ローディング中の UI を追加
   let participantName = $state<string>(data.prev?.name ?? "");
-  let rolesCount = $state<number>(data.prev?.roles_count ?? 1);
+  let rolesCount = $state<number>(data.prev?.roles_count || 1); // including 0
   let ratings = $state(
     data.roles.map((role) => {
       const score = role.prev ?? undefined;
@@ -20,23 +20,33 @@
     }),
   );
 
+  const prev_data = data.prev != null;
+  const formVerb = $derived.by(() => {
+    if (!prev_data) return "送信";
+    if (!data.prev?.name) return "送信"; // admin & has not submitted
+    return "更新";
+  });
   async function postPreference() {
     formState = "submitting";
     try {
       const projectId = data.project.id;
       const preference = safeParse(PreferenceSchema, {
         participantName,
-        rolesCount: data.project.multiple_roles === 1 ? rolesCount : null,
+        rolesCount,
         ratings: ratings.map((rating) => ({
           roleId: rating.role.id,
           score: rating.score,
         })),
       });
       // TODO: handle it better
-      if (!preference.success) throw new Error("failed to validate preference");
+      if (!preference.success) {
+        console.error(preference.issues);
+        throw new Error("failed to validate preference");
+      }
 
-      if (data.prev) {
+      if (prev_data) {
         // PUT
+        console.log("doing a PUT");
         const res = await client.projects[":projectId"].preferences.$put({
           json: preference.output,
           param: { projectId },
@@ -47,6 +57,7 @@
           );
       } else {
         // POST
+        console.log("doing a POST");
         const res = await client.projects[":projectId"].preferences.$post({
           json: preference.output,
           param: { projectId },
@@ -68,13 +79,11 @@
   }
 
   let formState = $state<"ready" | "submitting" | "error" | "done">("ready");
-  const closed = $derived.by(() => {
+  const isClosed = $derived.by(() => {
     if (data.project.closed_at === null) return false;
     return new Date(data.project.closed_at).getTime() < Date.now();
   });
   const maxRoles = $derived(data.roles.length);
-
-  const formVerb = $derived(data.prev ? "更新" : "送信");
 
   const resultLink = $derived(
     generateURL({
@@ -84,7 +93,7 @@
 </script>
 
 <div>
-  {#if closed}
+  {#if isClosed}
     <div role="alert" class="alert alert-error m-6">
       既に締め切られています
       <a class="btn btn-primary" href={resultLink}> 結果を見る </a>
@@ -97,7 +106,6 @@
   {:else}
     {@const p = data.project}
     <form
-      method="POST"
       onsubmit={async (e) => {
         e.preventDefault();
         await postPreference();
@@ -119,7 +127,7 @@
             required
             minlength="1"
             bind:value={participantName}
-            disabled={closed}
+            disabled={isClosed}
           />
         </div>
         {#if p.multiple_roles == 1}
@@ -130,7 +138,7 @@
               class="input validator bg-white text-base"
               bind:value={rolesCount}
               max={data.roles.length}
-              disabled={closed}
+              disabled={isClosed}
             />
             <div class="w-full max-w-xs">
               <input
@@ -141,12 +149,12 @@
                 max={maxRoles}
                 step="1"
               />
-              <div class="flex justify-between px-2.5 mt-2 text-xs">
+              <div class="mt-2 flex justify-between px-2.5 text-xs">
                 {#each { length: maxRoles } as _}
                   <span class="select-none">|</span>
                 {/each}
               </div>
-              <div class="flex justify-between px-2.5 mt-2 text-xs">
+              <div class="mt-2 flex justify-between px-2.5 text-xs">
                 {#each Array.from( { length: maxRoles }, ).map((_, i) => i + 1) as val}
                   <span class="select-none">{val}</span>
                 {/each}
@@ -154,14 +162,14 @@
             </div>
           </div>
         {/if}
-        <RolesSelector bind:ratings {closed} />
+        <RolesSelector bind:ratings closed={isClosed} />
         <div class="flex justify-end">
           <button
             type="submit"
             class="btn btn-primary"
-            disabled={closed || formState !== "ready"}
+            disabled={isClosed || formState !== "ready"}
           >
-            {#if closed}
+            {#if isClosed}
               既に締め切られています
             {:else if formState === "ready"}
               {formVerb}

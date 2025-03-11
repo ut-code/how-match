@@ -91,7 +91,7 @@
             <p>{project.description}</p>
           </div>
           <div class="flex flex-col gap-2">
-            <h3 class="text-gray-500 text-sm">提出ページ</h3>
+            <h3 class="text-sm text-gray-500">提出ページ</h3>
             <div class="flex gap-2">
               <label class="input input-bordered w-full rounded-xl bg-gray-50">
                 <img
@@ -132,7 +132,7 @@
             </div>
           </div>
           <div class="flex flex-col gap-2">
-            <h3 class="text-gray-500 text-sm">締切</h3>
+            <h3 class="text-sm text-gray-500">締切</h3>
             <p>
               {project.closed_at ?? "締切が設定されていません"}
             </p>
@@ -171,7 +171,7 @@
             </div>
           </div>
           <div class="flex flex-col gap-2">
-            <h3 class="text-gray-500 text-sm">一般</h3>
+            <h3 class="text-sm text-gray-500">一般</h3>
             <div class="flex justify-end gap-2">
               <button
                 class="btn btn-error btn-outline"
@@ -195,43 +195,36 @@
       プロジェクトの読み込みに失敗しました
     {/await}
   </div>
-  {#await data.participants}
+  {#await Promise.all([data.project, data.participants])}
     <span>
       <span class="loading loading-xl loading-bars"></span>
-      提出した人を読込中...
+      読込中...
     </span>
-  {:then participants}
+  {:then [project, participants]}
     <ul class="list bg-base-100 rounded-box shadow-md">
-      <li class="p-4 pb-2 text-xs opacity-60 tracking-wide">提出した人</li>
+      <li class="p-4 pb-2 text-xs tracking-wide opacity-60">提出した人</li>
 
       {#if !participants.length}
         <li class="list-row">
           <div
-            class="text-xs font-semibold opacity-60 list-col-grow border-b-base-200"
+            class="list-col-grow border-b-base-200 text-xs font-semibold opacity-60"
           >
             提出者がいません
           </div>
-          {#each participants as participant}
-            {#if participant.roles_count !== null}
-              <div class="text-xs opacity-60 list-col-grow border-b-base-200">
-                {participant.roles_count} roles
-              </div>
-            {/if}
-            {#if participant.is_admin}
-              <span class="badge badge-soft badge-info"> admin! </span>
-            {/if}
-          {/each}
         </li>
       {:else}
         {#each participants as participant}
           <li class="list-row">
-            <div
-              class="text-xs font-semibold opacity-60 list-col-grow border-b-base-200"
-            >
+            <div class="border-b-base-200 text-xs font-semibold opacity-60">
               {participant.name}
             </div>
+            <div class="list-col-grow border-b-base-200 text-xs opacity-60">
+              {#if !project.ok || project.data.project.multiple_roles}
+                wants {participant.roles_count} roles
+              {/if}
+            </div>
             {#if participant.is_admin}
-              <span class="badge badge-soft badge-info"> admin! </span>
+              <span class="badge badge-soft badge-info"> 管理者 </span>
             {/if}
           </li>
         {/each}

@@ -11,7 +11,12 @@
     name: string;
     description: string;
     multipleRoles: boolean;
-    roles: { name: string; max: number | undefined; min: number | undefined }[];
+    roles: {
+      localid: number;
+      name: string;
+      max: number | undefined;
+      min: number | undefined;
+    }[];
   };
   type PostForm = {
     name: string;
@@ -20,24 +25,41 @@
     roles: { name: string; max: number | undefined; min: number | undefined }[];
   };
 
+  let localid_index = 0;
   const form = $state<Form>({
     name: "",
     description: "",
     multipleRoles: false,
-    roles: [{ name: "", max: undefined, min: undefined }],
+    roles: [
+      { localid: localid_index++, name: "", max: undefined, min: undefined },
+    ],
   });
+  const roleElements: HTMLInputElement[] = $state([]);
 
   function addRole() {
-    form.roles.push({ name: "", max: undefined, min: undefined });
+    form.roles.push({
+      localid: localid_index++,
+      name: "",
+      max: undefined,
+      min: undefined,
+    });
+    setTimeout(() => {
+      roleElements.at(-1)?.focus();
+    });
   }
   function deleteRole(index: number) {
     form.roles.splice(index, 1);
   }
+  const multipleRoles_is_invalid = $derived(form.roles.length <= 1);
+  const delete_role_button_disabled = $derived(form.roles.length <= 1);
 
   let formState = $state<"ready" | "submitting" | "error" | "done">("ready");
   async function postProject() {
+    formState = "submitting";
+    if (multipleRoles_is_invalid) {
+      form.multipleRoles = false;
+    }
     try {
-      formState = "submitting";
       let postForm: PostForm = {
         name: form.name,
         description: form.description,
@@ -58,6 +80,7 @@
       if (!res.ok) {
         throw new Error("failed to create project");
       }
+
       const project = await res.json();
       goto(`/${project.id}/config?created`);
       formState = "done";
@@ -101,29 +124,21 @@
         />
       </div>
       <div class="hm-block">
-        <h2 class="text-xl">配属人数の指定</h2>
-        <input
-          type="checkbox"
-          class=" bg-white text-base"
-          placeholder=""
-          bind:checked={form.multipleRoles}
-        />
-      </div>
-      <div class="hm-block">
         <h2 class="text-xl">設定する役職</h2>
-        {#each form.roles as role, index}
+        {#each form.roles as role, index (role.localid)}
           <div class="flex gap-2">
             <input
               type="text"
-              class="input bg-white validator text-base grow-1"
+              class="input validator grow-1 bg-white text-base"
               placeholder="役職名"
               minlength="1"
               required
               bind:value={role.name}
+              bind:this={roleElements[index]}
             />
             <input
               type="number"
-              class="input bg-white validator text-base"
+              class="input validator bg-white text-base"
               placeholder="最大人数"
               min={1}
               required
@@ -131,7 +146,7 @@
             />
             <input
               type="number"
-              class="input bg-white validator text-base"
+              class="input validator bg-white text-base"
               placeholder="最小人数"
               min="0"
               max={role.max}
@@ -141,9 +156,10 @@
             <button
               type="button"
               class="btn btn-circle btn-ghost"
+              disabled={delete_role_button_disabled}
               onclick={() => deleteRole(index)}
             >
-              <MdiClose class="w-12" />
+              <MdiClose class="w-12" aria-label="delete" />
             </button>
           </div>
         {/each}
@@ -155,6 +171,18 @@
           <MdiPlus />
           追加
         </button>
+      </div>
+      <div class="hm-block">
+        <div class="w-fit">
+          <h2 class="text-xl">複数の役職につくことを許可する</h2>
+          <input
+            type="checkbox"
+            class="checkbox checkbox-lg checkbox-primary mt-3 mr-auto ml-auto block"
+            placeholder=""
+            indeterminate={multipleRoles_is_invalid}
+            bind:checked={form.multipleRoles}
+          />
+        </div>
       </div>
       <div class="flex justify-end">
         {#if formState === "ready"}

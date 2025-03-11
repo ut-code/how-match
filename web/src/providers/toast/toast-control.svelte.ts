@@ -8,7 +8,7 @@ type InternalToast = Toast & {
   class: string;
 };
 
-export const DEFAULT_TIMEOUT = 1500;
+export const DEFAULT_TIMEOUT = 2000;
 export class ToastController {
   toasts: InternalToast[] = $state([]);
 

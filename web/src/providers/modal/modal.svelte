@@ -22,7 +22,7 @@
   <div class="modal-box border-1">
     <h1>{ctrl.current?.title}</h1>
     <p>{ctrl.current?.content}</p>
-    <div class="modal-action flex gap-4 items-center">
+    <div class="modal-action flex items-center gap-4">
       <form method="dialog">
         {#each ctrl.current?.buttons ?? [] as button}
           <button
