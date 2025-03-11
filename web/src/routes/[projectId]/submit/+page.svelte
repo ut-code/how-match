@@ -123,7 +123,7 @@
           <input
             id="input-name"
             type="text"
-            class="input validator bg-white text-base"
+            class="input validator text-base"
             required
             minlength="1"
             bind:value={participantName}
@@ -135,7 +135,7 @@
             <h2 class="text-xl">配属される役職数の希望</h2>
             <input
               type="number"
-              class="input validator bg-white text-base"
+              class="input validator text-base"
               bind:value={rolesCount}
               max={data.roles.length}
               disabled={isClosed}
