@@ -107,7 +107,7 @@
             <h2
               bind:textContent={projectName}
               contenteditable="plaintext-only"
-              class="text-xl"
+              class="border-b-1 border-gray-300 p-1 text-xl transition-colors duration-200 hover:bg-gray-100"
               onblur={(e) => {
                 projectName =
                   projectName !== "" ? projectName : "無題のプロジェクト";
@@ -127,6 +127,7 @@
             <p
               bind:textContent={projectDescription}
               contenteditable="plaintext-only"
+              class="border-b-1 border-gray-300 p-1 transition-colors duration-200 hover:bg-gray-100"
               onblur={(e) => {
                 actions.updateProject(
                   data.projectId,
