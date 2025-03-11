@@ -106,6 +106,60 @@ const route = new Hono<HonoOptions>()
       });
     },
   )
+
+  .patch(
+    "/:projectId",
+    param({
+      projectId: v.string(),
+    }),
+    json(
+      v.object({
+        name: v.string(),
+        description: v.nullable(v.string()),
+      }),
+    ),
+    async (c) => {
+      const browser_id = await getBrowserID(c);
+      const { projectId } = c.req.valid("param");
+      if (!browser_id) {
+        return c.json({ message: "Unauthorized" }, 401);
+      }
+      const participant_resp = await db(c)
+        .select()
+        .from(participants)
+        .where(
+          eq(participants.browser_id, browser_id) &&
+            eq(participants.project_id, c.req.param("projectId")),
+        );
+      if (participant_resp[0]?.is_admin !== 1) {
+        return c.json({ message: "Unauthorized" }, 401);
+      }
+
+      const projectData = (
+        await db(c).select().from(projects).where(eq(projects.id, projectId))
+      )[0];
+
+      if (!projectData) {
+        throw new HTTPException(404, { message: "Project not found" });
+      }
+
+      // 締切後の変更可能
+      // if (projectData.closed_at) {
+      //   throw new HTTPException(409, { message: "Project already finalized" });
+      // }
+
+      await db(c)
+        .update(projects)
+        .set({
+          name: c.req.valid("json").name,
+          description: c.req.valid("json").description,
+        })
+        .where(eq(projects.id, projectId));
+
+      return c.json({}, 200);
+    },
+  )
+
   .post("/", json(ProjectSchema), async (c) => {
     const browser_id = await getBrowserID(c);
     const project_id = crypto.randomUUID();

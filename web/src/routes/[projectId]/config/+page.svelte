@@ -43,6 +43,27 @@
   }).href;
 
   let copied = $state(false);
+  let projectName = $state("");
+  let projectDescription = $state<string | null>(null);
+
+  $inspect(projectName);
+  $inspect(projectDescription);
+
+  onMount(async () => {
+    try {
+      let [projectRes, participants] = await Promise.all([
+        data.project,
+        data.participants,
+      ] as const);
+      if (!(projectRes?.ok && projectRes.data)) {
+        return;
+      }
+      projectName = projectRes.data.project.name;
+      projectDescription = projectRes.data.project.description;
+    } catch (e) {
+      console.error(e);
+    }
+  });
 
   function sumRolesCount(
     participants: {
@@ -84,11 +105,31 @@
           projectRes.data.roles
             .map((role) => role.max)
             .reduce((a, b) => a + b) < sumRolesCount(participants)}
-
         <div class="flex flex-col gap-4">
           <div class="flex flex-col gap-2">
-            <h2 class="text-xl">{project.name}</h2>
-            <p>{project.description}</p>
+            <h2
+              bind:textContent={projectName}
+              contenteditable="true"
+              class="text-xl"
+              onblur={(e) => {
+                actions.updateProject(
+                  data.projectId,
+                  projectName,
+                  projectDescription,
+                );
+              }}
+            ></h2>
+            <p
+              bind:textContent={projectDescription}
+              contenteditable="true"
+              onblur={(e) => {
+                actions.updateProject(
+                  data.projectId,
+                  projectName,
+                  projectDescription,
+                );
+              }}
+            ></p>
           </div>
           <div class="flex flex-col gap-2">
             <h3 class="text-sm text-gray-500">提出ページ</h3>
