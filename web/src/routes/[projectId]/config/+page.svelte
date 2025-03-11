@@ -109,19 +109,27 @@
           <div class="flex flex-col gap-2">
             <h2
               bind:textContent={projectName}
-              contenteditable="true"
+              contenteditable="plaintext-only"
               class="text-xl"
               onblur={(e) => {
+                projectName =
+                  projectName !== "" ? projectName : "無題のプロジェクト";
                 actions.updateProject(
                   data.projectId,
                   projectName,
                   projectDescription,
                 );
               }}
+              onkeydown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  (e.target as HTMLElement)?.blur();
+                }
+              }}
             ></h2>
             <p
               bind:textContent={projectDescription}
-              contenteditable="true"
+              contenteditable="plaintext-only"
               onblur={(e) => {
                 actions.updateProject(
                   data.projectId,
