@@ -46,9 +46,6 @@
   let projectName = $state("");
   let projectDescription = $state<string | null>(null);
 
-  $inspect(projectName);
-  $inspect(projectDescription);
-
   onMount(async () => {
     try {
       let [projectRes, participants] = await Promise.all([
