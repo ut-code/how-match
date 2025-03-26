@@ -19,21 +19,16 @@ b. Nix を使えない場合
 
 - bun (>= v1.2)
 - biome (for linting only)
-- deno (for formatting)
 - gitleaks
-- just
 
 ### スクリプト
 
-just と Bun Script で管理されています。以下は、just や bun で実行可能なスクリプトの例です。 それぞれ
-`just --list`、`bun run --list` でスクリプトの一覧が見れます。
+Bun Script で管理されています。以下は、bun で実行可能なスクリプトの例です。`bun run --list` でスクリプトの一覧が見れます。
 
 ```sh
-# Just: 未導入
-
 bun dev # 開発用サーバーを立てます
 bun check # コードスタイルや型チェックなどすべてのチェックを実行します
-bun fix # すべてのチェックを実行し、自動で直せるものは直します
+bun fix # 自動で直せるものを直します (フォーマットなど)
 
 bun db # ローカルのデータベースを構築します (既存のものがある場合は削除されます)
 bun run test # テストを実行します
@@ -63,4 +58,4 @@ bun clean # 生成されたファイルをすべて削除します
 
 - Bun: ランタイム
 - Biome: リンター
-- Deno: フォーマッター (MEMO: Biome が HTML-ish な言語のサポートをするまでは Deno でフォーマットすることにする)
+- Prettier: フォーマッタ
