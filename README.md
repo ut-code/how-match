@@ -2,7 +2,7 @@
 
 ## 使い方
 
-wip: 開発中です。
+<https://howmatch.pages.dev> にアクセスします。
 
 ## 開発
 
