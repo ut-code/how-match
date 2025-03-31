@@ -107,7 +107,7 @@
         <h2 class="text-xl">プロジェクトのタイトル</h2>
         <input
           type="text"
-          class="input bg-white text-base"
+          class="input text-base"
           required
           minlength="1"
           placeholder="タイトル"
@@ -118,7 +118,7 @@
         <h2 class="text-xl">プロジェクトの説明</h2>
         <input
           type="text"
-          class="input bg-white text-base"
+          class="input text-base"
           placeholder="説明"
           bind:value={form.description}
         />
@@ -129,7 +129,7 @@
           <div class="flex gap-2">
             <input
               type="text"
-              class="input validator grow-1 bg-white text-base"
+              class="input validator grow-1"
               placeholder="役職名"
               minlength="1"
               required
@@ -138,7 +138,7 @@
             />
             <input
               type="number"
-              class="input validator bg-white text-base"
+              class="input validator"
               placeholder="最大人数"
               min={1}
               required
@@ -146,7 +146,7 @@
             />
             <input
               type="number"
-              class="input validator bg-white text-base"
+              class="input validator"
               placeholder="最小人数"
               min="0"
               max={role.max}
