@@ -74,7 +74,7 @@ export async function updateProject(
     },
     json: {
       name: name,
-      description: description ?? "",
+      description: description,
     },
   });
 }

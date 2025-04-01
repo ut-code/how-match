@@ -43,7 +43,7 @@
   }).href;
 
   let copied = $state(false);
-  let projectName = $state("");
+  let projectName = $state<string | null>(null);
   let projectDescription = $state<string | null>(null);
 
   onMount(async () => {
@@ -113,7 +113,7 @@
                   projectName !== "" ? projectName : "無題のプロジェクト";
                 actions.updateProject(
                   data.projectId,
-                  projectName,
+                  projectName ?? "無題のプロジェクト",
                   projectDescription,
                 );
               }}
@@ -131,7 +131,7 @@
               onblur={(e) => {
                 actions.updateProject(
                   data.projectId,
-                  projectName,
+                  projectName ?? "無題のプロジェクト",
                   projectDescription,
                 );
               }}

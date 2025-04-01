@@ -131,7 +131,7 @@ const route = new Hono<HonoOptions>()
           eq(participants.browser_id, browser_id) &&
             eq(participants.project_id, c.req.param("projectId")),
         );
-      if (participant_resp[0]?.is_admin !== 1) {
+      if (participant_resp.map((p) => p.is_admin).includes(1) === false) {
         return c.json({ message: "Unauthorized" }, 401);
       }
 
@@ -249,7 +249,7 @@ const route = new Hono<HonoOptions>()
         eq(participants.browser_id, browser_id) &&
           eq(participants.project_id, c.req.param("projectId")),
       );
-    if (participant_resp[0]?.is_admin !== 1) {
+    if (participant_resp.map((p) => p.is_admin).includes(1) === false) {
       return c.json({ message: "Unauthorized" }, 401);
     }
 
