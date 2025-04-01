@@ -43,6 +43,24 @@
   }).href;
 
   let copied = $state(false);
+  let projectName = $state<string | null>(null);
+  let projectDescription = $state<string | null>(null);
+
+  onMount(async () => {
+    try {
+      let [projectRes, participants] = await Promise.all([
+        data.project,
+        data.participants,
+      ] as const);
+      if (!(projectRes?.ok && projectRes.data)) {
+        return;
+      }
+      projectName = projectRes.data.project.name;
+      projectDescription = projectRes.data.project.description;
+    } catch (e) {
+      console.error(e);
+    }
+  });
 
   function sumRolesCount(
     participants: {
@@ -84,11 +102,40 @@
           projectRes.data.roles
             .map((role) => role.max)
             .reduce((a, b) => a + b) < sumRolesCount(participants)}
-
         <div class="flex flex-col gap-4">
           <div class="flex flex-col gap-2">
-            <h2 class="text-xl">{project.name}</h2>
-            <p>{project.description}</p>
+            <h2
+              bind:textContent={projectName}
+              contenteditable="plaintext-only"
+              class="border-b-1 border-gray-300 p-1 text-xl transition-colors duration-200 hover:bg-gray-100"
+              onblur={(e) => {
+                projectName =
+                  projectName !== "" ? projectName : "無題のプロジェクト";
+                actions.updateProject(
+                  data.projectId,
+                  projectName ?? "無題のプロジェクト",
+                  projectDescription,
+                );
+              }}
+              onkeydown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  (e.target as HTMLElement)?.blur();
+                }
+              }}
+            ></h2>
+            <p
+              bind:textContent={projectDescription}
+              contenteditable="plaintext-only"
+              class="border-b-1 border-gray-300 p-1 transition-colors duration-200 hover:bg-gray-100"
+              onblur={(e) => {
+                actions.updateProject(
+                  data.projectId,
+                  projectName ?? "無題のプロジェクト",
+                  projectDescription,
+                );
+              }}
+            ></p>
           </div>
           <div class="flex flex-col gap-2">
             <h3 class="text-sm text-gray-500">提出ページ</h3>

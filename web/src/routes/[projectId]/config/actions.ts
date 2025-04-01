@@ -62,3 +62,19 @@ export async function deleteProject(projectId: string) {
     ],
   });
 }
+
+export async function updateProject(
+  projectId: string,
+  name: string,
+  description: string | null,
+) {
+  await client.projects[":projectId"].$patch({
+    param: {
+      projectId: projectId,
+    },
+    json: {
+      name: name,
+      description: description,
+    },
+  });
+}
