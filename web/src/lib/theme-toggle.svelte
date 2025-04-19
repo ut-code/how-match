@@ -4,7 +4,7 @@
   import MoonIcon from "~icons/fe/moon";
   import { PersistedState } from "runed";
   const theme = new PersistedState<(typeof themes)[number]>(
-    "theme-preference",
+    "how-match:theme-preference",
     "",
   );
 
@@ -35,18 +35,20 @@
     <span>{labels[theme.current]}</span>
   </button>
 
-  <ul class="dropdown-content w-40">
+  <ul class="dropdown-content border-base-200 bg-base-100 w-40 border p-1">
     {#each themes as t}
-      <li>
-        <input
-          type="radio"
-          name="theme"
-          class="theme-controller btn btn-block btn-sm justify-start"
-          aria-label={labels[t]}
-          value={t}
-          bind:group={theme.current}
-        />
-      </li>
+      {#if /* TODO: after refining dark theme, set browser default as default */ t}
+        <li>
+          <input
+            type="radio"
+            name="theme"
+            class="theme-controller btn btn-block btn-sm justify-start"
+            aria-label={labels[t]}
+            value={t}
+            bind:group={theme.current}
+          />
+        </li>
+      {/if}
     {/each}
   </ul>
 </div>

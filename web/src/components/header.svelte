@@ -30,7 +30,7 @@
 
 <header class="sticky top-0 left-0 z-30 w-full flex-row px-6 pt-6">
   <div
-    class="flex h-14 items-center gap-8 rounded-xl border border-gray-200 bg-white/60 px-6 align-middle backdrop-blur-md dark:border-gray-400 dark:bg-black/0 dark:backdrop-blur-xs"
+    class="bg-base-200/60 border-base flex h-14 items-center gap-8 rounded-xl border px-6 align-middle backdrop-blur-md"
   >
     <a class="cursor-pointer text-xl font-bold" href="/">how-match</a>
     <span class="text-xl">

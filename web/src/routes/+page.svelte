@@ -66,7 +66,7 @@
     {:else}
       <div class="hm-block">
         <h2 class="text-xl">作成・提出したプロジェクト</h2>
-        <ul class="list bg-base-200 my-1 w-full rounded-xl">
+        <ul class="list bg-base-300 my-1 w-full rounded-xl">
           {#if projects.length === 0}
             <li class="list-row flex">
               作成・提出したプロジェクトはありません。

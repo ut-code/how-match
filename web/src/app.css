@@ -1,7 +1,9 @@
 @import "tailwindcss";
 
 @plugin "daisyui" {
-  themes: light, dark, retro;
+  themes:
+    light --default,
+    dark --prefersdark;
 }
 
 @plugin "daisyui/theme" {
@@ -10,13 +12,17 @@
   --color-primary: #17af00;
   --color-secondary: teal;
   --color-base-100: #ebfff2;
+  --color-base-200: var(--color-white);
+  --color-base-300: var(--color-gray-50);
+  --color-border: var(--color-gray-200);
 }
 @plugin "daisyui/theme" {
   name: "dark";
   prefersdark: true;
   --color-secondary: teal;
   --color-primary: #17af00;
-  /* --color-base-100: #001d0a; */
+  --color-base-300: var(--color-gray-600);
+  --color-border: var(--color-gray-800);
 }
 
 .btn {
@@ -31,6 +37,9 @@
   @apply bg-base-100 flex h-full flex-col gap-4 p-6;
 }
 
+.border-base {
+  @apply border-[var(--color-border)];
+}
 .hm-block {
-  @apply bg-base-100 flex flex-col gap-2 rounded-xl border border-gray-200 p-6 dark:border-gray-600;
+  @apply bg-base-200 flex flex-col gap-2 rounded-xl border border-[var(--color-border)] p-6;
 }
