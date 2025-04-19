@@ -31,7 +31,7 @@ pre-commit:
     # JS
     prettier:
       tags: js style
-      glob: "*.{js,ts,svelte,css,json,jsonc,yaml,html,md}"
+      glob: "*.{js,ts,svelte,css,json,jsonc,yaml,html,md,lock}"
       run: bun prettier {staged_files} --write
       stage_fixed: true
     biome-lint:
