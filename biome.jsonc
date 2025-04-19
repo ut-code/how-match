@@ -25,6 +25,7 @@
       "correctness": {
         "noUndeclaredVariables": "off",
         "noUndeclaredDependencies": "off",
+        "noUnknownProperty": "off",
       },
       "suspicious": {
         "noConsole": "off",

@@ -3,10 +3,10 @@
   import { page } from "$app/state";
   import { onMount } from "svelte";
   import { generateURL } from "~/api/origins.svelte.ts";
-  import chain from "~/icons/Chain.svg";
-  import MdiVote from "virtual:icons/mdi/vote";
-  import MdiStopCircle from "virtual:icons/mdi/stop-circle";
-  import MdiGraph from "virtual:icons/mdi/graph";
+  import MdiVote from "~icons/mdi/vote";
+  import MdiStopCircle from "~icons/mdi/stop-circle";
+  import MdiGraph from "~icons/mdi/graph";
+  import MdiLink from "~icons/mdi/link-variant";
 
   import { toast } from "~/globals.svelte.js";
   import * as actions from "./actions.ts";
@@ -107,15 +107,15 @@
             <h2
               bind:textContent={projectName}
               contenteditable="plaintext-only"
-              class="border-b-1 border-gray-300 p-1 text-xl transition-colors duration-200 hover:bg-gray-100"
-              onblur={(e) => {
-                projectName =
-                  projectName !== "" ? projectName : "無題のプロジェクト";
-                actions.updateProject(
+              class="hover:bg-base-300 border-b-1 border-gray-300 p-1 text-xl transition-colors duration-200"
+              onblur={async (e) => {
+                if (!projectName) return;
+                await actions.updateProject(
                   data.projectId,
-                  projectName ?? "無題のプロジェクト",
+                  projectName,
                   projectDescription,
                 );
+                toast.push({ kind: "success", message: "更新に成功しました" });
               }}
               onkeydown={(e) => {
                 if (e.key === "Enter") {
@@ -127,13 +127,15 @@
             <p
               bind:textContent={projectDescription}
               contenteditable="plaintext-only"
-              class="border-b-1 border-gray-300 p-1 transition-colors duration-200 hover:bg-gray-100"
-              onblur={(e) => {
-                actions.updateProject(
+              class="hover:bg-base-300 border-b-1 border-gray-300 p-1 transition-colors duration-200"
+              onblur={async (e) => {
+                if (!projectName) return;
+                await actions.updateProject(
                   data.projectId,
-                  projectName ?? "無題のプロジェクト",
+                  projectName,
                   projectDescription,
                 );
+                toast.push({ kind: "success", message: "更新に成功しました" });
               }}
             ></p>
           </div>
@@ -141,10 +143,8 @@
             <h3 class="text-sm text-gray-500">提出ページ</h3>
             <div class="flex gap-2">
               <label class="input input-bordered w-full rounded-xl bg-gray-50">
-                <img
-                  alt=""
-                  src={chain}
-                  class="h-[1rem] opacity-50 select-none"
+                <MdiLink
+                  class="h-[1rem] opacity-50 select-none dark:text-white"
                 />
                 <input type="url" class="x-selectable" value={link} readonly />
               </label>

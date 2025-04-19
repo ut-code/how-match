@@ -68,7 +68,7 @@ export async function updateProject(
   name: string,
   description: string | null,
 ) {
-  await client.projects[":projectId"].$patch({
+  const resp = await client.projects[":projectId"].$patch({
     param: {
       projectId: projectId,
     },
@@ -77,4 +77,8 @@ export async function updateProject(
       description: description,
     },
   });
+  if (!resp.ok)
+    throw new Error(
+      `Got response status ${resp.status} with text ${await resp.text()}`,
+    );
 }

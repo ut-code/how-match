@@ -1,5 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
+  import ThemeToggle from "~/components/theme-toggle.svelte";
 
   let title = $state("");
 
@@ -27,13 +28,15 @@
   });
 </script>
 
-<header class="sticky top-0 left-0 z-30 w-full px-6 pt-6">
+<header class="sticky top-0 left-0 z-30 w-full flex-row px-6 pt-6">
   <div
-    class="flex h-14 items-center gap-8 rounded-xl border border-gray-200 bg-white/60 px-6 align-middle backdrop-blur-md"
+    class="bg-base-200/60 border-base flex h-14 items-center justify-between rounded-xl border px-6 align-middle backdrop-blur-md sm:justify-start sm:gap-8"
   >
     <a class="cursor-pointer text-xl font-bold" href="/">how-match</a>
     <span class="text-xl">
       {title}
     </span>
+    <span class="hidden sm:inline sm:flex-1"></span>
+    <ThemeToggle />
   </div>
 </header>
