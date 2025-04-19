@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import ThemeSwitcher from "~/components/theme-switcher.svelte";
+  import ThemeToggle from "~/lib/theme-toggle.svelte";
 
   let title = $state("");
 
@@ -37,6 +37,6 @@
       {title}
     </span>
     <span class="flex-1"></span>
-    <ThemeSwitcher />
+    <ThemeToggle />
   </div>
 </header>
