@@ -11,7 +11,7 @@ pkgs.mkShell {
     bun # runner / tester
     nodejs-slim # required by drizzle?
 
-    wrangler
+    # wrangler # can't build for now
 
     # Nix
     alejandra # formatter
