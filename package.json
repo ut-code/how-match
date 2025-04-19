@@ -25,17 +25,18 @@
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
-    "@cloudflare/workers-types": "^4.20250204.0",
-    "@types/bun": "^1.2.4",
-    "lefthook": "^1.10.10",
-    "prettier": "^3.5.2",
+    "@cloudflare/workers-types": "^4.20250419.0",
+    "@types/bun": "^1.2.10",
+    "lefthook": "^1.11.10",
+    "prettier": "^3.5.3",
     "prettier-plugin-svelte": "^3.3.3",
     "prettier-plugin-tailwindcss": "^0.6.11"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "^5.8.3"
   },
   "dependencies": {
-    "valibot": "^1.0.0-rc.1"
+    "valibot": "^1.0.0",
+    "wrangler": "^4.12.0"
   }
 }
