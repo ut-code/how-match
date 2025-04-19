@@ -13,15 +13,14 @@
   --color-secondary: teal;
   --color-base-100: #ebfff2;
   --color-base-200: var(--color-white);
-  --color-base-300: var(--color-gray-50);
   --color-border: var(--color-gray-200);
+  --color-base-300: var(--color-gray-50);
 }
 @plugin "daisyui/theme" {
   name: "dark";
   prefersdark: true;
   --color-secondary: teal;
   --color-primary: #17af00;
-  --color-base-300: var(--color-gray-600);
   --color-border: var(--color-gray-800);
 }
 
@@ -30,7 +29,7 @@
 }
 
 .input {
-  @apply dark:bg-base-100 rounded-xl bg-white text-base;
+  @apply bg-base-200 rounded-xl text-base;
 }
 
 .hm-blocks-container {

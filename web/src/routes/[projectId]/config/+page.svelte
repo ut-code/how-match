@@ -108,14 +108,14 @@
               bind:textContent={projectName}
               contenteditable="plaintext-only"
               class="hover:bg-base-300 border-b-1 border-gray-300 p-1 text-xl transition-colors duration-200"
-              onblur={(e) => {
-                projectName =
-                  projectName !== "" ? projectName : "無題のプロジェクト";
-                actions.updateProject(
+              onblur={async (e) => {
+                if (!projectName) return;
+                await actions.updateProject(
                   data.projectId,
-                  projectName ?? "無題のプロジェクト",
+                  projectName,
                   projectDescription,
                 );
+                toast.push({ kind: "success", message: "更新に成功しました" });
               }}
               onkeydown={(e) => {
                 if (e.key === "Enter") {
@@ -128,12 +128,14 @@
               bind:textContent={projectDescription}
               contenteditable="plaintext-only"
               class="hover:bg-base-300 border-b-1 border-gray-300 p-1 transition-colors duration-200"
-              onblur={(e) => {
-                actions.updateProject(
+              onblur={async (e) => {
+                if (!projectName) return;
+                await actions.updateProject(
                   data.projectId,
-                  projectName ?? "無題のプロジェクト",
+                  projectName,
                   projectDescription,
                 );
+                toast.push({ kind: "success", message: "更新に成功しました" });
               }}
             ></p>
           </div>

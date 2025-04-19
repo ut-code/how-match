@@ -23,32 +23,26 @@
   $inspect(theme.current);
 </script>
 
-<div class="dropdown w-32">
-  <button
-    class="btn w-full text-left align-middle text-sm"
-    popovertarget="theme-toggle-dropdown"
-    popovertargetaction="toggle"
-  >
+<div class="dropdown dropdown-end w-8 sm:w-32">
+  <button class="btn w-full text-left align-middle text-sm">
     <span class="w-4">
       <Icon />
     </span>
-    <span>{labels[theme.current]}</span>
+    <span class="hidden sm:block">{labels[theme.current]}</span>
   </button>
 
-  <ul class="dropdown-content border-base-200 bg-base-100 w-40 border p-1">
+  <ul class="dropdown-content border-base-300 bg-base-200 w-40 border p-1">
     {#each themes as t}
-      {#if /* TODO: after refining dark theme, set browser default as default */ t}
-        <li>
-          <input
-            type="radio"
-            name="theme"
-            class="theme-controller btn btn-block btn-sm justify-start"
-            aria-label={labels[t]}
-            value={t}
-            bind:group={theme.current}
-          />
-        </li>
-      {/if}
+      <li>
+        <input
+          type="radio"
+          name="theme"
+          class="theme-controller btn btn-block btn-sm justify-start"
+          aria-label={labels[t]}
+          value={t}
+          bind:group={theme.current}
+        />
+      </li>
     {/each}
   </ul>
 </div>
