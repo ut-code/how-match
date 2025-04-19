@@ -13,13 +13,13 @@ import { getBrowserID } from "service/features/auth/index.ts";
 import type { HonoOptions } from "service/types.ts";
 import { json, param } from "service/validator/hono.ts";
 import { assignRoles } from "share/logic/min-flow.ts";
+import { multipleMatch } from "share/logic/multiple.ts";
 import { ProjectSchema } from "share/schema.ts";
 import * as v from "valibot";
-import { multipleMatch } from "share/logic/multiple.ts";
 
 import { at } from "share/lib.ts";
-import preferenceRoutes from "./preferences.ts";
 import participantRoute from "./participants.ts";
+import preferenceRoutes from "./preferences.ts";
 
 const route = new Hono<HonoOptions>()
   .route("/:projectId/preferences", preferenceRoutes)

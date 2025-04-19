@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": [],
+    "ignore": ["service/worker-configuration.d.ts"],
   },
   "formatter": {
     "enabled": false, // HTML-ish support when?

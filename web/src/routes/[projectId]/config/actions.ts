@@ -1,6 +1,6 @@
-import { modal, toast } from "~/globals.svelte";
-import { createClient } from "~/api/client";
 import { goto, replaceState } from "$app/navigation";
+import { createClient } from "~/api/client";
+import { modal, toast } from "~/globals.svelte";
 
 const client = createClient({ fetch });
 

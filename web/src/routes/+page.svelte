@@ -1,10 +1,10 @@
 <script lang="ts">
-  import { onMount } from "svelte";
-  import { type Client, createClient } from "~/api/client.ts";
-  import MdiWrench from "virtual:icons/mdi/wrench";
-  import MdiVote from "virtual:icons/mdi/vote";
   import MdiCog from "virtual:icons/mdi/cog";
   import MdiGraph from "virtual:icons/mdi/graph";
+  import MdiVote from "virtual:icons/mdi/vote";
+  import MdiWrench from "virtual:icons/mdi/wrench";
+  import { onMount } from "svelte";
+  import { type Client, createClient } from "~/api/client.ts";
 
   const client: Client = createClient({ fetch });
   async function getMyProjects(options?: { signal: AbortSignal }) {

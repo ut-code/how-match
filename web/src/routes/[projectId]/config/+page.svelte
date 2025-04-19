@@ -3,10 +3,10 @@
   import { page } from "$app/state";
   import { onMount } from "svelte";
   import { generateURL } from "~/api/origins.svelte.ts";
-  import MdiVote from "~icons/mdi/vote";
-  import MdiStopCircle from "~icons/mdi/stop-circle";
   import MdiGraph from "~icons/mdi/graph";
   import MdiLink from "~icons/mdi/link-variant";
+  import MdiStopCircle from "~icons/mdi/stop-circle";
+  import MdiVote from "~icons/mdi/vote";
 
   import { toast } from "~/globals.svelte.js";
   import * as actions from "./actions.ts";

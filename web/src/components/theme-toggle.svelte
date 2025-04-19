@@ -1,8 +1,8 @@
 <script lang="ts">
-  import LaptopIcon from "~icons/fe/laptop";
-  import SunIcon from "~icons/fe/sunny-o";
-  import MoonIcon from "~icons/fe/moon";
   import { PersistedState } from "runed";
+  import LaptopIcon from "~icons/fe/laptop";
+  import MoonIcon from "~icons/fe/moon";
+  import SunIcon from "~icons/fe/sunny-o";
   const theme = new PersistedState<(typeof themes)[number]>(
     "how-match:theme-preference",
     "",

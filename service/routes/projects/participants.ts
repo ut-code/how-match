@@ -1,10 +1,10 @@
+import { and, eq, exists, or } from "drizzle-orm";
 import { Hono } from "hono";
 import * as v from "valibot";
-import { param } from "../../validator/hono.ts";
 import { db } from "../../db/client.ts";
 import { participants, ratings } from "../../db/schema.ts";
-import { and, eq, exists, or } from "drizzle-orm";
 import type { HonoOptions } from "../../types.ts";
+import { param } from "../../validator/hono.ts";
 
 const route = new Hono<HonoOptions>().get(
   "/",

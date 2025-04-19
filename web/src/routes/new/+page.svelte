@@ -1,10 +1,10 @@
 <script lang="ts">
+  import MdiClose from "virtual:icons/mdi/close";
+  import MdiPlus from "virtual:icons/mdi/plus";
   import { goto } from "$app/navigation";
   import { ProjectSchema } from "share/schema";
   import { safeParse } from "valibot";
   import { type Client, createClient } from "~/api/client";
-  import MdiPlus from "virtual:icons/mdi/plus";
-  import MdiClose from "virtual:icons/mdi/close";
 
   const client: Client = createClient({ fetch });
   type Form = {
