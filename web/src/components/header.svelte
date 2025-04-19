@@ -1,6 +1,6 @@
 <script lang="ts">
   import { page } from "$app/state";
-  import ThemeToggle from "~/lib/theme-toggle.svelte";
+  import ThemeToggle from "~/components/theme-toggle.svelte";
 
   let title = $state("");
 
