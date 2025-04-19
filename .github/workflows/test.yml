@@ -1,5 +1,4 @@
 # yaml-language-server: $schema=https://json.schemastore.org/github-workflow.json
-# TODO: make a test CI
 
 name: Test
 on:
@@ -7,8 +6,6 @@ on:
   push:
     branches:
       - main
-# env:
-#   DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
 jobs:
   test:
@@ -19,7 +16,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.2.2
+          bun-version: 1.2.10
       - run: bun run test
   lockfile:
     name: "Lockfile doesn't have changes"
@@ -29,5 +26,5 @@ jobs:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.2.2
+          bun-version: 1.2.10
       - run: bun install --frozen-lockfile

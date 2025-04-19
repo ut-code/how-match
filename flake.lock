@@ -1,8 +1,45 @@
 {
   "nodes": {
+    "bunnix": {
+      "inputs": {
+        "flake-utils": "flake-utils",
+        "nixpkgs": ["nixpkgs"]
+      },
+      "locked": {
+        "lastModified": 1744992190,
+        "narHash": "sha256-QKzJHw8dTVPRoQAvG8xJe38onMdYjx56sq7TdXFfJnY=",
+        "owner": "aster-void",
+        "repo": "bunnix",
+        "rev": "bfeb9121d717b4112c327619e40794638962d0e6",
+        "type": "github"
+      },
+      "original": {
+        "owner": "aster-void",
+        "repo": "bunnix",
+        "type": "github"
+      }
+    },
     "flake-utils": {
       "inputs": {
         "systems": "systems"
+      },
+      "locked": {
+        "lastModified": 1731533236,
+        "narHash": "sha256-l0KFg5HjrsfsO/JpG+r7fRrqm12kzFHyUHqHCVpMMbI=",
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "rev": "11707dc2f618dd54ca8739b309ec4fc024de578b",
+        "type": "github"
+      },
+      "original": {
+        "owner": "numtide",
+        "repo": "flake-utils",
+        "type": "github"
+      }
+    },
+    "flake-utils_2": {
+      "inputs": {
+        "systems": "systems_2"
       },
       "locked": {
         "lastModified": 1731533236,
@@ -36,9 +73,9 @@
     },
     "root": {
       "inputs": {
-        "flake-utils": "flake-utils",
-        "nixpkgs": "nixpkgs",
-        "treefmt-nix": "treefmt-nix"
+        "bunnix": "bunnix",
+        "flake-utils": "flake-utils_2",
+        "nixpkgs": "nixpkgs"
       }
     },
     "systems": {
@@ -56,21 +93,18 @@
         "type": "github"
       }
     },
-    "treefmt-nix": {
-      "inputs": {
-        "nixpkgs": ["nixpkgs"]
-      },
+    "systems_2": {
       "locked": {
-        "lastModified": 1743748085,
-        "narHash": "sha256-uhjnlaVTWo5iD3LXics1rp9gaKgDRQj6660+gbUU3cE=",
-        "owner": "numtide",
-        "repo": "treefmt-nix",
-        "rev": "815e4121d6a5d504c0f96e5be2dd7f871e4fd99d",
+        "lastModified": 1681028828,
+        "narHash": "sha256-Vy1rq5AaRuLzOxct8nz4T6wlgyUR7zLU309k9mBC768=",
+        "owner": "nix-systems",
+        "repo": "default",
+        "rev": "da67096a3b9bf56a91d16901293e51ba5b49a27e",
         "type": "github"
       },
       "original": {
-        "owner": "numtide",
-        "repo": "treefmt-nix",
+        "owner": "nix-systems",
+        "repo": "default",
         "type": "github"
       }
     }

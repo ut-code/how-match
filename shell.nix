@@ -1,22 +1,28 @@
-{pkgs ? import <nixpkgs> {}}:
-pkgs.mkShell {
-  name = "How Match development";
-  packages = with pkgs; [
-    # general
-    gitleaks # secret leak detection
-    just # task runner
-    litecli # sqlite CLI client with advanced features
+{
+  pkgs ? import <nixpkgs> {},
+  system,
+  bunnix,
+}: let
+  bun_latest = bunnix.packages.${system}.latest;
+in
+  pkgs.mkShell {
+    name = "How Match development";
+    packages = with pkgs; [
+      # general
+      gitleaks # secret leak detection
+      just # task runner
+      litecli # sqlite CLI client with advanced features
 
-    # JS
-    bun # runner / tester
-    nodejs-slim # required by drizzle?
+      # JS
+      bun_latest # runner / tester
+      nodejs-slim # required by drizzle?
 
-    # wrangler # can't build for now
+      # wrangler # can't build for now
 
-    # Nix
-    alejandra # formatter
-    nil # langserver
-    statix # nix linter
-    deadnix # code analyzer (detects dead code)
-  ];
-}
+      # Nix
+      alejandra # formatter
+      nil # langserver
+      statix # nix linter
+      deadnix # code analyzer (detects dead code)
+    ];
+  }
