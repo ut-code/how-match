@@ -22,7 +22,7 @@ export const Projects = sqliteTable("projects", {
   name: text().notNull(),
   description: text(),
   closedAt: text("closed_at"),
-  multipleRoles: integer().notNull(),
+  multipleRoles: integer("multiple_roles").notNull(),
 });
 
 export const Roles = sqliteTable("roles", {
