@@ -171,7 +171,7 @@ const route = new Hono<HonoOptions>()
           for (const role of body.roles.update) {
             await d
               .update(Roles)
-              .set({ name: "hello" })
+              .set({ ...role, id: undefined })
               .where(
                 and(
                   eq(Roles.id, role.id),
