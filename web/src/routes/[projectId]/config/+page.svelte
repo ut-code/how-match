@@ -122,7 +122,7 @@
         ></p>
       </div>
       <div class="flex flex-col gap-2">
-        <h3 class="text-sm text-gray-500">提出ページ</h3>
+        <h3 class="text-pale text-sm">提出ページ</h3>
         <div class="flex gap-2">
           <label class="input input-bordered w-full rounded-xl bg-gray-50">
             <MdiLink class="h-[1rem] opacity-50 select-none dark:text-white" />
@@ -159,11 +159,11 @@
         </div>
       </div>
       <div class="flex flex-col gap-2">
-        <h3 class="text-sm text-gray-500">役職</h3>
+        <h3 class="text-pale text-sm">役職</h3>
         <RoleEditor {roles} projectId={project.id} />
       </div>
       <div class="flex flex-col gap-2">
-        <h3 class="text-sm text-gray-500">締切</h3>
+        <h3 class="text-pale text-sm">締切</h3>
         <p>
           {project.closed_at ?? "締切が設定されていません"}
         </p>
@@ -200,7 +200,7 @@
         </div>
       </div>
       <div class="flex flex-col gap-2">
-        <h3 class="text-sm text-gray-500">一般</h3>
+        <h3 class="text-pale text-sm">一般</h3>
         <div class="flex justify-end gap-2">
           <button
             class="btn btn-error btn-outline"

@@ -15,6 +15,7 @@
   --color-base-200: var(--color-white);
   --color-border: var(--color-gray-200);
   --color-base-300: var(--color-gray-50);
+  --color-pale: var(--color-gray-500);
 }
 @plugin "daisyui/theme" {
   name: "dark";
@@ -22,6 +23,7 @@
   --color-secondary: teal;
   --color-primary: #17af00;
   --color-border: var(--color-gray-800);
+  --color-pale: var(--color-gray-300);
 }
 
 .btn {
@@ -38,6 +40,9 @@
 
 .border-base {
   @apply border-[var(--color-border)];
+}
+.text-pale {
+  color: var(--color-pale);
 }
 .hm-block {
   @apply bg-base-200 flex flex-col gap-2 rounded-xl border border-[var(--color-border)] p-6;
