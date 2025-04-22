@@ -2,8 +2,6 @@
   import { page } from "$app/state";
   import ThemeToggle from "~/components/theme-toggle.svelte";
 
-  let title = $state("");
-
   const titles = new Map([
     ["", ""],
     ["result", "結果"],
@@ -12,7 +10,8 @@
     ["config", "管理"],
     ["new", "作成"],
   ]);
-  $effect(() => {
+
+  function getTitle() {
     const path =
       page.url.pathname
         .split("/")
@@ -20,11 +19,15 @@
         .at(-1) ?? "";
     const newTitle = path && titles.get(path);
     if (newTitle != null) {
-      title = newTitle;
-    } else {
-      title = "";
-      console.warn("Unknown pathname:", path, "at url", page.url);
+      return newTitle;
     }
+    console.warn("Unknown pathname:", path, "at url", page.url);
+    return "";
+  }
+
+  let title = $state(getTitle());
+  $effect(() => {
+    title = getTitle();
   });
 </script>
 
