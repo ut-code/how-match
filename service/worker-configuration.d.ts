@@ -25,7 +25,7 @@ and limitations under the License.
 ***************************************************************************** */
 /* eslint-disable */
 // noinspection JSUnusedGlobalSymbols
-declare let onmessage: never;
+declare var onmessage: never;
 /**
  * An abnormal event (called an exception) which occurs as a result of calling a method or accessing a property of a web API.
  *
@@ -1595,7 +1595,7 @@ declare abstract class Body {
  *
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Response)
  */
-declare let Response: {
+declare var Response: {
   prototype: Response;
   new (body?: BodyInit | null, init?: ResponseInit): Response;
   error(): Response;
@@ -1643,7 +1643,7 @@ type RequestInfo<CfHostMetadata = unknown, Cf = CfProperties<CfHostMetadata>> =
  *
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/Request)
  */
-declare let Request: {
+declare var Request: {
   prototype: Request;
   new <CfHostMetadata = unknown, Cf = CfProperties<CfHostMetadata>>(
     input: RequestInfo<CfProperties> | URL,
@@ -1781,21 +1781,21 @@ interface KVNamespace<Key extends string = string> {
     key: Key,
     options?: KVNamespaceGetOptions<"stream">,
   ): Promise<ReadableStream | null>;
-  get(key: Key[], type: "text"): Promise<Map<string, string | null>>;
+  get(key: Array<Key>, type: "text"): Promise<Map<string, string | null>>;
   get<ExpectedValue = unknown>(
-    key: Key[],
+    key: Array<Key>,
     type: "json",
   ): Promise<Map<string, ExpectedValue | null>>;
   get(
-    key: Key[],
+    key: Array<Key>,
     options?: Partial<KVNamespaceGetOptions<undefined>>,
   ): Promise<Map<string, string | null>>;
   get(
-    key: Key[],
+    key: Array<Key>,
     options?: KVNamespaceGetOptions<"text">,
   ): Promise<Map<string, string | null>>;
   get<ExpectedValue = unknown>(
-    key: Key[],
+    key: Array<Key>,
     options?: KVNamespaceGetOptions<"json">,
   ): Promise<Map<string, ExpectedValue | null>>;
   list<Metadata = unknown>(
@@ -1843,25 +1843,25 @@ interface KVNamespace<Key extends string = string> {
     options: KVNamespaceGetOptions<"stream">,
   ): Promise<KVNamespaceGetWithMetadataResult<ReadableStream, Metadata>>;
   getWithMetadata<Metadata = unknown>(
-    key: Key[],
+    key: Array<Key>,
     type: "text",
   ): Promise<Map<string, KVNamespaceGetWithMetadataResult<string, Metadata>>>;
   getWithMetadata<ExpectedValue = unknown, Metadata = unknown>(
-    key: Key[],
+    key: Array<Key>,
     type: "json",
   ): Promise<
     Map<string, KVNamespaceGetWithMetadataResult<ExpectedValue, Metadata>>
   >;
   getWithMetadata<Metadata = unknown>(
-    key: Key[],
+    key: Array<Key>,
     options?: Partial<KVNamespaceGetOptions<undefined>>,
   ): Promise<Map<string, KVNamespaceGetWithMetadataResult<string, Metadata>>>;
   getWithMetadata<Metadata = unknown>(
-    key: Key[],
+    key: Array<Key>,
     options?: KVNamespaceGetOptions<"text">,
   ): Promise<Map<string, KVNamespaceGetWithMetadataResult<string, Metadata>>>;
   getWithMetadata<ExpectedValue = unknown, Metadata = unknown>(
-    key: Key[],
+    key: Array<Key>,
     options?: KVNamespaceGetOptions<"json">,
   ): Promise<
     Map<string, KVNamespaceGetWithMetadataResult<ExpectedValue, Metadata>>
@@ -2835,7 +2835,7 @@ type WebSocketEventMap = {
  *
  * [MDN Reference](https://developer.mozilla.org/docs/Web/API/WebSocket)
  */
-declare let WebSocket: {
+declare var WebSocket: {
   prototype: WebSocket;
   new (url: string, protocols?: string[] | string): WebSocket;
   readonly READY_STATE_CONNECTING: number;
@@ -6019,7 +6019,7 @@ declare namespace Rpc {
   export type Stub<T extends Stubable> = Provider<T> & StubBase<T>;
   // This represents all the types that can be sent as-is over an RPC boundary
   type BaseType =
-    | undefined
+    | void
     | undefined
     | null
     | boolean
@@ -6039,7 +6039,7 @@ declare namespace Rpc {
     | Headers;
   // Recursively rewrite all `Stubable` types with `Stub`s
   // prettier-ignore
-  type Stubify<T> = T extends Stubable ? Stub<T> : T extends Map<infer K, infer V> ? Map<Stubify<K>, Stubify<V>> : T extends Set<infer V> ? Set<Stubify<V>> : T extends Array<infer V> ? Stubify<V>[] : T extends ReadonlyArray<infer V> ? readonly Stubify<V>[] : T extends BaseType ? T : T extends {
+  type Stubify<T> = T extends Stubable ? Stub<T> : T extends Map<infer K, infer V> ? Map<Stubify<K>, Stubify<V>> : T extends Set<infer V> ? Set<Stubify<V>> : T extends Array<infer V> ? Array<Stubify<V>> : T extends ReadonlyArray<infer V> ? ReadonlyArray<Stubify<V>> : T extends BaseType ? T : T extends {
         [key: string | number]: any;
     } ? {
         [K in keyof T]: Stubify<T[K]>;
@@ -6048,7 +6048,7 @@ declare namespace Rpc {
   // Note we use `StubBase` instead of `Stub` here to avoid circular dependencies:
   // `Stub` depends on `Provider`, which depends on `Unstubify`, which would depend on `Stub`.
   // prettier-ignore
-  type Unstubify<T> = T extends StubBase<infer V> ? V : T extends Map<infer K, infer V> ? Map<Unstubify<K>, Unstubify<V>> : T extends Set<infer V> ? Set<Unstubify<V>> : T extends Array<infer V> ? Unstubify<V>[] : T extends ReadonlyArray<infer V> ? readonly Unstubify<V>[] : T extends BaseType ? T : T extends {
+  type Unstubify<T> = T extends StubBase<infer V> ? V : T extends Map<infer K, infer V> ? Map<Unstubify<K>, Unstubify<V>> : T extends Set<infer V> ? Set<Unstubify<V>> : T extends Array<infer V> ? Array<Unstubify<V>> : T extends ReadonlyArray<infer V> ? ReadonlyArray<Unstubify<V>> : T extends BaseType ? T : T extends {
         [key: string | number]: unknown;
     } ? {
         [K in keyof T]: Unstubify<T[K]>;

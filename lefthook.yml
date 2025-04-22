@@ -37,7 +37,7 @@ pre-commit:
     biome-lint:
       tags: js lint
       glob: "*.{js,ts,jsx,tsx,svelte}"
-      run: biome lint {staged_files}
+      run: biome lint .
     # Nix
     alejandra:
       tags: nix style
