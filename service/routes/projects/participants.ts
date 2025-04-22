@@ -2,8 +2,8 @@ import { and, eq, exists, or } from "drizzle-orm";
 import { Hono } from "hono";
 import * as v from "valibot";
 import { db } from "../../db/client.ts";
-import { participants, ratings } from "../../db/schema.ts";
-import type { HonoOptions } from "../../types.ts";
+import { Participants, Ratings } from "../../db/schema.ts";
+import type { HonoOptions } from "service/types.ts";
 import { param } from "../../validator/hono.ts";
 
 const route = new Hono<HonoOptions>().get(
@@ -12,29 +12,29 @@ const route = new Hono<HonoOptions>().get(
   async (c) => {
     const { projectId } = c.req.valid("param");
     const d = db(c);
-    const participant_list = await d
+    const participants = await d
       .select({
-        id: participants.id,
-        name: participants.name,
-        is_admin: participants.is_admin,
-        roles_count: participants.roles_count,
+        id: Participants.id,
+        name: Participants.name,
+        isAdmin: Participants.isAdmin,
+        rolesCount: Participants.rolesCount,
       })
-      .from(participants)
+      .from(Participants)
       .where(
         and(
-          eq(participants.project_id, projectId),
+          eq(Participants.projectId, projectId),
           or(
-            eq(participants.is_admin, 0), // PERF: skip ratings check if !participants.is_admin, because it will always exist
+            eq(Participants.isAdmin, 0), // PERF: skip ratings check if !participants.isAdmin, because it will always exist
             exists(
               d
-                .select({ id: ratings.id })
-                .from(ratings)
-                .where(eq(ratings.participant_id, participants.id)),
+                .select({ id: Ratings.id })
+                .from(Ratings)
+                .where(eq(Ratings.participantId, Participants.id)),
             ),
           ),
         ),
       );
-    return c.json(participant_list);
+    return c.json(participants);
   },
 );
 export default route;

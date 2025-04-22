@@ -1,69 +1,69 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
-export const participants = sqliteTable("participants", {
+export const Participants = sqliteTable("participants", {
   id: text("id").notNull().primaryKey(),
   name: text().notNull(),
-  browser_id: text("browser_id").notNull(),
-  project_id: text("project_id")
-    .references(() => projects.id, { onDelete: "cascade" })
+  browserId: text("browserId").notNull(),
+  projectId: text("projectId")
+    .references(() => Projects.id, { onDelete: "cascade" })
     .notNull(),
-  is_admin: integer("is_admin").notNull(),
-  roles_count: integer("roles_count").notNull(),
+  isAdmin: integer("isAdmin").notNull(),
+  rolesCount: integer("rolesCount").notNull(),
 });
 
-export const accounts = sqliteTable("accounts", {
+export const Accounts = sqliteTable("accounts", {
   id: text().notNull().primaryKey(),
-  browser_id: text().notNull().unique(),
+  browserId: text("browserId").notNull().unique(),
   name: text().notNull(),
 });
 
-export const projects = sqliteTable("projects", {
+export const Projects = sqliteTable("projects", {
   id: text().notNull().primaryKey(),
   name: text().notNull(),
   description: text(),
-  closed_at: text(),
-  multiple_roles: integer().notNull(),
+  closedAt: text("closedAt"),
+  multipleRoles: integer().notNull(),
 });
 
-export const roles = sqliteTable("roles", {
+export const Roles = sqliteTable("roles", {
   id: text().notNull().primaryKey(),
   name: text().notNull(),
   min: integer().notNull(),
   max: integer().notNull(),
-  project_id: text("project_id")
-    .references(() => projects.id, { onDelete: "cascade" })
+  projectId: text("projectId")
+    .references(() => Projects.id, { onDelete: "cascade" })
     .notNull(),
 });
 
-export const ratings = sqliteTable("ratings", {
+export const Ratings = sqliteTable("ratings", {
   id: text().notNull().primaryKey(),
-  participant_id: text("participant_id")
-    .references(() => participants.id, { onDelete: "cascade" })
+  participantId: text("participantId")
+    .references(() => Participants.id, { onDelete: "cascade" })
     .notNull(),
-  role_id: text("role_id")
-    .references(() => roles.id, { onDelete: "cascade" })
+  roleId: text("roleId")
+    .references(() => Roles.id, { onDelete: "cascade" })
     .notNull(),
   score: integer().notNull(),
-  project_id: text("project_id")
-    .references(() => projects.id, { onDelete: "cascade" })
+  projectId: text("projectId")
+    .references(() => Projects.id, { onDelete: "cascade" })
     .notNull(),
 });
 
-export const matches = sqliteTable("matches", {
+export const Matches = sqliteTable("matches", {
   id: text().notNull().primaryKey(),
-  role_id: text("role_id")
-    .references(() => roles.id, { onDelete: "cascade" })
+  roleId: text("roleId")
+    .references(() => Roles.id, { onDelete: "cascade" })
     .notNull(),
-  participant_id: text("participant_id")
-    .references(() => participants.id, { onDelete: "cascade" })
+  participantId: text("participantId")
+    .references(() => Participants.id, { onDelete: "cascade" })
     .notNull(),
-  project_id: text("project_id")
-    .references(() => projects.id, { onDelete: "cascade" })
+  projectId: text("projectId")
+    .references(() => Projects.id, { onDelete: "cascade" })
     .notNull(),
 });
 
-export type InsertParticipant = typeof participants.$inferInsert;
-export type InsertAccount = typeof accounts.$inferInsert;
-export type SelectAccount = typeof accounts.$inferSelect;
-export type InsertProject = typeof projects.$inferInsert;
-export type InsertRole = typeof roles.$inferInsert;
+export type InsertParticipant = typeof Participants.$inferInsert;
+export type InsertAccount = typeof Accounts.$inferInsert;
+export type SelectAccount = typeof Accounts.$inferSelect;
+export type InsertProject = typeof Projects.$inferInsert;
+export type InsertRole = typeof Roles.$inferInsert;

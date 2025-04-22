@@ -1,8 +1,8 @@
 <script lang="ts">
-  import MdiClose from "virtual:icons/mdi/close";
-  import MdiPlus from "virtual:icons/mdi/plus";
+  import MdiClose from "~icons/mdi/close";
+  import MdiPlus from "~icons/mdi/plus";
   import { goto } from "$app/navigation";
-  import { ProjectSchema } from "share/schema";
+  import { Project } from "share/schema";
   import { safeParse } from "valibot";
   import { type Client, createClient } from "~/api/client";
 
@@ -12,7 +12,7 @@
     description: string;
     multipleRoles: boolean;
     roles: {
-      localid: number;
+      localId: number;
       name: string;
       max: number | undefined;
       min: number | undefined;
@@ -25,20 +25,20 @@
     roles: { name: string; max: number | undefined; min: number | undefined }[];
   };
 
-  let localid_index = 0;
+  let localIdSeq = 0;
   const form = $state<Form>({
     name: "",
     description: "",
     multipleRoles: false,
     roles: [
-      { localid: localid_index++, name: "", max: undefined, min: undefined },
+      { localId: localIdSeq++, name: "", max: undefined, min: undefined },
     ],
   });
   const roleElements: HTMLInputElement[] = $state([]);
 
   function addRole() {
     form.roles.push({
-      localid: localid_index++,
+      localId: localIdSeq++,
       name: "",
       max: undefined,
       min: undefined,
@@ -50,13 +50,13 @@
   function deleteRole(index: number) {
     form.roles.splice(index, 1);
   }
-  const multipleRoles_is_invalid = $derived(form.roles.length <= 1);
-  const delete_role_button_disabled = $derived(form.roles.length <= 1);
+  const multipleRolesIsInvalid = $derived(form.roles.length <= 1);
+  const deleteRoleButtonDisabled = $derived(form.roles.length <= 1);
 
   let formState = $state<"ready" | "submitting" | "error" | "done">("ready");
   async function postProject() {
     formState = "submitting";
-    if (multipleRoles_is_invalid) {
+    if (multipleRolesIsInvalid) {
       form.multipleRoles = false;
     }
     try {
@@ -66,7 +66,7 @@
         multipleRoles: form.multipleRoles ? 1 : 0,
         roles: form.roles,
       };
-      const val = safeParse(ProjectSchema, postForm);
+      const val = safeParse(Project, postForm);
       if (!val.success) {
         const error = new Error(
           "[TODO: make it into the UI] Failed to validate schema, issues:",
@@ -125,7 +125,7 @@
       </div>
       <div class="hm-block">
         <h2 class="text-xl">設定する役職</h2>
-        {#each form.roles as role, index (role.localid)}
+        {#each form.roles as role, index (role.localId)}
           <div class="flex gap-2">
             <input
               type="text"
@@ -156,7 +156,7 @@
             <button
               type="button"
               class="btn btn-circle btn-ghost"
-              disabled={delete_role_button_disabled}
+              disabled={deleteRoleButtonDisabled}
               onclick={() => deleteRole(index)}
             >
               <MdiClose class="w-12" aria-label="delete" />
@@ -179,7 +179,7 @@
             type="checkbox"
             class="checkbox checkbox-lg checkbox-primary mt-3 mr-auto ml-auto block"
             placeholder=""
-            indeterminate={multipleRoles_is_invalid}
+            indeterminate={multipleRolesIsInvalid}
             bind:checked={form.multipleRoles}
           />
         </div>

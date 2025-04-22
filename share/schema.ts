@@ -8,25 +8,31 @@ import {
   pipe,
   string,
   uuid,
+  type InferOutput,
 } from "valibot";
 
-export const RoleSchema = object({
+export const Role = object({
   name: pipe(string(), minLength(1)),
   min: pipe(number(), minValue(0)),
   max: pipe(number(), minValue(1)),
 });
-export const RoleWithIdSchema = object({
+export type Role = InferOutput<typeof Role>;
+export type RoleWithId = InferOutput<typeof RoleWithId>;
+export type Project = InferOutput<typeof Project>;
+export type Preference = InferOutput<typeof Preference>;
+
+export const RoleWithId = object({
   id: pipe(string(), uuid()),
-  ...RoleSchema.entries,
+  ...Role.entries,
 });
-export const ProjectSchema = object({
+export const Project = object({
   name: pipe(string(), minLength(1)),
   description: nullable(string()),
-  roles: pipe(array(RoleSchema), minLength(1)),
+  roles: pipe(array(Role), minLength(1)),
   multipleRoles: number(),
 });
 
-export const PreferenceSchema = object({
+export const Preference = object({
   // browserId: string() -> validation の挟まるレイヤーでは存在しない、cookie からもってくるため
   participantName: string(),
   rolesCount: number(),

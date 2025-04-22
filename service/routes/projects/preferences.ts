@@ -2,32 +2,32 @@ import { and, count, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { db } from "service/db/client";
-import { participants, ratings, roles } from "service/db/schema.ts";
+import { Participants, Ratings, Roles } from "service/db/schema.ts";
 import { getBrowserID } from "service/features/auth/index.ts";
 import type { HonoOptions } from "service/types";
 import { json, param } from "service/validator/hono.ts";
-import { PreferenceSchema } from "share/schema";
+import { Preference } from "share/schema";
 import * as v from "valibot";
 
 const route = new Hono<HonoOptions>()
   .post(
     "/",
-    json(PreferenceSchema),
+    json(Preference),
     param({
       projectId: v.string(),
     }),
     async (c) => {
-      const browser_id = await getBrowserID(c);
+      const browserId = await getBrowserID(c);
       const { projectId } = c.req.valid("param");
       const body = c.req.valid("json");
 
       const participantResult = await db(c)
         .select()
-        .from(participants)
+        .from(Participants)
         .where(
           and(
-            eq(participants.browser_id, browser_id),
-            eq(participants.project_id, projectId),
+            eq(Participants.browserId, browserId),
+            eq(Participants.projectId, projectId),
           ),
         )
         .limit(1);
@@ -38,14 +38,14 @@ const route = new Hono<HonoOptions>()
 
       const participant = (
         await db(c)
-          .insert(participants)
+          .insert(Participants)
           .values({
             id: crypto.randomUUID(),
             name: body.participantName,
-            browser_id: browser_id,
-            project_id: projectId,
-            is_admin: 0,
-            roles_count: body.rolesCount,
+            browserId: browserId,
+            projectId: projectId,
+            isAdmin: 0,
+            rolesCount: body.rolesCount,
           })
           .returning()
       )[0];
@@ -55,15 +55,15 @@ const route = new Hono<HonoOptions>()
         });
 
       await db(c)
-        .insert(ratings)
+        .insert(Ratings)
         .values(
           body.ratings.map((r) => ({
             id: crypto.randomUUID(),
             name: body.participantName,
-            participant_id: participant.id,
-            role_id: r.roleId,
+            participantId: participant.id,
+            roleId: r.roleId,
             score: r.score,
-            project_id: projectId,
+            projectId: projectId,
           })),
         );
       return c.json({ ok: true }, 201);
@@ -71,12 +71,12 @@ const route = new Hono<HonoOptions>()
   )
   .put(
     "/",
-    json(PreferenceSchema),
+    json(Preference),
     param({
       projectId: v.string(),
     }),
     async (c) => {
-      const browser_id = await getBrowserID(c);
+      const browserId = await getBrowserID(c);
       const { projectId } = c.req.valid("param");
       const body = c.req.valid("json");
 
@@ -85,8 +85,8 @@ const route = new Hono<HonoOptions>()
       // this will always be .length = 1
       const project = await d
         .select({ rolesLen: count() })
-        .from(roles)
-        .where(eq(roles.project_id, projectId));
+        .from(Roles)
+        .where(eq(Roles.projectId, projectId));
       if (body.rolesCount > (project[0]?.rolesLen ?? 0)) {
         throw new HTTPException(409, {
           message: "you sent more count than there is role",
@@ -95,30 +95,30 @@ const route = new Hono<HonoOptions>()
 
       const participant = (
         await db(c)
-          .update(participants)
+          .update(Participants)
           .set({
             name: body.participantName,
-            roles_count: body.rolesCount,
+            rolesCount: body.rolesCount,
           })
-          .where(and(eq(participants.browser_id, browser_id)))
-          .returning({ id: participants.id })
+          .where(and(eq(Participants.browserId, browserId)))
+          .returning({ id: Participants.id })
       )[0];
       if (!participant)
         throw new HTTPException(500, { message: "failed to find participant" });
 
       await db(c)
-        .delete(ratings)
-        .where(eq(ratings.participant_id, participant.id));
+        .delete(Ratings)
+        .where(eq(Ratings.participantId, participant.id));
       await db(c)
-        .insert(ratings)
+        .insert(Ratings)
         .values(
           body.ratings.map((r) => ({
             id: crypto.randomUUID(),
             name: body.participantName,
-            participant_id: participant.id,
-            role_id: r.roleId,
+            participantId: participant.id,
+            roleId: r.roleId,
             score: r.score,
-            project_id: projectId,
+            projectId: projectId,
           })),
         );
       return c.json({ ok: true }, 200);

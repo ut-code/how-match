@@ -11,7 +11,7 @@
   import { toast } from "~/globals.svelte.js";
   import * as actions from "./actions.ts";
   import RoleEditor from "~/components/role-editor.svelte";
-  import type { RoleWithId } from "share/types.ts";
+  import type { RoleWithId } from "share/schema.ts";
 
   const { data } = $props();
 
@@ -55,28 +55,28 @@
     participants: {
       id: string;
       name: string;
-      is_admin: number;
-      roles_count: number | null;
+      isAdmin: number;
+      rolesCount: number | null;
     }[],
   ) {
     let sum = 0;
     for (const participant of participants) {
-      sum += participant.roles_count ?? 0;
+      sum += participant.rolesCount ?? 0;
     }
     return sum;
   }
 
-  const alreadyClosed = $derived(project.closed_at !== null);
+  const alreadyClosed = $derived(project.closedAt !== null);
   const notEnoughPeople = $derived(
     data.participants.length === 0 || // would error
       roles.map((role) => role.min).reduce((a, b) => a + b) >
-        (project.multiple_roles === 1
+        (project.multipleRoles === 1
           ? sumRolesCount(data.participants)
           : data.participants.length),
   );
   const overCapacityPeople = $derived(
     // TODO: need to deel with exceeded constarints
-    data.project.multiple_roles === 1 &&
+    data.project.multipleRoles === 1 &&
       data.roles.map((role) => role.max).reduce((a, b) => a + b) <
         sumRolesCount(participants),
   );
@@ -165,7 +165,7 @@
       <div class="flex flex-col gap-2">
         <h3 class="text-pale text-sm">締切</h3>
         <p>
-          {project.closed_at ?? "締切が設定されていません"}
+          {project.closedAt ?? "締切が設定されていません"}
         </p>
         <div class="flex justify-end">
           <div class="block">
@@ -210,7 +210,7 @@
           >
             プロジェクトを削除
           </button>
-          {#if project.closed_at}
+          {#if project.closedAt}
             <a class="btn btn-primary" href={`/${project.id}/result`}>
               <MdiGraph />
               結果
@@ -238,11 +238,11 @@
             {participant.name}
           </div>
           <div class="list-col-grow border-b-base-200 text-xs opacity-60">
-            {#if project.multiple_roles}
-              wants {participant.roles_count} roles
+            {#if project.multipleRoles}
+              wants {participant.rolesCount} roles
             {/if}
           </div>
-          {#if participant.is_admin}
+          {#if participant.isAdmin}
             <span class="badge badge-soft badge-info"> 管理者 </span>
           {/if}
         </li>
