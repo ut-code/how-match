@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { PreferenceSchema } from "share/schema.ts";
+  import { Preference } from "share/schema.ts";
   import { safeParse } from "valibot";
   import { createClient } from "~/api/client";
   import { generateURL } from "~/api/origins.svelte.ts";
@@ -12,7 +12,7 @@
 
   // TODO: ローディング中の UI を追加
   let participantName = $state<string>(data.prev?.name ?? "");
-  let rolesCount = $state<number>(data.prev?.roles_count || 1); // including 0
+  let rolesCount = $state<number>(data.prev?.rolesCount || 1); // including 0
   let ratings = $state(
     data.roles.map((role) => {
       const score = role.prev ?? undefined;
@@ -30,7 +30,7 @@
     formState = "submitting";
     try {
       const projectId = data.project.id;
-      const preference = safeParse(PreferenceSchema, {
+      const preference = safeParse(Preference, {
         participantName,
         rolesCount,
         ratings: ratings.map((rating) => ({
@@ -80,8 +80,8 @@
 
   let formState = $state<"ready" | "submitting" | "error" | "done">("ready");
   const isClosed = $derived.by(() => {
-    if (data.project.closed_at === null) return false;
-    return new Date(data.project.closed_at).getTime() < Date.now();
+    if (data.project.closedAt === null) return false;
+    return new Date(data.project.closedAt).getTime() < Date.now();
   });
   const maxRoles = $derived(data.roles.length);
 
@@ -130,7 +130,7 @@
             disabled={isClosed}
           />
         </div>
-        {#if p.multiple_roles == 1}
+        {#if p.multipleRoles == 1}
           <div class="hm-block">
             <h2 class="text-xl">配属される役職数の希望</h2>
             <input

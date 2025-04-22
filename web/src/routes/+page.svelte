@@ -19,8 +19,8 @@
     id: string;
     name: string;
     description: string | null;
-    closed_at: string | null;
-    is_admin: number;
+    closedAt: string | null;
+    isAdmin: number;
   };
   let projects = $state<Project[] | null>(null);
 
@@ -75,7 +75,7 @@
             {#each projects as project}
               <li class="list-row flex items-center">
                 <span class="h-full flex-1">{project.name}</span>
-                {#if project.is_admin}
+                {#if project.isAdmin}
                   <a
                     class="btn btn-primary btn-outline"
                     href="/{project.id}/config"
@@ -83,7 +83,7 @@
                     <MdiCog />
                     管理
                   </a>
-                {:else if project.closed_at !== null && new Date(project.closed_at).getTime() < new Date().getTime()}
+                {:else if project.closedAt !== null && new Date(project.closedAt).getTime() < new Date().getTime()}
                   <!-- 締切済み -->
                   <a class="btn btn-primary" href="/{project.id}/result">
                     <MdiGraph />

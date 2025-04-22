@@ -4,14 +4,14 @@ import { getSignedCookie, setSignedCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import type { CookieOptions } from "hono/utils/cookie";
 import { db } from "service/db/client.ts";
-import { type SelectAccount, accounts } from "service/db/schema.ts";
+import { type SelectAccount, Accounts } from "service/db/schema.ts";
 import { env } from "service/lib.ts";
 
 function GET_COOKIE_SIGN(c: Context): string {
   return env(c, "COOKIE_SIGN");
 }
 
-const cookie_identifier__browser_id = "howmatch.browser_id";
+const cookie_identifier__browserId = "howmatch.browserId";
 // TODO: make it last forever or smth
 const cookieSecond = 1;
 const cookieMonth = 30 * 24 * 60 * 60 * cookieSecond;
@@ -36,7 +36,7 @@ export async function signup(
   c: Context,
   auth: AuthInfo,
 ): Promise<SelectAccount> {
-  const browser_id = await getBrowserID(c);
+  const browserId = await getBrowserID(c);
   const prev = await _findAccount(c, auth);
   if (prev) {
     // already has an account
@@ -44,10 +44,10 @@ export async function signup(
   }
   const account = (
     await db(c)
-      .insert(accounts)
+      .insert(Accounts)
       .values({
         id: crypto.randomUUID(),
-        browser_id,
+        browserId,
         name: auth.info.name,
       })
       .returning()
@@ -66,8 +66,8 @@ export async function login(
   if (acc) {
     setSignedCookie(
       c,
-      cookie_identifier__browser_id,
-      acc.browser_id,
+      cookie_identifier__browserId,
+      acc.browserId,
       GET_COOKIE_SIGN(c),
       cookieOptions,
     );
@@ -81,27 +81,27 @@ export async function getBrowserID(c: Context): Promise<string> {
   const cookie = await getSignedCookie(
     c,
     GET_COOKIE_SIGN(c),
-    cookie_identifier__browser_id,
+    cookie_identifier__browserId,
   );
   if (cookie) {
     await setSignedCookie(
       c,
-      cookie_identifier__browser_id,
+      cookie_identifier__browserId,
       cookie,
       GET_COOKIE_SIGN(c),
       cookieOptions,
     );
     return cookie;
   }
-  const browser_id = crypto.randomUUID();
+  const browserId = crypto.randomUUID();
   await setSignedCookie(
     c,
-    cookie_identifier__browser_id,
-    browser_id,
+    cookie_identifier__browserId,
+    browserId,
     GET_COOKIE_SIGN(c),
     cookieOptions,
   );
-  return browser_id;
+  return browserId;
 }
 
 // TODO: implement authentication
@@ -113,8 +113,8 @@ async function _findAccount(
     case "none": {
       const accountsResult = await db(c)
         .select()
-        .from(accounts)
-        .where(eq(accounts.name, auth.info.name))
+        .from(Accounts)
+        .where(eq(Accounts.name, auth.info.name))
         .limit(1);
       return accountsResult[0]; // findUnique をしたかった
     }

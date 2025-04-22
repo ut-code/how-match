@@ -13,6 +13,7 @@ export const load: PageLoad = async ({ params, fetch }) => {
       },
     })
     .then(async (res) => {
+      if (!res.ok) error(res.status, await res.text());
       return await res.json();
     });
   const participants = client.projects[":projectId"].participants

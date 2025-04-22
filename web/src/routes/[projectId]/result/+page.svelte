@@ -22,9 +22,9 @@
         {:else}
           {#each matches as [_roleId, role]}
             <div class="hm-block">
-              <h2 class="text-xl">{role.role_name}</h2>
+              <h2 class="text-xl">{role.roleName}</h2>
               {#each role.participants as participant}
-                <p>{participant.participant_name} さん</p>
+                <p>{participant.participantName} さん</p>
               {/each}
             </div>
           {/each}

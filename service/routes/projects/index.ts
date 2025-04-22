@@ -3,19 +3,18 @@ import { Hono } from "hono";
 import { HTTPException } from "hono/http-exception";
 import { db } from "service/db/client.ts";
 import {
-  matches,
-  participants,
-  projects,
-  ratings,
-  roles,
+  Matches,
+  Participants,
+  Projects,
+  Ratings,
+  Roles,
 } from "service/db/schema.ts";
 import { getBrowserID } from "service/features/auth/index.ts";
 import type { HonoOptions } from "service/types.ts";
 import { json, param } from "service/validator/hono.ts";
 import { assignRoles } from "share/logic/min-flow.ts";
 import { multipleMatch } from "share/logic/multiple.ts";
-import { ProjectSchema, RoleSchema, RoleWithIdSchema } from "share/schema.ts";
-import type { Project, RoleWithId } from "share/types.ts";
+import { Project, Role, RoleWithId } from "share/schema.ts";
 import * as v from "valibot";
 
 import { at } from "share/lib.ts";
@@ -27,19 +26,19 @@ const route = new Hono<HonoOptions>()
   .route("/:projectId/participants", participantRoute)
 
   .get("/mine", async (c) => {
-    const browser_id = await getBrowserID(c);
+    const browserId = await getBrowserID(c);
     const project_resp = await db(c)
       .select()
-      .from(projects)
-      .innerJoin(participants, eq(projects.id, participants.project_id))
-      .where(eq(participants.browser_id, browser_id));
+      .from(Projects)
+      .innerJoin(Participants, eq(Projects.id, Participants.projectId))
+      .where(eq(Participants.browserId, browserId));
     return c.json(
       project_resp.map((p) => ({
         id: p.projects.id,
         name: p.projects.name,
         description: p.projects.description,
-        closed_at: p.projects.closed_at,
-        is_admin: p.participants.is_admin,
+        closedAt: p.projects.closedAt,
+        isAdmin: p.participants.isAdmin,
       })),
     );
   })
@@ -50,13 +49,13 @@ const route = new Hono<HonoOptions>()
       projectId: v.string(),
     }),
     async (c) => {
-      const browser_id = await getBrowserID(c);
+      const browserId = await getBrowserID(c);
       const projectId = c.req.valid("param").projectId;
       const d = db(c);
       const project_resp = d
         .select()
-        .from(projects)
-        .where(eq(projects.id, projectId))
+        .from(Projects)
+        .where(eq(Projects.id, projectId))
         .execute();
       const project = project_resp.then((it) => {
         const project = it[0];
@@ -69,34 +68,34 @@ const route = new Hono<HonoOptions>()
       const prev_participant_data = (
         await d
           .select({
-            id: participants.id,
-            name: participants.name,
-            roles_count: participants.roles_count,
+            id: Participants.id,
+            name: Participants.name,
+            rolesCount: Participants.rolesCount,
           })
-          .from(participants)
+          .from(Participants)
           .where(
             and(
-              eq(participants.project_id, projectId),
-              eq(participants.browser_id, browser_id),
+              eq(Participants.projectId, projectId),
+              eq(Participants.browserId, browserId),
             ),
           )
       )[0];
       // エンティティの roles と被るため role_resp
       const role_resp = d
         .select({
-          id: roles.id,
-          name: roles.name,
-          min: roles.min,
-          max: roles.max,
-          prev: ratings.score,
+          id: Roles.id,
+          name: Roles.name,
+          min: Roles.min,
+          max: Roles.max,
+          prev: Ratings.score,
         })
-        .from(roles)
-        .where(eq(roles.project_id, projectId))
+        .from(Roles)
+        .where(eq(Roles.projectId, projectId))
         .leftJoin(
-          ratings,
+          Ratings,
           and(
-            eq(ratings.role_id, roles.id),
-            eq(ratings.participant_id, prev_participant_data?.id ?? "never"), // omit if prev_userdata doesn't exist
+            eq(Ratings.roleId, Roles.id),
+            eq(Ratings.participantId, prev_participant_data?.id ?? "never"), // omit if prev_userdata doesn't exist
           ),
         )
         .execute();
@@ -119,8 +118,8 @@ const route = new Hono<HonoOptions>()
         description: v.optional(v.nullable(v.string())),
         roles: v.optional(
           v.object({
-            create: v.optional(v.array(RoleSchema)),
-            update: v.optional(v.array(RoleWithIdSchema)),
+            create: v.optional(v.array(Role)),
+            update: v.optional(v.array(RoleWithId)),
             delete: v.optional(v.array(v.string())),
           }),
         ),
@@ -135,22 +134,22 @@ const route = new Hono<HonoOptions>()
       if (!browserId) {
         return c.json({ message: "Unauthorized" }, 401);
       }
-      const is_admin = await d
+      const isAdmin = await d
         .select()
-        .from(participants)
+        .from(Participants)
         .where(
           and(
-            eq(participants.browser_id, browserId),
-            eq(participants.project_id, params.projectId),
-            eq(participants.is_admin, 1),
+            eq(Participants.browserId, browserId),
+            eq(Participants.projectId, params.projectId),
+            eq(Participants.isAdmin, 1),
           ),
         );
-      if (is_admin.length === 0) {
+      if (isAdmin.length === 0) {
         return c.json({ message: "Unauthorized" }, 401);
       }
 
       const projectData = (
-        await d.select().from(projects).where(eq(projects.id, params.projectId))
+        await d.select().from(Projects).where(eq(Projects.id, params.projectId))
       )[0];
 
       if (!projectData) {
@@ -160,23 +159,23 @@ const route = new Hono<HonoOptions>()
       let rolesRes: RoleWithId[] | undefined;
       if (body.roles) {
         if (body.roles.create && body.roles.create.length > 0) {
-          await d.insert(roles).values(
+          await d.insert(Roles).values(
             body.roles.create.map((role) => ({
               ...role,
               id: crypto.randomUUID(),
-              project_id: params.projectId,
+              projectId: params.projectId,
             })),
           );
         }
         if (body.roles.update && body.roles.update.length > 0) {
           for (const role of body.roles.update) {
             await d
-              .update(roles)
-              .set({ name: "hello" })
+              .update(Roles)
+              .set({ ...role, id: undefined })
               .where(
                 and(
-                  eq(roles.id, role.id),
-                  eq(roles.project_id, params.projectId),
+                  eq(Roles.id, role.id),
+                  eq(Roles.projectId, params.projectId),
                 ),
               );
           }
@@ -184,47 +183,47 @@ const route = new Hono<HonoOptions>()
         if (body.roles.delete && body.roles.delete.length > 0) {
           for (const role of body.roles.delete) {
             await d
-              .delete(roles)
+              .delete(Roles)
               .where(
-                and(eq(roles.id, role), eq(roles.project_id, params.projectId)),
+                and(eq(Roles.id, role), eq(Roles.projectId, params.projectId)),
               );
           }
         }
         rolesRes = await d
           .select()
-          .from(roles)
-          .where(eq(roles.project_id, params.projectId));
+          .from(Roles)
+          .where(eq(Roles.projectId, params.projectId));
       }
 
       let projectRes: Omit<Project, "roles"> | undefined;
       if (body.name || body.description) {
         const p = await d
-          .update(projects)
+          .update(Projects)
           .set({
             name: body.name,
             description: body.description,
           })
-          .where(eq(projects.id, params.projectId))
+          .where(eq(Projects.id, params.projectId))
           .returning();
-        projectRes = p[0] && { ...p[0], multipleRoles: p[0].multiple_roles };
+        projectRes = p[0] && { ...p[0], multipleRoles: p[0].multipleRoles };
       }
       return c.json({ ok: true, roles: rolesRes, project: projectRes }, 200);
     },
   )
 
-  .post("/", json(ProjectSchema), async (c) => {
-    const browser_id = await getBrowserID(c);
-    const project_id = crypto.randomUUID();
+  .post("/", json(Project), async (c) => {
+    const browserId = await getBrowserID(c);
+    const projectId = crypto.randomUUID();
     const body = c.req.valid("json");
     const project_resp = (
       await db(c)
-        .insert(projects)
+        .insert(Projects)
         .values([
           {
-            id: project_id,
+            id: projectId,
             name: body.name,
             description: body.description,
-            multiple_roles: body.multipleRoles,
+            multipleRoles: body.multipleRoles,
           },
         ])
         .returning()
@@ -232,27 +231,27 @@ const route = new Hono<HonoOptions>()
     if (!project_resp)
       throw new HTTPException(500, { message: "failed to create project" });
     await db(c)
-      .insert(participants)
+      .insert(Participants)
       .values([
         {
-          roles_count: 0,
+          rolesCount: 0,
           id: crypto.randomUUID(),
           name: "",
-          browser_id,
-          project_id: project_id,
-          is_admin: 1,
+          browserId,
+          projectId: projectId,
+          isAdmin: 1,
         },
       ]);
 
     const roles_resp = await db(c)
-      .insert(roles)
+      .insert(Roles)
       .values(
         body.roles.map((r) => ({
           id: crypto.randomUUID(),
           name: r.name,
           min: r.min,
           max: r.max,
-          project_id: project_id,
+          projectId: projectId,
         })),
       )
       .returning();
@@ -265,20 +264,20 @@ const route = new Hono<HonoOptions>()
     "/:projectId",
     param({ projectId: v.pipe(v.string(), v.uuid()) }),
     async (c) => {
-      const browser_id = await getBrowserID(c);
-      const { projectId: project_id } = c.req.valid("param");
+      const browserId = await getBrowserID(c);
+      const { projectId } = c.req.valid("param");
       const d = db(c);
-      await d.delete(projects).where(
+      await d.delete(Projects).where(
         and(
-          eq(projects.id, project_id),
+          eq(Projects.id, projectId),
           exists(
             d
               .select()
-              .from(participants)
+              .from(Participants)
               .where(
                 and(
-                  eq(participants.browser_id, browser_id),
-                  eq(participants.is_admin, 1),
+                  eq(Participants.browserId, browserId),
+                  eq(Participants.isAdmin, 1),
                 ),
               ),
           ),
@@ -289,52 +288,52 @@ const route = new Hono<HonoOptions>()
   )
 
   .put("/:projectId/finalize", param({ projectId: v.string() }), async (c) => {
-    const browser_id = await getBrowserID(c);
+    const browserId = await getBrowserID(c);
     const { projectId } = c.req.valid("param");
-    if (!browser_id) {
+    if (!browserId) {
       return c.json({ message: "Unauthorized" }, 401);
     }
     const participant_resp = await db(c)
       .select()
-      .from(participants)
+      .from(Participants)
       .where(
-        eq(participants.browser_id, browser_id) &&
-          eq(participants.project_id, c.req.param("projectId")),
+        eq(Participants.browserId, browserId) &&
+          eq(Participants.projectId, c.req.param("projectId")),
       );
-    if (participant_resp.map((p) => p.is_admin).includes(1) === false) {
+    if (participant_resp.map((p) => p.isAdmin).includes(1) === false) {
       return c.json({ message: "Unauthorized" }, 401);
     }
 
     const projectData = (
-      await db(c).select().from(projects).where(eq(projects.id, projectId))
+      await db(c).select().from(Projects).where(eq(Projects.id, projectId))
     )[0];
 
     if (!projectData) {
       throw new HTTPException(404, { message: "Project not found" });
     }
 
-    if (projectData.closed_at) {
+    if (projectData.closedAt) {
       throw new HTTPException(409, { message: "Project already finalized" });
     }
 
-    if (projectData.multiple_roles) {
+    if (projectData.multipleRoles) {
       // multiple mode
       const participantsWithPreferences = await db(c)
         .select({
-          id: participants.id,
-          rolesCount: participants.roles_count,
-          score: ratings.score,
-          roleId: ratings.role_id,
+          id: Participants.id,
+          rolesCount: Participants.rolesCount,
+          score: Ratings.score,
+          roleId: Ratings.roleId,
         })
-        .from(participants)
+        .from(Participants)
         .innerJoin(
-          ratings,
+          Ratings,
           and(
-            eq(participants.id, ratings.participant_id),
-            eq(participants.project_id, ratings.project_id),
+            eq(Participants.id, Ratings.participantId),
+            eq(Participants.projectId, Ratings.projectId),
           ),
         )
-        .where(eq(participants.project_id, projectId));
+        .where(eq(Participants.projectId, projectId));
 
       const preferencesByParticipant = Map.groupBy(
         participantsWithPreferences,
@@ -354,9 +353,9 @@ const route = new Hono<HonoOptions>()
 
       const roleConstraints = await db(c)
         .select()
-        .from(roles)
-        .where(eq(roles.project_id, projectId))
-        .orderBy(roles.id);
+        .from(Roles)
+        .where(eq(Roles.projectId, projectId))
+        .orderBy(Roles.id);
 
       const roleInput = roleConstraints.map((role) => ({
         id: role.id,
@@ -367,33 +366,33 @@ const route = new Hono<HonoOptions>()
 
       const result: {
         id: string;
-        project_id: string;
-        role_id: string;
-        participant_id: string;
+        projectId: string;
+        roleId: string;
+        participantId: string;
       }[] = [];
       matching.forEach((m) => {
         m.roleIds.forEach((roleId) => {
           result.push({
             id: crypto.randomUUID(),
-            project_id: projectId,
-            role_id: roleId,
-            participant_id: m.participantId,
+            projectId: projectId,
+            roleId: roleId,
+            participantId: m.participantId,
           });
         });
       });
 
-      await db(c).insert(matches).values(result);
+      await db(c).insert(Matches).values(result);
     } else {
       // default mode
       const participantsData = await db(c)
         .select()
-        .from(ratings)
-        .where(eq(ratings.project_id, projectId))
-        .orderBy(ratings.participant_id, ratings.role_id);
+        .from(Ratings)
+        .where(eq(Ratings.projectId, projectId))
+        .orderBy(Ratings.participantId, Ratings.roleId);
 
       const ratingsByParticipant = Map.groupBy(
         participantsData,
-        (item) => item.participant_id,
+        (item) => item.participantId,
       );
 
       const ratingsArray: number[][] = []; // TODO: 型付けをマシにする
@@ -401,14 +400,14 @@ const route = new Hono<HonoOptions>()
 
       ratingsByParticipant.forEach((r) => {
         ratingsArray.push(r.map((item) => item.score));
-        participantIndexIdMap.push(r[0]?.participant_id ?? "-");
+        participantIndexIdMap.push(r[0]?.participantId ?? "-");
       });
 
       const roleConstraints = await db(c)
         .select()
-        .from(roles)
-        .where(eq(roles.project_id, projectId))
-        .orderBy(roles.id);
+        .from(Roles)
+        .where(eq(Roles.projectId, projectId))
+        .orderBy(Roles.id);
       const minMaxConstraints = roleConstraints.map((role) => ({
         min: role.min,
         max: role.max,
@@ -421,22 +420,22 @@ const route = new Hono<HonoOptions>()
       );
 
       await db(c)
-        .insert(matches)
+        .insert(Matches)
         .values(
           result.map((r) => ({
             id: crypto.randomUUID(),
-            project_id: projectId,
-            role_id: roleConstraints[r.role]?.id ?? "-",
-            participant_id: participantIndexIdMap[r.participant] ?? "-",
+            projectId: projectId,
+            roleId: roleConstraints[r.role]?.id ?? "-",
+            participantId: participantIndexIdMap[r.participant] ?? "-",
           })),
         );
     }
     await db(c)
-      .update(projects)
+      .update(Projects)
       .set({
-        closed_at: new Date().toISOString(),
+        closedAt: new Date().toISOString(),
       })
-      .where(eq(projects.id, projectId));
+      .where(eq(Projects.id, projectId));
 
     return c.json({}, 200);
   })
@@ -444,44 +443,44 @@ const route = new Hono<HonoOptions>()
     const { projectId } = c.req.valid("param");
     const match_result = await db(c)
       .select({
-        role_id: matches.role_id,
-        participant_id: matches.participant_id,
-        participant_name: participants.name,
-        role_name: roles.name,
-        project_name: projects.name,
-        project_desc: projects.description,
+        roleId: Matches.roleId,
+        participantId: Matches.participantId,
+        participantName: Participants.name,
+        roleName: Roles.name,
+        projectName: Projects.name,
+        project_desc: Projects.description,
       })
-      .from(matches)
-      .where(eq(matches.project_id, projectId))
-      .innerJoin(roles, eq(matches.role_id, roles.id))
-      .innerJoin(participants, eq(matches.participant_id, participants.id))
+      .from(Matches)
+      .where(eq(Matches.projectId, projectId))
+      .innerJoin(Roles, eq(Matches.roleId, Roles.id))
+      .innerJoin(Participants, eq(Matches.participantId, Participants.id))
       // TODO: 非効率
-      .innerJoin(projects, eq(matches.project_id, projects.id));
+      .innerJoin(Projects, eq(Matches.projectId, Projects.id));
     const participantsOnEachRole = match_result.reduce(
       (acc, cur) => {
-        if (!acc[cur.role_id]) {
-          acc[cur.role_id] = {
-            role_name: cur.role_name,
+        if (!acc[cur.roleId]) {
+          acc[cur.roleId] = {
+            roleName: cur.roleName,
             participants: [],
           };
         }
-        acc[cur.role_id]?.participants.push({
-          participant_id: cur.participant_id,
-          participant_name: cur.participant_name,
+        acc[cur.roleId]?.participants.push({
+          participantId: cur.participantId,
+          participantName: cur.participantName,
         });
         return acc;
       },
       {} as Record<
         string,
         {
-          role_name: string;
-          participants: { participant_id: string; participant_name: string }[];
+          roleName: string;
+          participants: { participantId: string; participantName: string }[];
         }
       >,
     );
     return c.json({
       participantsOnEachRole,
-      projectName: match_result[0]?.project_name,
+      projectName: match_result[0]?.projectName,
       projectDesc: match_result[0]?.project_desc,
     });
   });
