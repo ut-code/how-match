@@ -2,6 +2,7 @@ import {
   array,
   minLength,
   minValue,
+  nullable,
   number,
   object,
   pipe,
@@ -20,7 +21,7 @@ export const RoleWithIdSchema = object({
 });
 export const ProjectSchema = object({
   name: pipe(string(), minLength(1)),
-  description: string(),
+  description: nullable(string()),
   roles: pipe(array(RoleSchema), minLength(1)),
   multipleRoles: number(),
 });

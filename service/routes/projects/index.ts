@@ -15,6 +15,7 @@ import { json, param } from "service/validator/hono.ts";
 import { assignRoles } from "share/logic/min-flow.ts";
 import { multipleMatch } from "share/logic/multiple.ts";
 import { ProjectSchema, RoleSchema, RoleWithIdSchema } from "share/schema.ts";
+import type { Project, RoleWithId } from "share/types.ts";
 import * as v from "valibot";
 
 import { at } from "share/lib.ts";
@@ -116,10 +117,17 @@ const route = new Hono<HonoOptions>()
       v.object({
         name: v.optional(v.string()),
         description: v.optional(v.nullable(v.string())),
-        roles: v.optional(v.array(RoleWithIdSchema)),
+        roles: v.optional(
+          v.object({
+            create: v.optional(v.array(RoleSchema)),
+            update: v.optional(v.array(RoleWithIdSchema)),
+            delete: v.optional(v.array(v.string())),
+          }),
+        ),
       }),
     ),
     async (c) => {
+      const d = db(c);
       const browserId = await getBrowserID(c);
       const params = c.req.valid("param");
       const body = c.req.valid("json");
@@ -127,7 +135,7 @@ const route = new Hono<HonoOptions>()
       if (!browserId) {
         return c.json({ message: "Unauthorized" }, 401);
       }
-      const is_admin = await db(c)
+      const is_admin = await d
         .select()
         .from(participants)
         .where(
@@ -142,35 +150,55 @@ const route = new Hono<HonoOptions>()
       }
 
       const projectData = (
-        await db(c)
-          .select()
-          .from(projects)
-          .where(eq(projects.id, params.projectId))
+        await d.select().from(projects).where(eq(projects.id, params.projectId))
       )[0];
 
       if (!projectData) {
         throw new HTTPException(404, { message: "Project not found" });
       }
 
-      // 締切後の変更可能
-      // if (projectData.closed_at) {
-      //   throw new HTTPException(409, { message: "Project already finalized" });
-      // }
-
+      let rolesRes: RoleWithId[] | undefined;
       if (body.roles) {
-        await db(c).delete(roles).where(eq(roles.project_id, params.projectId));
-        await db(c)
-          .insert(roles)
-          .values(
-            body.roles.map((role) => ({
+        if (body.roles.create && body.roles.create.length > 0) {
+          await d.insert(roles).values(
+            body.roles.create.map((role) => ({
               ...role,
+              id: crypto.randomUUID(),
               project_id: params.projectId,
             })),
           );
+        }
+        if (body.roles.update && body.roles.update.length > 0) {
+          for (const role of body.roles.update) {
+            await d
+              .update(roles)
+              .set({ name: "hello" })
+              .where(
+                and(
+                  eq(roles.id, role.id),
+                  eq(roles.project_id, params.projectId),
+                ),
+              );
+          }
+        }
+        if (body.roles.delete && body.roles.delete.length > 0) {
+          for (const role of body.roles.delete) {
+            await d
+              .delete(roles)
+              .where(
+                and(eq(roles.id, role), eq(roles.project_id, params.projectId)),
+              );
+          }
+        }
+        rolesRes = await d
+          .select()
+          .from(roles)
+          .where(eq(roles.project_id, params.projectId));
       }
 
+      let projectRes: Omit<Project, "roles"> | undefined;
       if (body.name || body.description) {
-        await db(c)
+        const p = await d
           .update(projects)
           .set({
             name: body.name,
@@ -178,8 +206,9 @@ const route = new Hono<HonoOptions>()
           })
           .where(eq(projects.id, params.projectId))
           .returning();
+        projectRes = p[0] && { ...p[0], multipleRoles: p[0].multiple_roles };
       }
-      return c.json({ ok: true }, 200);
+      return c.json({ ok: true, roles: rolesRes, project: projectRes }, 200);
     },
   )
 

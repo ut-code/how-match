@@ -46,7 +46,7 @@
 
   const project = $derived(data.project);
   const participants = $derived(data.participants);
-  let roles = $derived<RoleWithId[]>(data.roles);
+  let roles = $state<RoleWithId[]>(data.roles);
   let projectName = $derived<string>(project.name);
   let projectDescription = $derived<string | null>(project.description);
   let copied = $state(false);
@@ -160,7 +160,7 @@
       </div>
       <div class="flex flex-col gap-2">
         <h3 class="text-sm text-gray-500">役職</h3>
-        <RoleEditor bind:roles projectId={project.id} />
+        <RoleEditor {roles} projectId={project.id} />
       </div>
       <div class="flex flex-col gap-2">
         <h3 class="text-sm text-gray-500">締切</h3>
