@@ -1,19 +1,19 @@
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const Participants = sqliteTable("participants", {
-  id: text("id").notNull().primaryKey(),
+  id: text().notNull().primaryKey(),
   name: text().notNull(),
-  browserId: text("browserId").notNull(),
-  projectId: text("projectId")
+  browserId: text("browser_id").notNull(),
+  projectId: text("project_id")
     .references(() => Projects.id, { onDelete: "cascade" })
     .notNull(),
-  isAdmin: integer("isAdmin").notNull(),
-  rolesCount: integer("rolesCount").notNull(),
+  isAdmin: integer("is_admin").notNull(),
+  rolesCount: integer("roles_count").notNull(),
 });
 
 export const Accounts = sqliteTable("accounts", {
   id: text().notNull().primaryKey(),
-  browserId: text("browserId").notNull().unique(),
+  browserId: text("browser_id").notNull().unique(),
   name: text().notNull(),
 });
 
@@ -21,7 +21,7 @@ export const Projects = sqliteTable("projects", {
   id: text().notNull().primaryKey(),
   name: text().notNull(),
   description: text(),
-  closedAt: text("closedAt"),
+  closedAt: text("closed_at"),
   multipleRoles: integer().notNull(),
 });
 
@@ -30,34 +30,34 @@ export const Roles = sqliteTable("roles", {
   name: text().notNull(),
   min: integer().notNull(),
   max: integer().notNull(),
-  projectId: text("projectId")
+  projectId: text("project_id")
     .references(() => Projects.id, { onDelete: "cascade" })
     .notNull(),
 });
 
 export const Ratings = sqliteTable("ratings", {
   id: text().notNull().primaryKey(),
-  participantId: text("participantId")
+  participantId: text("participant_id")
     .references(() => Participants.id, { onDelete: "cascade" })
     .notNull(),
-  roleId: text("roleId")
+  roleId: text("role_id")
     .references(() => Roles.id, { onDelete: "cascade" })
     .notNull(),
   score: integer().notNull(),
-  projectId: text("projectId")
+  projectId: text("project_id")
     .references(() => Projects.id, { onDelete: "cascade" })
     .notNull(),
 });
 
 export const Matches = sqliteTable("matches", {
   id: text().notNull().primaryKey(),
-  roleId: text("roleId")
+  roleId: text("role_id")
     .references(() => Roles.id, { onDelete: "cascade" })
     .notNull(),
-  participantId: text("participantId")
+  participantId: text("participant_id")
     .references(() => Participants.id, { onDelete: "cascade" })
     .notNull(),
-  projectId: text("projectId")
+  projectId: text("project_id")
     .references(() => Projects.id, { onDelete: "cascade" })
     .notNull(),
 });
