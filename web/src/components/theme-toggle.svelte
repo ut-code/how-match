@@ -1,5 +1,6 @@
 <script lang="ts">
   import { PersistedState } from "runed";
+  import { onMount } from "svelte";
   import LaptopIcon from "~icons/fe/laptop";
   import MoonIcon from "~icons/fe/moon";
   import SunIcon from "~icons/fe/sunny-o";
@@ -15,17 +16,31 @@
     dark: "Dark",
   };
   const icons = {
-    "": LaptopIcon,
-    light: SunIcon,
-    dark: MoonIcon,
+    "": LaptopSnippet,
+    light: SunSnippet,
+    dark: MoonSnippet,
   };
-  const Icon = $derived(icons[theme.current]);
+  let Icon = $state(icons[""]);
+  // Icon won't update without this $effect for probably hydration reason
+  $effect(() => {
+    Icon = icons[theme.current];
+  });
 </script>
+
+{#snippet LaptopSnippet()}
+  <LaptopIcon />
+{/snippet}
+{#snippet SunSnippet()}
+  <SunIcon />
+{/snippet}
+{#snippet MoonSnippet()}
+  <MoonIcon />
+{/snippet}
 
 <div class="dropdown dropdown-end w-8 sm:w-32">
   <button class="btn w-full text-left align-middle text-sm">
     <span class="w-4">
-      <Icon />
+      {@render Icon()}
     </span>
     <span class="hidden sm:block">{labels[theme.current]}</span>
   </button>
