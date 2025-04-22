@@ -1,4 +1,5 @@
 import { goto, replaceState } from "$app/navigation";
+import type { RoleWithId } from "share/types";
 import { createClient } from "~/api/client";
 import { modal, toast } from "~/globals.svelte";
 
@@ -67,14 +68,16 @@ export async function updateProject(
   projectId: string,
   name: string,
   description: string | null,
+  roles?: RoleWithId[],
 ) {
   const resp = await client.projects[":projectId"].$patch({
     param: {
       projectId: projectId,
     },
     json: {
-      name: name,
-      description: description,
+      name,
+      description,
+      roles,
     },
   });
   if (!resp.ok)

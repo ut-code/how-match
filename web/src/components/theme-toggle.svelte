@@ -20,7 +20,6 @@
     dark: MoonIcon,
   };
   const Icon = $derived(icons[theme.current]);
-  $inspect(theme.current);
 </script>
 
 <div class="dropdown dropdown-end w-8 sm:w-32">

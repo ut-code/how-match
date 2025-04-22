@@ -14,7 +14,7 @@ import type { HonoOptions } from "service/types.ts";
 import { json, param } from "service/validator/hono.ts";
 import { assignRoles } from "share/logic/min-flow.ts";
 import { multipleMatch } from "share/logic/multiple.ts";
-import { ProjectSchema } from "share/schema.ts";
+import { ProjectSchema, RoleSchema, RoleWithIdSchema } from "share/schema.ts";
 import * as v from "valibot";
 
 import { at } from "share/lib.ts";
@@ -114,29 +114,38 @@ const route = new Hono<HonoOptions>()
     }),
     json(
       v.object({
-        name: v.string(),
-        description: v.nullable(v.string()),
+        name: v.optional(v.string()),
+        description: v.optional(v.nullable(v.string())),
+        roles: v.optional(v.array(RoleWithIdSchema)),
       }),
     ),
     async (c) => {
-      const browser_id = await getBrowserID(c);
-      const { projectId } = c.req.valid("param");
-      if (!browser_id) {
+      const browserId = await getBrowserID(c);
+      const params = c.req.valid("param");
+      const body = c.req.valid("json");
+
+      if (!browserId) {
         return c.json({ message: "Unauthorized" }, 401);
       }
-      const participant_resp = await db(c)
+      const is_admin = await db(c)
         .select()
         .from(participants)
         .where(
-          eq(participants.browser_id, browser_id) &&
-            eq(participants.project_id, c.req.param("projectId")),
+          and(
+            eq(participants.browser_id, browserId),
+            eq(participants.project_id, params.projectId),
+            eq(participants.is_admin, 1),
+          ),
         );
-      if (participant_resp.map((p) => p.is_admin).includes(1) === false) {
+      if (is_admin.length === 0) {
         return c.json({ message: "Unauthorized" }, 401);
       }
 
       const projectData = (
-        await db(c).select().from(projects).where(eq(projects.id, projectId))
+        await db(c)
+          .select()
+          .from(projects)
+          .where(eq(projects.id, params.projectId))
       )[0];
 
       if (!projectData) {
@@ -148,15 +157,29 @@ const route = new Hono<HonoOptions>()
       //   throw new HTTPException(409, { message: "Project already finalized" });
       // }
 
-      await db(c)
-        .update(projects)
-        .set({
-          name: c.req.valid("json").name,
-          description: c.req.valid("json").description,
-        })
-        .where(eq(projects.id, projectId));
+      if (body.roles) {
+        await db(c).delete(roles).where(eq(roles.project_id, params.projectId));
+        await db(c)
+          .insert(roles)
+          .values(
+            body.roles.map((role) => ({
+              ...role,
+              project_id: params.projectId,
+            })),
+          );
+      }
 
-      return c.json({}, 200);
+      if (body.name || body.description) {
+        await db(c)
+          .update(projects)
+          .set({
+            name: body.name,
+            description: body.description,
+          })
+          .where(eq(projects.id, params.projectId))
+          .returning();
+      }
+      return c.json({ ok: true }, 200);
     },
   )
 

@@ -10,6 +10,8 @@
 
   import { toast } from "~/globals.svelte.js";
   import * as actions from "./actions.ts";
+  import RoleEditor from "~/components/role-editor.svelte";
+  import type { RoleWithId } from "share/types.ts";
 
   const { data } = $props();
 
@@ -45,6 +47,7 @@
   let copied = $state(false);
   let projectName = $state<string | null>(null);
   let projectDescription = $state<string | null>(null);
+  let roles = $state<RoleWithId[] | undefined>(undefined);
 
   onMount(async () => {
     try {
@@ -57,6 +60,7 @@
       }
       projectName = projectRes.data.project.name;
       projectDescription = projectRes.data.project.description;
+      roles = projectRes.data.roles;
     } catch (e) {
       console.error(e);
     }
@@ -177,6 +181,10 @@
                 参加者として提出する
               </a>
             </div>
+          </div>
+          <div class="flex flex-col gap-2">
+            <h3 class="text-sm text-gray-500">役職</h3>
+            <RoleEditor bind:roles projectId={project.id} />
           </div>
           <div class="flex flex-col gap-2">
             <h3 class="text-sm text-gray-500">締切</h3>
