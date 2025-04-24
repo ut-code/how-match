@@ -50,6 +50,23 @@
       message: "Successfully updated roles!",
     });
   }
+  async function onDeleteRoleButtonClick(id: string) {
+    await modal.show({
+      title: "本当に役職を削除しますか？",
+      content: "削除された役職に関する希望提出も同時に削除されます。",
+      buttons: [
+        { text: "キャンセル", class: "" },
+        {
+          text: "削除する",
+          class: "btn-error",
+          onclick: async () => {
+            newRoles = newRoles.filter((r) => r.role.id !== id);
+            console.log("deleting role...");
+          },
+        },
+      ],
+    });
+  }
 </script>
 
 <form
@@ -62,76 +79,62 @@
   <ul class="list bg-base-100 rounded-box">
     {#each newRoles as entry}
       <li class="list-row">
-        <div class="list-col-grow">
-          <input
-            class="input validator w-full"
-            required
-            bind:value={
-              () => entry.role.name,
-              (v) => {
-                entry.role.name = v;
-                dirty = true;
+        <div class="lg:contents">
+          <div class="list-col-grow">
+            <input
+              class="input validator w-full"
+              required
+              bind:value={
+                () => entry.role.name,
+                (v) => {
+                  entry.role.name = v;
+                  dirty = true;
+                }
               }
-            }
-          />
+            />
+          </div>
+          <label class="lg:fieldset-label my-2 block lg:my-0">
+            Max
+            <input
+              class="input validator w-40"
+              type="number"
+              min={Math.max(1, entry.role.min)}
+              bind:value={
+                () => entry.role.max,
+                (v) => {
+                  entry.role.max = v;
+                  dirty = true;
+                }
+              }
+            />
+          </label>
+          <label class="lg:fieldset-label">
+            Min
+            <input
+              class="input validator w-40"
+              type="number"
+              min={0}
+              max={entry.role.max}
+              bind:value={
+                () => entry.role.min,
+                (v) => {
+                  entry.role.min = v;
+                  dirty = true;
+                }
+              }
+            />
+          </label>
+          <button
+            class="btn max-w-fit p-1"
+            type="button"
+            disabled={newRoles.length < 2}
+            onclick={() => {
+              onDeleteRoleButtonClick(entry.role.id);
+            }}
+          >
+            <MdiClose aria-label="Delete role" class="my-auto text-2xl" />
+          </button>
         </div>
-        <label class="fieldset-label">
-          Max
-          <input
-            class="input validator w-40"
-            type="number"
-            min={Math.max(1, entry.role.min)}
-            bind:value={
-              () => entry.role.max,
-              (v) => {
-                entry.role.max = v;
-                dirty = true;
-              }
-            }
-          />
-        </label>
-        <label class="fieldset-label">
-          Min
-          <input
-            class="input validator w-40"
-            type="number"
-            min={0}
-            max={entry.role.max}
-            bind:value={
-              () => entry.role.min,
-              (v) => {
-                entry.role.min = v;
-                dirty = true;
-              }
-            }
-          />
-        </label>
-        <button
-          class="btn max-w-fit p-2"
-          type="button"
-          disabled={newRoles.length < 2}
-          onclick={async () => {
-            await modal.show({
-              title: "本当に役職を削除しますか？",
-              content: "削除された役職に関する希望提出も同時に削除されます。",
-              buttons: [
-                { text: "キャンセル", class: "" },
-                {
-                  text: "削除する",
-                  class: "btn-error",
-                  onclick: async () => {
-                    newRoles = newRoles.filter(
-                      (r) => r.role.id !== entry.role.id,
-                    );
-                    console.log("deleting role...");
-                  },
-                },
-              ],
-            });
-          }}
-        >
-          <MdiClose aria-label="Delete role" class="my-auto text-2xl" />
-        </button>
       </li>
     {/each}
     <li class="list-row">
