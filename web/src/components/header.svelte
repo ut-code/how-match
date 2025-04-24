@@ -12,6 +12,7 @@
   ]);
 
   function getTitle() {
+    if (page.url.pathname.startsWith("/debug")) return "";
     const path =
       page.url.pathname
         .split("/")

@@ -45,5 +45,5 @@
   color: var(--color-pale);
 }
 .hm-block {
-  @apply bg-base-200 flex flex-col gap-2 rounded-xl border border-[var(--color-border)] p-6;
+  @apply bg-base-200 flex flex-col gap-4 rounded-xl border border-[var(--color-border)] p-6;
 }

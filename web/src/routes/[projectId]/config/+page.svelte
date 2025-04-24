@@ -84,169 +84,172 @@
 
 <main class="hm-blocks-container">
   <div class="hm-block">
-    <div class="flex flex-col gap-4">
-      <div class="flex flex-col gap-2">
-        <h2
-          bind:textContent={projectName}
-          contenteditable="plaintext-only"
-          class="hover:bg-base-300 border-b-1 border-gray-300 p-1 text-xl transition-colors duration-200"
-          onblur={async (e) => {
-            if (!projectName) return;
-            await actions.updateProject(
-              data.projectId,
-              projectName,
-              projectDescription,
-            );
-            toast.push({ kind: "success", message: "更新に成功しました" });
-          }}
-          onkeydown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              (e.target as HTMLElement)?.blur();
-            }
-          }}
-        ></h2>
-        <p
-          bind:textContent={projectDescription}
-          contenteditable="plaintext-only"
-          class="hover:bg-base-300 border-b-1 border-gray-300 p-1 transition-colors duration-200"
-          onblur={async (e) => {
-            if (!projectName) return;
-            await actions.updateProject(
-              data.projectId,
-              projectName,
-              projectDescription,
-            );
-            toast.push({ kind: "success", message: "更新に成功しました" });
-          }}
-        ></p>
-      </div>
-      <div class="flex flex-col gap-2">
-        <h3 class="text-pale text-sm">提出ページ</h3>
-        <div class="flex gap-2">
-          <label class="input input-bordered w-full rounded-xl bg-gray-50">
-            <MdiLink class="h-[1rem] opacity-50 select-none dark:text-white" />
-            <input type="url" class="x-selectable" value={link} readonly />
-          </label>
-          {#if !copied}
-            <button
-              class="btn btn-soft btn-primary w-17"
-              onclick={async () => {
-                await navigator.clipboard.writeText(link);
-                copied = true;
-                setTimeout(() => {
-                  copied = false;
-                }, 2000);
-              }}
-            >
-              copy
-            </button>
-          {:else}
-            <button class="btn btn-soft btn-primary w-17" disabled>
-              copied!
-            </button>
-          {/if}
-        </div>
-        <div class="flex justify-end">
-          <a
-            class="btn btn-primary btn-soft"
-            href="./submit"
-            class:btn-disabled={alreadyClosed}
-          >
-            <MdiVote />
-            参加者として提出する
-          </a>
-        </div>
-      </div>
-      <div class="flex flex-col gap-2">
-        <h3 class="text-pale text-sm">役職</h3>
-        <RoleEditor {roles} projectId={project.id} />
-      </div>
-      <div class="flex flex-col gap-2">
-        <h3 class="text-pale text-sm">締切</h3>
-        <p>
-          {project.closedAt ?? "締切が設定されていません"}
-        </p>
-        <div class="flex justify-end">
-          <div class="block">
-            <button
-              class="btn btn-primary btn-soft"
-              disabled={alreadyClosed || notEnoughPeople || overCapacityPeople}
-              onclick={async () => {
-                await actions.close(data.projectId);
-              }}
-            >
-              <MdiStopCircle />
-              今すぐ締め切る
-            </button>
-            <p>
-              {#if alreadyClosed}
-                <span class="validator-hint text-error text-sm">
-                  既に締め切られています
-                </span>
-              {/if}
-              {#if notEnoughPeople}
-                <span class="validator-hint text-error text-xs">
-                  参加者が不足しています
-                </span>
-              {/if}
-              {#if overCapacityPeople}
-                <span class="validator-hint text-error text-xs">
-                  参加者が超過しています
-                </span>
-              {/if}
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="flex flex-col gap-2">
-        <h3 class="text-pale text-sm">一般</h3>
-        <div class="flex justify-end gap-2">
+    <section id="name" class="flex flex-col gap-2">
+      <h2
+        bind:textContent={projectName}
+        contenteditable="plaintext-only"
+        class="hover:bg-base-300 border-b-1 border-gray-300 p-1 text-xl transition-colors duration-200"
+        onblur={async (e) => {
+          if (!projectName) return;
+          await actions.updateProject(
+            data.projectId,
+            projectName,
+            projectDescription,
+          );
+          toast.push({ kind: "success", message: "更新に成功しました" });
+        }}
+        onkeydown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            (e.target as HTMLElement)?.blur();
+          }
+        }}
+      ></h2>
+      <p
+        bind:textContent={projectDescription}
+        contenteditable="plaintext-only"
+        class="hover:bg-base-300 border-b-1 border-gray-300 p-1 transition-colors duration-200"
+        onblur={async (e) => {
+          if (!projectName) return;
+          await actions.updateProject(
+            data.projectId,
+            projectName,
+            projectDescription,
+          );
+          toast.push({ kind: "success", message: "更新に成功しました" });
+        }}
+      ></p>
+    </section>
+    <section id="submit" class="flex flex-col gap-2">
+      <h3 class="text-pale text-sm">提出</h3>
+      <div class="flex gap-2">
+        <label class="input input-bordered w-full rounded-xl bg-gray-50">
+          <MdiLink class="h-[1rem] opacity-50 select-none dark:text-white" />
+          <input type="url" class="x-selectable" value={link} readonly />
+        </label>
+        {#if !copied}
           <button
-            class="btn btn-error btn-outline"
+            class="btn btn-soft btn-primary w-17"
             onclick={async () => {
-              await actions.deleteProject(data.projectId);
+              await navigator.clipboard.writeText(link);
+              copied = true;
+              setTimeout(() => {
+                copied = false;
+              }, 2000);
             }}
           >
-            プロジェクトを削除
+            copy
           </button>
-          {#if project.closedAt}
-            <a class="btn btn-primary" href={`/${project.id}/result`}>
-              <MdiGraph />
-              結果
-            </a>
-          {/if}
+        {:else}
+          <button class="btn btn-soft btn-primary w-17" disabled>
+            copied!
+          </button>
+        {/if}
+      </div>
+      <div class="flex justify-end">
+        <a
+          class="btn btn-primary btn-soft"
+          href="./submit"
+          class:btn-disabled={alreadyClosed}
+        >
+          <MdiVote />
+          参加者として提出する
+        </a>
+      </div>
+    </section>
+    <section id="roles" class="flex flex-col gap-2">
+      <h3 class="text-pale text-sm">役職</h3>
+      {#if data.prev?.isAdmin}
+        <RoleEditor {roles} projectId={project.id} />
+      {:else}
+        <RoleEditor {roles} projectId={project.id} />
+      {/if}
+    </section>
+    <section id="deadline" class="flex flex-col gap-2">
+      <h3 class="text-pale text-sm">締切</h3>
+      <p>
+        {project.closedAt ?? "締切が設定されていません"}
+      </p>
+      <div class="flex justify-end">
+        <div class="block">
+          <button
+            class="btn btn-primary btn-soft"
+            disabled={alreadyClosed || notEnoughPeople || overCapacityPeople}
+            onclick={async () => {
+              await actions.close(data.projectId);
+            }}
+          >
+            <MdiStopCircle />
+            今すぐ締め切る
+          </button>
+          <p>
+            {#if alreadyClosed}
+              <span class="validator-hint text-error text-sm">
+                既に締め切られています
+              </span>
+            {/if}
+            {#if notEnoughPeople}
+              <span class="validator-hint text-error text-xs">
+                参加者が不足しています
+              </span>
+            {/if}
+            {#if overCapacityPeople}
+              <span class="validator-hint text-error text-xs">
+                参加者が超過しています
+              </span>
+            {/if}
+          </p>
         </div>
       </div>
-    </div>
-  </div>
-  <ul class="list bg-base-100 rounded-box shadow-md">
-    <li class="p-4 pb-2 text-xs tracking-wide opacity-60">提出した人</li>
-
-    {#if !participants.length}
-      <li class="list-row">
-        <div
-          class="list-col-grow border-b-base-200 text-xs font-semibold opacity-60"
+    </section>
+    <section id="other" class="flex flex-col gap-2">
+      <h3 class="text-pale text-sm">一般</h3>
+      <div class="flex justify-end gap-2">
+        <button
+          class="btn btn-error btn-outline"
+          onclick={async () => {
+            await actions.deleteProject(data.projectId);
+          }}
         >
-          提出者がいません
-        </div>
-      </li>
-    {:else}
-      {#each participants as participant}
+          プロジェクトを削除
+        </button>
+        {#if project.closedAt}
+          <a class="btn btn-primary" href={`/${project.id}/result`}>
+            <MdiGraph />
+            結果
+          </a>
+        {/if}
+      </div>
+    </section>
+  </div>
+  <section id="submissions" class="list bg-base-100 rounded-box shadow-md">
+    <h2 class="p-4 pb-2 text-xs tracking-wide opacity-60">提出した人</h2>
+    <ul class="list bg-base-100 rounded-box shadow-md">
+      {#if !participants.length}
         <li class="list-row">
-          <div class="border-b-base-200 text-xs font-semibold opacity-60">
-            {participant.name}
+          <div
+            class="list-col-grow border-b-base-200 text-xs font-semibold opacity-60"
+          >
+            提出者がいません
           </div>
-          <div class="list-col-grow border-b-base-200 text-xs opacity-60">
-            {#if project.multipleRoles}
-              wants {participant.rolesCount} roles
-            {/if}
-          </div>
-          {#if participant.isAdmin}
-            <span class="badge badge-soft badge-info"> 管理者 </span>
-          {/if}
         </li>
-      {/each}
-    {/if}
-  </ul>
+      {:else}
+        {#each participants as participant}
+          <li class="list-row">
+            <div class="border-b-base-200 text-xs font-semibold opacity-60">
+              {participant.name}
+            </div>
+            <div class="list-col-grow border-b-base-200 text-xs opacity-60">
+              {#if project.multipleRoles}
+                wants {participant.rolesCount} roles
+              {/if}
+            </div>
+            {#if participant.isAdmin}
+              <span class="badge badge-soft badge-info"> 管理者 </span>
+            {/if}
+          </li>
+        {/each}
+      {/if}
+    </ul>
+  </section>
 </main>

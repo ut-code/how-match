@@ -1,8 +1,9 @@
 <script lang="ts">
-  import type { Role, RoleWithId } from "share/schema.ts";
+  import type { RoleWithId } from "share/schema.ts";
   import { createClient } from "~/api/client";
-  import { toast } from "~/globals.svelte.ts";
+  import { modal, toast } from "~/globals.svelte.ts";
   import IconPlus from "~icons/fe/plus";
+  import MdiClose from "~icons/mdi/close";
 
   const client = createClient({ fetch });
 
@@ -11,12 +12,13 @@
     projectId,
   }: { roles: RoleWithId[]; projectId: string } = $props();
 
-  let newRoles = $state(
-    roles.map((role) => ({
-      role,
+  function rolesToRolesEntry(roles: RoleWithId[]) {
+    return roles.map((role) => ({
+      role: structuredClone($state.snapshot(role)),
       isNew: false,
-    })),
-  );
+    }));
+  }
+  let newRoles = $state(rolesToRolesEntry(roles));
   let dirty = $state(false);
 
   async function save() {
@@ -62,7 +64,7 @@
       <li class="list-row">
         <div class="list-col-grow">
           <input
-            class="input w-full"
+            class="input validator w-full"
             required
             bind:value={
               () => entry.role.name,
@@ -104,10 +106,35 @@
             }
           />
         </label>
+        <button
+          class="btn max-w-fit p-2"
+          type="button"
+          disabled={newRoles.length < 2}
+          onclick={async () => {
+            await modal.show({
+              title: "本当に役職を削除しますか？",
+              content: "削除された役職に関する希望提出も同時に削除されます。",
+              buttons: [
+                { text: "キャンセル", class: "" },
+                {
+                  text: "削除する",
+                  class: "btn-error",
+                  onclick: async () => {
+                    newRoles = newRoles.filter(
+                      (r) => r.role.id !== entry.role.id,
+                    );
+                    console.log("deleting role...");
+                  },
+                },
+              ],
+            });
+          }}
+        >
+          <MdiClose aria-label="Delete role" class="my-auto text-2xl" />
+        </button>
       </li>
     {/each}
     <li class="list-row">
-      <span class="list-col-grow"></span>
       <div>
         <button
           class="btn btn-primary"
@@ -125,11 +152,29 @@
             })}
         >
           <IconPlus />
-          Create New
+          Create New Role
+        </button>
+      </div>
+      <span class="list-col-grow"></span>
+      <div>
+        <button
+          class="btn btn-error"
+          disabled={!dirty}
+          type="button"
+          onclick={() => {
+            newRoles = rolesToRolesEntry(roles);
+            dirty = false;
+          }}
+        >
+          Reset
         </button>
       </div>
       <div>
-        <button class="btn btn-primary" disabled={!dirty} type="submit">
+        <button
+          class="btn btn-primary"
+          disabled={!dirty || newRoles.some((e) => e.role.name.length === 0)}
+          type="submit"
+        >
           Save
         </button>
       </div>

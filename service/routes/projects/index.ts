@@ -18,29 +18,32 @@ import { Project, Role, RoleWithId } from "share/schema.ts";
 import * as v from "valibot";
 
 import { at } from "share/lib.ts";
-import participantRoute from "./participants.ts";
+import participantRoutes from "./participants.ts";
 import preferenceRoutes from "./preferences.ts";
 
 const route = new Hono<HonoOptions>()
+  .route("/:projectId/participants", participantRoutes)
   .route("/:projectId/preferences", preferenceRoutes)
-  .route("/:projectId/participants", participantRoute)
 
   .get("/mine", async (c) => {
     const browserId = await getBrowserID(c);
-    const project_resp = await db(c)
-      .select()
+    const projects = await db(c)
+      .select({
+        id: Projects.id,
+        name: Projects.name,
+        description: Projects.description,
+        closedAt: Projects.closedAt,
+        isAdmin: Participants.isAdmin,
+      })
       .from(Projects)
-      .innerJoin(Participants, eq(Projects.id, Participants.projectId))
-      .where(eq(Participants.browserId, browserId));
-    return c.json(
-      project_resp.map((p) => ({
-        id: p.projects.id,
-        name: p.projects.name,
-        description: p.projects.description,
-        closedAt: p.projects.closedAt,
-        isAdmin: p.participants.isAdmin,
-      })),
-    );
+      .innerJoin(
+        Participants,
+        and(
+          eq(Projects.id, Participants.projectId),
+          eq(Participants.browserId, browserId),
+        ),
+      );
+    return c.json(projects);
   })
 
   .get(
@@ -71,6 +74,7 @@ const route = new Hono<HonoOptions>()
             id: Participants.id,
             name: Participants.name,
             rolesCount: Participants.rolesCount,
+            isAdmin: Participants.isAdmin,
           })
           .from(Participants)
           .where(
