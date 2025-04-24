@@ -6,6 +6,7 @@
   import { generateURL } from "~/api/origins.svelte.ts";
   import type { PageProps } from "./$types.ts";
   import RolesSelector from "./roles-selector.svelte";
+  import { toast } from "~/globals.svelte.ts";
 
   const { data }: PageProps = $props();
   const client = createClient({ fetch });
@@ -67,11 +68,15 @@
             `Failed to submit: got ${res.status} with text ${await res.json()}`,
           );
       }
-      goto("/done");
+      goto(`/${projectId}/config`);
       formState = "done";
     } catch (err) {
       console.error(err);
       formState = "error";
+      toast.push({
+        message: "希望の提出に失敗しました",
+        kind: "error",
+      });
       setTimeout(() => {
         formState = "ready";
       }, 1000);
