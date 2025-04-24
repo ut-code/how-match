@@ -20,13 +20,13 @@
   }}
 >
   <div class="modal-box border-1">
-    <h1>{ctrl.current?.title}</h1>
-    <p>{ctrl.current?.content}</p>
+    <h1 class="text-xl">{ctrl.current?.title}</h1>
+    <p class="text-base-content/70 py-4">{ctrl.current?.content}</p>
     <div class="modal-action flex items-center gap-4">
       <form method="dialog">
         {#each ctrl.current?.buttons ?? [] as button}
           <button
-            class="btn {button.class} m-4"
+            class={["btn m-4", button.class]}
             onclick={async () => {
               await button.onclick?.();
             }}

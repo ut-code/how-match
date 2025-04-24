@@ -63,7 +63,12 @@ export const Matches = sqliteTable("matches", {
 });
 
 export type InsertParticipant = typeof Participants.$inferInsert;
+export type SelectParticipant = typeof Participants.$inferSelect;
 export type InsertAccount = typeof Accounts.$inferInsert;
 export type SelectAccount = typeof Accounts.$inferSelect;
 export type InsertProject = typeof Projects.$inferInsert;
+export type SelectProject = typeof Projects.$inferInsert;
 export type InsertRole = typeof Roles.$inferInsert;
+export type SelectRole = typeof Roles.$inferSelect;
+export type InsertMatch = typeof Matches.$inferInsert;
+export type SelectMatch = typeof Matches.$inferSelect;

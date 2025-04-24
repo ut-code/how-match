@@ -2,10 +2,10 @@ import { assert } from "share/lib";
 
 type ModalConfig = {
   title: string;
-  content: string;
+  content?: string;
   buttons: {
-    class: string;
     text: string;
+    class?: string;
     onclick?: () => Promise<void>;
   }[];
 };
