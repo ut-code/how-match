@@ -8,7 +8,7 @@
 </script>
 
 <div class="h-screen">
-  <main class="container mx-auto px-40">
+  <main class="container mx-auto md:px-40">
     {@render children()}
   </main>
 </div>
