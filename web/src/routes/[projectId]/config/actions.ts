@@ -68,17 +68,22 @@ export async function updateProject(
   name: string,
   description: string | null,
 ) {
-  const resp = await client.projects[":projectId"].$patch({
-    param: {
-      projectId: projectId,
-    },
-    json: {
-      name,
-      description,
-    },
-  });
-  if (!resp.ok)
-    throw new Error(
-      `Got response status ${resp.status} with text ${await resp.text()}`,
-    );
+  try {
+    const resp = await client.projects[":projectId"].$patch({
+      param: {
+        projectId: projectId,
+      },
+      json: {
+        name,
+        description,
+      },
+    });
+    if (!resp.ok)
+      throw new Error(
+        `Got response status ${resp.status} with text ${await resp.text()}`,
+      );
+    toast.push({ kind: "success", message: "更新に成功しました" });
+  } catch (err) {
+    toast.push({ kind: "error", message: "更新に失敗しました" });
+  }
 }

@@ -47,6 +47,7 @@
 
   const project = $derived(data.project);
   const participants = $derived(data.participants);
+  const canEdit = $derived(!!data.prev?.isAdmin);
   let roles = $state<RoleWithId[]>(data.roles);
   let projectName = $derived<string>(project.name);
   let projectDescription = $derived<string | null>(project.description);
@@ -86,40 +87,51 @@
 <main class="hm-blocks-container">
   <div class="hm-block">
     <section id="name" class="flex flex-col gap-2">
-      <h2
-        bind:textContent={projectName}
-        contenteditable="plaintext-only"
-        class="hover:bg-base-300 border-b-1 border-gray-300 p-1 text-xl transition-colors duration-200"
-        onblur={async (e) => {
-          if (!projectName) return;
-          await actions.updateProject(
-            data.projectId,
-            projectName,
-            projectDescription,
-          );
-          toast.push({ kind: "success", message: "更新に成功しました" });
-        }}
-        onkeydown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            (e.target as HTMLElement)?.blur();
-          }
-        }}
-      ></h2>
-      <p
-        bind:textContent={projectDescription}
-        contenteditable="plaintext-only"
-        class="hover:bg-base-300 border-b-1 border-gray-300 p-1 transition-colors duration-200"
-        onblur={async (e) => {
-          if (!projectName) return;
-          await actions.updateProject(
-            data.projectId,
-            projectName,
-            projectDescription,
-          );
-          toast.push({ kind: "success", message: "更新に成功しました" });
-        }}
-      ></p>
+      {#if canEdit}
+        <h2
+          bind:textContent={projectName}
+          contenteditable="plaintext-only"
+          class="border-b-1 border-gray-300 p-1 text-xl transition-colors duration-200 hover:bg-gray-500/50"
+          onblur={async (e) => {
+            if (!projectName) return;
+            await actions.updateProject(
+              data.projectId,
+              projectName,
+              projectDescription,
+            );
+          }}
+          onkeydown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              (e.target as HTMLElement)?.blur();
+            }
+          }}
+        ></h2>
+        <p
+          bind:textContent={projectDescription}
+          contenteditable="plaintext-only"
+          class="border-b-1 border-gray-300 p-1 transition-colors duration-200 hover:bg-gray-500/50"
+          onblur={async (e) => {
+            if (!projectName) return;
+            await actions.updateProject(
+              data.projectId,
+              projectName,
+              projectDescription,
+            );
+          }}
+        ></p>
+      {:else}
+        <h2
+          class="hover:bg-base-300 border-b-1 border-gray-300 p-1 text-xl transition-colors duration-200"
+        >
+          {projectName}
+        </h2>
+        {#if projectDescription}
+          <p class="border-b-1 border-gray-300 p-1">
+            {projectDescription}
+          </p>
+        {/if}
+      {/if}
     </section>
     <section id="submit" class="flex flex-col gap-2">
       <h3 class="text-pale text-sm">提出</h3>
@@ -160,7 +172,7 @@
     </section>
     <section id="roles" class="flex flex-col gap-2">
       <h3 class="text-pale text-sm">役職</h3>
-      {#if data.prev?.isAdmin}
+      {#if canEdit}
         <RoleEditor {roles} projectId={project.id} />
       {:else}
         <RoleList {roles} />
