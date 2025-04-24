@@ -183,7 +183,7 @@
       <p>
         {project.closedAt ?? "締切が設定されていません"}
       </p>
-      <div class="flex justify-end">
+      <div class={["flex justify-end", !canEdit && "invisible"]}>
         <div class="block">
           <button
             class="btn btn-primary btn-soft"
@@ -215,25 +215,27 @@
         </div>
       </div>
     </section>
-    <section id="other" class="flex flex-col gap-2">
-      <h3 class="text-pale text-sm">一般</h3>
-      <div class="flex justify-end gap-2">
-        <button
-          class="btn btn-error btn-outline"
-          onclick={async () => {
-            await actions.deleteProject(data.projectId);
-          }}
-        >
-          プロジェクトを削除
-        </button>
-        {#if project.closedAt}
-          <a class="btn btn-primary" href={`/${project.id}/result`}>
-            <MdiGraph />
-            結果
-          </a>
-        {/if}
-      </div>
-    </section>
+    {#if canEdit}
+      <section id="other" class="flex flex-col gap-2">
+        <h3 class="text-pale text-sm">一般</h3>
+        <div class="flex justify-end gap-2">
+          <button
+            class="btn btn-error btn-outline"
+            onclick={async () => {
+              await actions.deleteProject(data.projectId);
+            }}
+          >
+            プロジェクトを削除
+          </button>
+          {#if project.closedAt}
+            <a class="btn btn-primary" href={`/${project.id}/result`}>
+              <MdiGraph />
+              結果
+            </a>
+          {/if}
+        </div>
+      </section>
+    {/if}
   </div>
   <section id="submissions" class="list bg-base-100 rounded-box shadow-md">
     <h2 class="p-4 pb-2 text-xs tracking-wide opacity-60">提出した人</h2>
