@@ -12,6 +12,7 @@
   import * as actions from "./actions.ts";
   import RoleEditor from "~/components/role-editor.svelte";
   import type { RoleWithId } from "share/schema.ts";
+  import RoleList from "~/components/role-list.svelte";
 
   const { data } = $props();
 
@@ -162,7 +163,7 @@
       {#if data.prev?.isAdmin}
         <RoleEditor {roles} projectId={project.id} />
       {:else}
-        <RoleEditor {roles} projectId={project.id} />
+        <RoleList {roles} />
       {/if}
     </section>
     <section id="deadline" class="flex flex-col gap-2">
