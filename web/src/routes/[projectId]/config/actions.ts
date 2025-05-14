@@ -83,7 +83,7 @@ export async function updateProject(
         `Got response status ${resp.status} with text ${await resp.text()}`,
       );
     toast.push({ kind: "success", message: "更新に成功しました" });
-  } catch (err) {
+  } catch (_err) {
     toast.push({ kind: "error", message: "更新に失敗しました" });
   }
 }
