@@ -15,23 +15,23 @@
     "build": "bun run tsc"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.8.18",
-    "@cloudflare/workers-types": "^4.20250419.0",
+    "@cloudflare/vitest-pool-workers": "^0.8.28",
+    "@cloudflare/workers-types": "^4.20250514.0",
     "@types/better-sqlite3": "^7.6.13",
-    "@types/bun": "^1.2.10",
-    "drizzle-kit": "^0.31.0",
-    "wrangler": "^4.12.0"
+    "@types/bun": "^1.2.13",
+    "drizzle-kit": "^0.31.1",
+    "wrangler": "^4.14.4"
   },
   "peerDependencies": {
     "typescript": "^5.8.3"
   },
   "dependencies": {
     "@hono/valibot-validator": "^0.5.2",
-    "@libsql/client": "^0.15.4",
+    "@libsql/client": "^0.15.5",
     "dotenv": "^16.5.0",
-    "drizzle-orm": "^0.42.0",
-    "hono": "^4.7.7",
+    "drizzle-orm": "^0.43.1",
+    "hono": "^4.7.9",
     "sqlite3": "^5.1.7",
-    "valibot": "^1.0.0"
+    "valibot": "^1.1.0"
   }
 }
