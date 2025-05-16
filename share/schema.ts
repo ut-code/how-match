@@ -8,6 +8,7 @@ import {
   pipe,
   string,
   uuid,
+  type InferInput,
   type InferOutput,
 } from "valibot";
 
@@ -19,6 +20,7 @@ export const Role = object({
 export type Role = InferOutput<typeof Role>;
 export type RoleWithId = InferOutput<typeof RoleWithId>;
 export type Project = InferOutput<typeof Project>;
+export type ProjectInput = InferInput<typeof Project>;
 export type Preference = InferOutput<typeof Preference>;
 
 export const RoleWithId = object({
