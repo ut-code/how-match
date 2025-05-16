@@ -24,7 +24,7 @@ export class ModalController {
   close() {
     const resolve = this.#resolve;
     assert(resolve != null);
-    resolve?.();
+    resolve();
     this.#shown = false;
   }
   get current() {
