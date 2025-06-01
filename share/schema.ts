@@ -32,6 +32,7 @@ export const Project = object({
   description: nullable(string()),
   roles: pipe(array(Role), minLength(1)),
   multipleRoles: number(),
+  dropTooManyRoles: number(),
 });
 
 export const Preference = object({

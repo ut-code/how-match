@@ -67,6 +67,9 @@ export async function updateProject(
   projectId: string,
   name: string,
   description: string | null,
+  options?: {
+    dropTooManyRoles?: number;
+  },
 ) {
   try {
     const resp = await client.projects[":projectId"].$patch({
@@ -76,6 +79,9 @@ export async function updateProject(
       json: {
         name,
         description,
+        ...(options?.dropTooManyRoles !== undefined
+          ? { dropTooManyRoles: options.dropTooManyRoles }
+          : {}),
       },
     });
     if (!resp.ok)

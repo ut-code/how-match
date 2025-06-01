@@ -1,8 +1,8 @@
 <script lang="ts">
   // components
-  import ProjectTitle from "./_components/ProjectTitle.svelte";
-  import ProjectDescription from "./_components/ProjectDescription.svelte";
-  import RolesList from "./_components/RolesList.svelte";
+  import ProjectTitle from "./_components/title.svelte";
+  import ProjectDescription from "./_components/description.svelte";
+  import RolesList from "./_components/roles-list.svelte";
   import { FormController } from "./FormController.svelte.ts";
 
   const ctl = new FormController();
@@ -21,6 +21,7 @@
       <ProjectDescription bind:description={ctl.form.description} />
       <RolesList {ctl} />
       {@render AllowMultiRoleButton()}
+      {@render DropTooManyRolesButton()}
       {@render SubmitButton()}
     </div>
   </form>
@@ -39,6 +40,26 @@
       />
     </div>
   </div>
+{/snippet}
+
+{#snippet DropTooManyRolesButton()}
+  {#if ctl.form.multipleRoles && !ctl.multipleRolesIsInvalid}
+    <div class="hm-block">
+      <div class="form-control">
+        <label class="label cursor-pointer">
+          <span class="label-text">余剰な役職を自動的に削除する</span>
+          <input
+            type="checkbox"
+            class="toggle toggle-primary"
+            bind:checked={ctl.form.dropTooManyRoles}
+          />
+        </label>
+        <span class="label-text-alt text-gray-500">
+          オンにすると、参加者の希望数合計より多い役職の定員がある場合、最も希望の少ない役職から順に削除されます。
+        </span>
+      </div>
+    </div>
+  {/if}
 {/snippet}
 
 {#snippet SubmitButton()}

@@ -10,6 +10,7 @@ export type Form = {
   name: string;
   description: string;
   multipleRoles: boolean;
+  dropTooManyRoles: boolean;
   roles: {
     localId: number;
     name: string;
@@ -25,6 +26,7 @@ export class FormController {
     name: "",
     description: "",
     multipleRoles: false,
+    dropTooManyRoles: true,
     roles: [
       { localId: localIdSeq++, name: "", max: undefined, min: undefined },
     ],
@@ -59,6 +61,7 @@ export class FormController {
         name: this.form.name,
         description: this.form.description,
         multipleRoles: this.form.multipleRoles ? 1 : 0,
+        dropTooManyRoles: this.form.dropTooManyRoles ? 1 : 0,
         roles: this.form.roles.map((role) => ({
           name: role.name,
           max: role.max ?? panic("max not specified"),
@@ -77,7 +80,11 @@ export class FormController {
         json: val.output,
       });
       if (!res.ok) {
-        throw new Error("failed to create project");
+        throw new Error(
+          `[FormController] failed to create project:
+          got status ${res.status}
+          with text ${await res.text()}`,
+        );
       }
 
       const project = await res.json();

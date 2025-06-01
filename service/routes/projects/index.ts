@@ -120,6 +120,7 @@ const route = new Hono<HonoOptions>()
       v.object({
         name: v.optional(v.string()),
         description: v.optional(v.nullable(v.string())),
+        dropTooManyRoles: v.optional(v.number()),
         roles: v.optional(
           v.object({
             create: v.optional(v.array(Role)),
@@ -200,12 +201,19 @@ const route = new Hono<HonoOptions>()
       }
 
       let projectRes: Omit<Project, "roles"> | undefined;
-      if (body.name || body.description) {
+      if (
+        body.name ||
+        body.description ||
+        body.dropTooManyRoles !== undefined
+      ) {
         const p = await d
           .update(Projects)
           .set({
             name: body.name,
             description: body.description,
+            ...(body.dropTooManyRoles !== undefined
+              ? { dropTooManyRoles: body.dropTooManyRoles }
+              : {}),
           })
           .where(eq(Projects.id, params.projectId))
           .returning();
@@ -367,7 +375,7 @@ const route = new Hono<HonoOptions>()
       }));
 
       const matching = multipleMatch(participantInput, roleInput, {
-        dropTooManyRoles: true, // TODO: プロジェクトの設定から読む
+        dropTooManyRoles: projectData.dropTooManyRoles === 1,
       });
 
       const result: {

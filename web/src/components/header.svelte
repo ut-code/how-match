@@ -1,6 +1,7 @@
 <script lang="ts">
   import { page } from "$app/state";
   import ThemeToggle from "~/components/theme-toggle.svelte";
+  import MdiWrench from "~icons/mdi/wrench";
 
   const titles = new Map([
     ["", ""],
@@ -40,6 +41,13 @@
     <span class="text-xl">
       {title}
     </span>
+
+    {#if import.meta.env.DEV}
+      <a href="/debug" class="btn btn-xl btn-accent mt-5">
+        <MdiWrench class="mr-1" />
+        Debug
+      </a>
+    {/if}
     <span class="hidden sm:inline sm:flex-1"></span>
     <ThemeToggle />
   </div>

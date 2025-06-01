@@ -24,9 +24,10 @@ export const load: PageLoad = async ({ params, fetch }) => {
     })
     .then((it) => it.json());
 
-  return {
+  const data = {
     projectId,
     ...(await project),
     participants: await participants,
   };
+  return data;
 };

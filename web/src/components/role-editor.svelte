@@ -21,6 +21,7 @@
   let newRoles = $state(rolesToRolesEntry(roles));
   let dirty = $state(false);
 
+  // TODO: make this injectable
   async function save() {
     const request = {
       update: newRoles.filter((role) => !role.isNew).map((r) => r.role),

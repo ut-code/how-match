@@ -23,6 +23,7 @@ export const Projects = sqliteTable("projects", {
   description: text(),
   closedAt: text("closed_at"),
   multipleRoles: integer("multiple_roles").notNull(),
+  dropTooManyRoles: integer("drop_too_many_roles").notNull().default(0),
 });
 
 export const Roles = sqliteTable("roles", {

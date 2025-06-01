@@ -36,7 +36,6 @@ export const mockRoles: SelectRole[] = [
   },
 ];
 
-// TODO: create these mocks
 export const mockProjects: SelectProject[] = [
   {
     id: "2025-spring",

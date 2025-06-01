@@ -38,19 +38,6 @@
 
 <div>
   <div class="hm-blocks-container p-2">
-    <!-- <div class="hero bg-base-200">
-      <div class="hero-content text-center">
-        <div class="max-w-md">
-          <h1 class="text-5xl font-bold">プロジェクトを作る</h1>
-          <p class="py-6">
-            Provident cupiditate voluptatem et in. Quaerat fugiat ut assumenda
-            excepturi exercitationem quasi. In deleniti eaque aut repudiandae et
-            a id nisi.
-          </p>
-          <button class="btn btn-primary">Get Started</button>
-        </div>
-      </div>
-    </div> -->
     <div class="hm-block text-center">
       <div class="mx-auto max-w-md px-2 py-6">
         <h2 class="text-3xl">プロジェクトを作る</h2>
