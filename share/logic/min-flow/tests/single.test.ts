@@ -1,5 +1,5 @@
-import { expect, test } from "bun:test";
-import { assignRoles } from "./min-flow.ts";
+import { expect, it, test } from "bun:test";
+import { assignRoles } from "../single.ts";
 
 test("chatgpt-given example", () => {
   // **例**
@@ -42,3 +42,27 @@ test("chatgpt-given example", () => {
 
   expect(got).toEqual(expected);
 });
+
+// it doesn't.
+it(
+  "should run relatively fast even if the number of participants is large",
+  () => {
+    const plen = 100;
+    const rlen = 10;
+    const participants = Array.from({ length: plen }, () =>
+      Array.from({ length: rlen }, () => Math.floor(Math.random() * 5) + 1),
+    );
+    const roles = rlen;
+    const minMaxConstraints = Array.from({ length: roles }, () => ({
+      min: 1,
+      max: 3,
+    }));
+    const start = performance.now();
+    assignRoles(participants, roles, minMaxConstraints);
+    const end = performance.now();
+    console.log(`time: ${end - start}ms`);
+  },
+  {
+    timeout: 1000,
+  },
+);
