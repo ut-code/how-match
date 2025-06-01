@@ -366,7 +366,9 @@ const route = new Hono<HonoOptions>()
         capacity: role.max, // multiple mode の場合、max と min は同一
       }));
 
-      const matching = multipleMatch(participantInput, roleInput);
+      const matching = multipleMatch(participantInput, roleInput, {
+        dropTooManyRoles: true, // TODO: プロジェクトの設定から読む
+      });
 
       const result: {
         id: string;

@@ -1,4 +1,4 @@
-import { at } from "../../lib.ts";
+import { assert, at } from "../../lib.ts";
 
 /**
  * 各 participant を 1 つの role に割り当て、各 role の割当人数が min, max を満たす中で総スコアが最大になる割当を返す。
@@ -15,6 +15,7 @@ export function assignRoles(
 ): { participant: number; role: number }[] {
   const P = participants.length; // 参加者数
   const M = countRoles; // 実際の役割数
+  assert(countRoles === minMaxConstraints.length);
 
   // 各 role の最小割当の合計のみチェック
   let sumMin = 0;

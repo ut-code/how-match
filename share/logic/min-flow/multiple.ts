@@ -1,10 +1,3 @@
-// @ts-nocheck
-
-/****************************************************
- * matchInternsExactlyK.ts
- ****************************************************/
-
-// 最小費用流の基本クラス (前回とほぼ同様)
 // Successive Shortest Path (ポテンシャル+Dijkstra) の簡易実装
 class Edge {
   constructor(
@@ -179,7 +172,7 @@ class MinCostFlow {
 }
 
 // ============= 入出力データの型定義 =============
-interface Participant {
+export interface Participant {
   id: string;
   rolesCount: number; // 必ずこの数だけ所属する (最小=最大)
   preferences: {
@@ -188,7 +181,7 @@ interface Participant {
   }[];
 }
 
-interface Role {
+export interface Role {
   id: string;
   capacity: number; // 受け入れ最大数
 }
@@ -298,32 +291,28 @@ function matchInternsExactlyK(
 /*******************************************************
  * 使用例
  *******************************************************/
-export function multipleMatch(interns: Participant[], roles: Role[]) {
-  //   const interns: Participant[] = [
-  //     {
-  //       id: "I1",
-  //       rolesCount: 3, // 必ず2つの病院に所属
-  //       preferences: [
-  //         { roleId: "H1", score: 5 },
-  //         { roleId: "H2", score: 2 },
-  //       ],
-  //     },
-  //     {
-  //       id: "I2",
-  //       rolesCount: 1, // 必ず1つの病院に所属
-  //       preferences: [
-  //         { roleId: "H1", score: 1 },
-  //         { roleId: "H2", score: 5 },
-  //       ],
-  //     },
-  //   ];
+export function multipleMatch(
+  participants: Participant[],
+  _roles: Role[],
+  config: {
+    dropTooManyRoles: boolean; // Role が Participants の許容量を超えて余っている場合、その分を drop する
+  },
+) {
+  let roles = _roles.slice();
+  // TODO: もうちょいまともなロジックで減らしたいが、わからないのでここでやる
+  if (config.dropTooManyRoles) {
+    const participantCap = participants.reduce(
+      (acc, p) => acc + p.rolesCount,
+      0,
+    );
 
-  //   const roles: Role[] = [
-  //     { id: "H1", capacity: 2 },
-  //     { id: "H2", capacity: 2 },
-  //   ];
-
-  const { matching } = matchInternsExactlyK(interns, roles);
+    while (sumRolesCapacity(roles) > participantCap) {
+      const leastWantedRoleId = findLeastWantedRole(roles, participants);
+      console.log("leastWantedRoleId", leastWantedRoleId);
+      roles = roles.filter((r) => r.id !== leastWantedRoleId);
+    }
+  }
+  const { matching } = matchInternsExactlyK(participants, roles);
 
   return matching;
 
@@ -333,4 +322,29 @@ export function multipleMatch(interns: Participant[], roles: Role[]) {
   //     console.log(`Intern ${m.participantId} => [${m.roleIds.join(", ")}]`);
   //   }
 }
-// main();
+
+function sumRolesCapacity(roles: Role[]) {
+  return roles.reduce((acc, r) => acc + r.capacity, 0);
+}
+
+function findLeastWantedRole(roles: Role[], participants: Participant[]) {
+  let minScore = Number.POSITIVE_INFINITY;
+  let minRoleId = roles[0]?.id ?? ""; // Default to first role if exists
+
+  for (const role of roles) {
+    let roleScore = 0;
+    for (const participant of participants) {
+      const rpScore = participant.preferences.find(
+        (p) => p.roleId === role.id,
+      )?.score;
+
+      roleScore += rpScore ?? 0; // Use 0 if no preference found
+    }
+
+    if (roleScore < minScore) {
+      minScore = roleScore;
+      minRoleId = role.id;
+    }
+  }
+  return minRoleId;
+}
