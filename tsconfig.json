@@ -25,7 +25,9 @@
     "resolveJsonModule": true,
 
     // better practices
-    "noUncheckedIndexedAccess": true,
+    // it's not tolerable anymore, sorry future you
+    "noUncheckedIndexedAccess": false,
+
     "paths": {
       "$features": ["./src/features"],
       "$features/*": ["./src/features/*"]

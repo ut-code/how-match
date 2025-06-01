@@ -15,10 +15,16 @@
   import type { Actions, PageData } from "./types.ts";
 
   type Props = {
-    data: PageData;
+    getData: () => PageData;
     actions: Actions;
   };
-  const { data, actions }: Props = $props();
+  const { getData, actions }: Props = $props();
+
+  // why svelte? why not make $derived as reactive as $state?
+  let data = $state($state.snapshot(getData()));
+  $effect(() => {
+    data = getData();
+  });
 
   onMount(() => {
     const newlyCreated = page.url.searchParams.get("created") !== null;
@@ -45,14 +51,16 @@
     });
   });
 
-  const link = generateURL({
-    pathname: `${data.projectId}/submit`,
-  }).href;
+  const link = $derived(
+    generateURL({
+      pathname: `${data.projectId}/submit`,
+    }).href,
+  );
 
   const project = $derived(data.project);
   const participants = $derived(data.participants);
   const canEdit = $derived(!!data.prev?.isAdmin);
-  let roles = $state<RoleWithId[]>(data.roles);
+  let roles = $derived<RoleWithId[]>(data.project.roles);
   let projectName = $derived<string>(project.name);
   let projectDescription = $derived<string | null>(project.description ?? null);
   let copied = $state(false);
@@ -67,7 +75,7 @@
   ) {
     let sum = 0;
     for (const participant of participants) {
-      sum += participant.rolesCount ?? 0;
+      sum += participant.rolesCount ?? 1; // if null, it means multipleRoles is not enabled
     }
     return sum;
   }
@@ -75,16 +83,12 @@
   const alreadyClosed = $derived(project.closedAt !== null);
   const notEnoughPeople = $derived(
     data.participants.length === 0 || // would error
-      roles.map((role) => role.min).reduce((a, b) => a + b) >
-        (project.multipleRoles === 1
-          ? sumRolesCount(data.participants)
-          : data.participants.length),
+      roles.reduce((acc, cur) => acc + cur.min, 0) >
+        sumRolesCount(data.participants),
   );
   const overCapacityPeople = $derived(
-    // TODO: need to deel with exceeded constarints
-    data.project.multipleRoles === 1 &&
-      data.roles.map((role) => role.max).reduce((a, b) => a + b) <
-        sumRolesCount(participants),
+    roles.reduce((acc, cur) => acc + cur.max, 0) <
+      sumRolesCount(data.participants),
   );
 </script>
 
@@ -222,7 +226,30 @@
     {#if canEdit}
       <section id="other" class="flex flex-col gap-2">
         <h3 class="text-pale text-sm">一般</h3>
-        {#if project.multipleRoles === 1}
+        <div class="form-control">
+          <label class="label cursor-pointer">
+            <span class="label-text">複数の役職を許可する</span>
+            <input
+              type="checkbox"
+              class="toggle toggle-primary"
+              bind:checked={
+                () => project.multipleRoles,
+                (val) => {
+                  project.multipleRoles = val;
+                  actions.updateProject(
+                    data.projectId,
+                    project.name,
+                    project.description ?? null,
+                    {
+                      multipleRoles: project.multipleRoles,
+                    },
+                  );
+                }
+              }
+            />
+          </label>
+        </div>
+        {#if project.multipleRoles}
           <div class="form-control">
             <label class="label cursor-pointer">
               <span class="label-text">余剰な役職を自動的に削除する</span>
@@ -230,9 +257,9 @@
                 type="checkbox"
                 class="toggle toggle-primary"
                 bind:checked={
-                  () => project.dropTooManyRoles === 1,
+                  () => project.dropTooManyRoles,
                   (val) => {
-                    project.dropTooManyRoles = val ? 1 : 0;
+                    project.dropTooManyRoles = val;
                     actions.updateProject(
                       data.projectId,
                       project.name,

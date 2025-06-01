@@ -68,7 +68,8 @@ export async function updateProject(
   name: string,
   description: string | null,
   options?: {
-    dropTooManyRoles?: number;
+    dropTooManyRoles?: boolean;
+    multipleRoles?: boolean;
   },
 ) {
   try {
@@ -77,17 +78,19 @@ export async function updateProject(
         projectId: projectId,
       },
       json: {
-        name,
-        description,
-        ...(options?.dropTooManyRoles !== undefined
-          ? { dropTooManyRoles: options.dropTooManyRoles }
-          : {}),
+        project: {
+          name,
+          description: description ?? undefined,
+          dropTooManyRoles: options?.dropTooManyRoles ?? undefined,
+          multipleRoles: options?.multipleRoles ?? undefined,
+        },
       },
     });
-    if (!resp.ok)
+    if (!resp.ok) {
       throw new Error(
         `Got response status ${resp.status} with text ${await resp.text()}`,
       );
+    }
     toast.push({ kind: "success", message: "更新に成功しました" });
   } catch (_err) {
     toast.push({ kind: "error", message: "更新に失敗しました" });

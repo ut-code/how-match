@@ -2,37 +2,8 @@ import type { Actions, PageData } from "~/pages/config/types.ts";
 
 export const mockData: (props: { isAdmin: boolean }) => PageData = ({
   isAdmin,
-}) => ({
-  projectId: "1",
-  project: {
-    id: "1",
-    name: "Project 1",
-    description: "Description 1",
-    multipleRoles: 3,
-    closedAt: null,
-    dropTooManyRoles: 2,
-  },
-  participants: [
-    {
-      id: "user1",
-      name: "John Doe",
-      rolesCount: 2,
-      isAdmin: 1,
-    },
-    {
-      id: "user-you",
-      name: "You",
-      rolesCount: 1,
-      isAdmin: 0,
-    },
-    {
-      id: "user3",
-      name: "Bob Wilson",
-      rolesCount: 2,
-      isAdmin: 0,
-    },
-  ],
-  roles: [
+}): PageData => {
+  const roles = [
     {
       id: "role1",
       name: "Frontend Developer",
@@ -61,14 +32,47 @@ export const mockData: (props: { isAdmin: boolean }) => PageData = ({
       max: 1,
       prev: 1,
     },
-  ],
-  prev: {
-    id: "user-you",
-    name: "You",
-    rolesCount: 2,
-    isAdmin: isAdmin ? 1 : 0,
-  },
-});
+  ];
+
+  return {
+    projectId: "1",
+    project: {
+      id: "1",
+      name: "Project 1",
+      description: "Description 1",
+      roles,
+      multipleRoles: true,
+      closedAt: null,
+      dropTooManyRoles: true,
+    },
+    participants: [
+      {
+        id: "user1",
+        name: "John Doe",
+        rolesCount: 2,
+        isAdmin: 1,
+      },
+      {
+        id: "user-you",
+        name: "You",
+        rolesCount: 1,
+        isAdmin: isAdmin ? 1 : 0,
+      },
+      {
+        id: "user3",
+        name: "Bob Wilson",
+        rolesCount: 2,
+        isAdmin: 0,
+      },
+    ],
+    prev: {
+      id: "user-you",
+      name: "You",
+      rolesCount: 2,
+      isAdmin: isAdmin ? 1 : 0,
+    },
+  };
+};
 
 export const mockActions: Actions = {
   updateProject: async (projectId, name, description, options) => {

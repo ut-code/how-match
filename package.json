@@ -13,7 +13,7 @@
     "sync": "trap 'kill 0' SIGINT; (cd service && bun sync) & (cd web && bun sync) & wait",
     "dev": "bun --env-file=./.env run :dev",
     ":dev": "trap 'kill 0' EXIT; (cd web; bun run dev) & (cd service; bun run dev) & wait",
-    "check": "bun check:style && bun check:type",
+    "check": "bun check:type && bun check:style",
     "check:type": "(cd web && bun check:type) && (cd service && bun check:type) && (cd share && bun run check:type)",
     "check:style": "biome lint . && bun prettier --check .",
     "fix": "bun fix:style",

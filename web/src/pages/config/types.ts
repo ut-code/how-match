@@ -1,17 +1,11 @@
-import type { SelectParticipant, SelectProject } from "service/db/schema";
+import type { SelectParticipant } from "service/db/schema";
+import type { SelectProject } from "share/schema";
 
 // TODO: someone deduplicate this mess please
 export type PageData = {
   projectId: string;
   project: SelectProject;
   participants: Omit<SelectParticipant, "projectId" | "browserId">[];
-  roles: {
-    id: string;
-    name: string;
-    min: number;
-    max: number;
-    prev: number | null;
-  }[];
   prev:
     | {
         id: string;
@@ -21,13 +15,15 @@ export type PageData = {
       }
     | undefined;
 };
+
 export type Actions = {
   updateProject: (
     projectId: string,
     name: string,
     description: string | null,
     options?: {
-      dropTooManyRoles?: number;
+      dropTooManyRoles?: boolean;
+      multipleRoles?: boolean;
     },
   ) => Promise<void>;
   close: (projectId: string) => Promise<void>;

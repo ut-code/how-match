@@ -15,7 +15,7 @@
   let participantName = $state<string>(data.prev?.name ?? "");
   let rolesCount = $state<number>(data.prev?.rolesCount || 1); // including 0
   let ratings = $state(
-    data.roles.map((role) => {
+    data.project.roles.map((role) => {
       const score = role.prev ?? undefined;
       return { role, score };
     }),
@@ -88,7 +88,7 @@
     if (data.project.closedAt === null) return false;
     return new Date(data.project.closedAt).getTime() < Date.now();
   });
-  const maxRoles = $derived(data.roles.length);
+  const maxRoles = $derived(data.project.roles.length);
 
   const resultLink = $derived(
     generateURL({
@@ -135,14 +135,14 @@
             disabled={isClosed}
           />
         </div>
-        {#if p.multipleRoles == 1}
+        {#if p.multipleRoles}
           <div class="hm-block">
             <h2 class="text-xl">配属される役職数の希望</h2>
             <input
               type="number"
               class="input validator text-base"
               bind:value={rolesCount}
-              max={data.roles.length}
+              max={data.project.roles.length}
               disabled={isClosed}
             />
             <div class="w-full max-w-xs">

@@ -1,6 +1,6 @@
 import { goto } from "$app/navigation";
 import { panic } from "share/lib";
-import { Project, type ProjectInput } from "share/schema";
+import { InsertProject } from "share/schema";
 import { safeParse } from "valibot";
 import { createClient } from "~/api/client";
 
@@ -57,18 +57,18 @@ export class FormController {
       this.form.multipleRoles = false;
     }
     try {
-      const postForm: ProjectInput = {
+      const postForm: InsertProject = {
         name: this.form.name,
         description: this.form.description,
-        multipleRoles: this.form.multipleRoles ? 1 : 0,
-        dropTooManyRoles: this.form.dropTooManyRoles ? 1 : 0,
+        multipleRoles: this.form.multipleRoles,
+        dropTooManyRoles: this.form.dropTooManyRoles,
         roles: this.form.roles.map((role) => ({
           name: role.name,
           max: role.max ?? panic("max not specified"),
           min: role.min ?? panic("min not specified"),
         })),
       };
-      const val = safeParse(Project, postForm);
+      const val = safeParse(InsertProject, postForm);
       if (!val.success) {
         const error = new Error(
           "[TODO: make it into the UI] Failed to validate schema, issues:",
@@ -77,7 +77,7 @@ export class FormController {
         throw error;
       }
       const res = await client.projects.$post({
-        json: val.output,
+        json: postForm,
       });
       if (!res.ok) {
         throw new Error(

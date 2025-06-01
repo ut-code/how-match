@@ -14,7 +14,13 @@ import type { HonoOptions } from "service/types.ts";
 import { json, param } from "service/validator/hono.ts";
 import { assignRoles } from "share/logic/min-flow/single.ts";
 import { multipleMatch } from "share/logic/min-flow/multiple.ts";
-import { Project, Role, RoleWithId } from "share/schema.ts";
+import {
+  CoerceNumberToBoolean,
+  InsertProject,
+  Role,
+  RoleWithId,
+  SelectProject,
+} from "share/schema.ts";
 import * as v from "valibot";
 
 import { at } from "share/lib.ts";
@@ -55,12 +61,12 @@ const route = new Hono<HonoOptions>()
       const browserId = await getBrowserID(c);
       const projectId = c.req.valid("param").projectId;
       const d = db(c);
-      const project_resp = d
+      const projects = d
         .select()
         .from(Projects)
         .where(eq(Projects.id, projectId))
         .execute();
-      const project = project_resp.then((it) => {
+      const project = projects.then((it) => {
         const project = it[0];
         if (!project) {
           throw new HTTPException(404);
@@ -103,9 +109,21 @@ const route = new Hono<HonoOptions>()
           ),
         )
         .execute();
-      return c.json({
-        project: await project,
-        roles: await role_resp,
+      return c.json<{
+        project: SelectProject;
+        prev:
+          | {
+              id: string;
+              name: string;
+              rolesCount: number;
+              isAdmin: number;
+            }
+          | undefined;
+      }>({
+        project: v.parse(SelectProject, {
+          ...(await project),
+          roles: await role_resp,
+        }),
         prev: prev_participant_data,
       });
     },
@@ -118,9 +136,7 @@ const route = new Hono<HonoOptions>()
     }),
     json(
       v.object({
-        name: v.optional(v.string()),
-        description: v.optional(v.nullable(v.string())),
-        dropTooManyRoles: v.optional(v.number()),
+        project: v.optional(v.partial(InsertProject)),
         roles: v.optional(
           v.object({
             create: v.optional(v.array(Role)),
@@ -200,30 +216,49 @@ const route = new Hono<HonoOptions>()
           .where(eq(Roles.projectId, params.projectId));
       }
 
-      let projectRes: Omit<Project, "roles"> | undefined;
+      let projectRes: Omit<SelectProject, "roles"> | undefined;
       if (
-        body.name ||
-        body.description ||
-        body.dropTooManyRoles !== undefined
+        body.project?.name ||
+        body.project?.description ||
+        body.project?.dropTooManyRoles !== undefined ||
+        body.project?.multipleRoles !== undefined
       ) {
+        const updateQuery = {
+          name: body.project?.name ?? undefined,
+          description: body.project?.description ?? undefined,
+          dropTooManyRoles: body.project?.dropTooManyRoles ?? undefined,
+          multipleRoles: body.project?.multipleRoles ?? undefined,
+        };
         const p = await d
           .update(Projects)
-          .set({
-            name: body.name,
-            description: body.description,
-            ...(body.dropTooManyRoles !== undefined
-              ? { dropTooManyRoles: body.dropTooManyRoles }
-              : {}),
-          })
+          .set(updateQuery)
           .where(eq(Projects.id, params.projectId))
-          .returning();
-        projectRes = p[0] && { ...p[0], multipleRoles: p[0].multipleRoles };
+          .returning({
+            id: Projects.id,
+            name: Projects.name,
+            description: Projects.description,
+            multipleRoles: Projects.multipleRoles,
+            dropTooManyRoles: Projects.dropTooManyRoles,
+            closedAt: Projects.closedAt,
+          })
+          .execute();
+        if (p[0]) {
+          projectRes = {
+            ...p[0],
+            multipleRoles: v.parse(CoerceNumberToBoolean, p[0].multipleRoles),
+            dropTooManyRoles: v.parse(
+              CoerceNumberToBoolean,
+              p[0].dropTooManyRoles,
+            ),
+            closedAt: p[0].closedAt ?? null,
+          };
+        }
       }
       return c.json({ ok: true, roles: rolesRes, project: projectRes }, 200);
     },
   )
 
-  .post("/", json(Project), async (c) => {
+  .post("/", json(InsertProject), async (c) => {
     const browserId = await getBrowserID(c);
     const projectId = crypto.randomUUID();
     const body = c.req.valid("json");
@@ -236,6 +271,7 @@ const route = new Hono<HonoOptions>()
             name: body.name,
             description: body.description,
             multipleRoles: body.multipleRoles,
+            dropTooManyRoles: body.dropTooManyRoles,
           },
         ])
         .returning()
