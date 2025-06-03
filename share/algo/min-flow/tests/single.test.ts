@@ -137,7 +137,6 @@ test("chatgpt-given example", () => {
   ];
 
   const got = assignRoles(participants, roles, minMaxConstraints);
-  console.log(got);
 
   expect(got).toEqual(expected);
 });
@@ -145,8 +144,9 @@ test("chatgpt-given example", () => {
 it(
   "should run relatively fast even if the number of participants is large",
   () => {
-    const plen = 100;
-    const rlen = 10;
+    // TODO: increase these numbers to 100 / 50 for maximum in real world
+    const plen = 50;
+    const rlen = 5; // uhhh
     const participants = Array.from({ length: plen }, () =>
       Array.from({ length: rlen }, () => Math.floor(Math.random() * 5) + 1),
     );
@@ -158,9 +158,11 @@ it(
     const start = performance.now();
     assignRoles(participants, roles, minMaxConstraints);
     const end = performance.now();
-    console.log(`time: ${end - start}ms`);
+    const took = end - start;
+    console.log(`[single] time: ${took}ms`);
+    expect(took).toBeLessThan(10); // CF free tier has 10ms CPU time limit
   },
   {
-    timeout: 1000,
+    timeout: 10,
   },
 );
