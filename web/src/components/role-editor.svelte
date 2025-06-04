@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { RoleWithId } from "share/schema.ts";
+  import type { RoleWithId } from "share/model/schema.ts";
   import { createClient } from "~/api/client";
   import { modal, toast } from "~/globals.svelte.ts";
   import IconPlus from "~icons/fe/plus";

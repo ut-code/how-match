@@ -12,15 +12,15 @@ import {
 import { getBrowserID } from "service/features/auth/index.ts";
 import type { HonoOptions } from "service/types.ts";
 import { json, param } from "service/validator/hono.ts";
-import { assignRoles } from "share/logic/min-flow/single.ts";
-import { multipleMatch } from "share/logic/min-flow/multiple.ts";
+import { assignRoles } from "share/algo/min-flow/single.ts";
+import { multipleMatch } from "share/algo/min-flow/multiple.ts";
 import {
   CoerceNumberToBoolean,
   InsertProject,
   Role,
   RoleWithId,
   SelectProject,
-} from "share/schema.ts";
+} from "share/model/schema.ts";
 import * as v from "valibot";
 
 import { at } from "share/lib.ts";

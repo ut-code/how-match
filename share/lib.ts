@@ -19,3 +19,8 @@ export function at<T>(list: T[], idx: number): T {
     throw new Error(`elemAt: item not found at index ${idx} in list`);
   return elem;
 }
+
+export function randomSelect<T>(list: T[]): T {
+  assert(list.length > 0, "randomSelect: list is empty, cannot select");
+  return list[Math.floor(Math.random() * list.length)];
+}

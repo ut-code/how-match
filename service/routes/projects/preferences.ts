@@ -6,13 +6,13 @@ import { Participants, Ratings, Roles } from "service/db/schema.ts";
 import { getBrowserID } from "service/features/auth/index.ts";
 import type { HonoOptions } from "service/types";
 import { json, param } from "service/validator/hono.ts";
-import { Preference } from "share/schema";
+import { InsertPreference } from "share/model/schema.ts";
 import * as v from "valibot";
 
 const route = new Hono<HonoOptions>()
   .post(
     "/",
-    json(Preference),
+    json(InsertPreference),
     param({
       projectId: v.string(),
     }),
@@ -71,7 +71,7 @@ const route = new Hono<HonoOptions>()
   )
   .put(
     "/",
-    json(Preference),
+    json(InsertPreference),
     param({
       projectId: v.string(),
     }),

@@ -1,5 +1,5 @@
 import type { SelectParticipant } from "service/db/schema";
-import type { SelectProject } from "share/schema";
+import type { SelectProject } from "share/model/schema.ts";
 
 // TODO: someone deduplicate this mess please
 export type PageData = {

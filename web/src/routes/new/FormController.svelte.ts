@@ -1,6 +1,6 @@
 import { goto } from "$app/navigation";
 import { panic } from "share/lib";
-import { InsertProject } from "share/schema";
+import { InsertProject } from "share/model/schema.ts";
 import { safeParse } from "valibot";
 import { createClient } from "~/api/client";
 

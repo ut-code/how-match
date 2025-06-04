@@ -1,6 +1,7 @@
-import { expect, test } from "bun:test";
+import { expect, it, test } from "bun:test";
 import { multipleMatch } from "../multiple.ts";
 import type { Participant, Role } from "../multiple.ts";
+import { randomSelect } from "../../../lib.ts";
 
 test("basic functionality - simple case", () => {
   const participants: Participant[] = [
@@ -174,3 +175,35 @@ test("when participant wants more roles than there is", () => {
     expect(result.reduce((sum, m) => sum + m.roleIds.length, 0)).toBe(2);
   }).toThrow();
 });
+
+it(
+  "should run relatively fast even if the number of participants is large",
+  () => {
+    // TODO: increase these numbers to 100 / 50 for maximum in real world
+    const plen = 50;
+    const rlen = 20;
+    const roles = Array.from({ length: rlen }, () => ({
+      id: `r-${Math.random()}`,
+      capacity: Math.floor(Math.random() * 5) + 1,
+    }));
+    const participants = Array.from({ length: plen }, () => ({
+      id: `p-${Math.random()}`,
+      rolesCount: Math.floor(Math.random() * 5) + 1,
+      preferences: Array.from({ length: rlen }, () => ({
+        roleId: randomSelect(roles).id,
+        score: Math.floor(Math.random() * 5) + 1,
+      })),
+    }));
+    const start = performance.now();
+    multipleMatch(participants, roles, {
+      dropTooManyRoles: false,
+    });
+    const end = performance.now();
+    const took = end - start;
+    console.log(`[multiple] time: ${took}ms`);
+    expect(took).toBeLessThan(10); // CF free tier has 10ms CPU time limit
+  },
+  {
+    timeout: 10,
+  },
+);
