@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Role } from "share/schema.ts";
+  import type { Role } from "share/model/schema";
   type Props = {
     ratings: {
       role: Role;

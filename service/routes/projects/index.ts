@@ -20,7 +20,7 @@ import {
   Role,
   RoleWithId,
   SelectProject,
-} from "share/schema.ts";
+} from "share/model/schema.ts";
 import * as v from "valibot";
 
 import { at } from "share/lib.ts";

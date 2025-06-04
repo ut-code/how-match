@@ -1,6 +1,6 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { Preference } from "share/schema.ts";
+  import { InsertPreference } from "share/model/schema.ts";
   import { safeParse } from "valibot";
   import { createClient } from "~/api/client";
   import { generateURL } from "~/api/origins.svelte.ts";
@@ -31,7 +31,7 @@
     formState = "submitting";
     try {
       const projectId = data.project.id;
-      const preference = safeParse(Preference, {
+      const preference = safeParse(InsertPreference, {
         participantName,
         rolesCount,
         ratings: ratings.map((rating) => ({

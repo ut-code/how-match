@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { RoleWithId } from "share/schema.ts";
+  import type { RoleWithId } from "share/model/schema.ts";
   let { roles }: { roles: RoleWithId[] } = $props();
 </script>
 

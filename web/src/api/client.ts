@@ -1,6 +1,6 @@
 import { browser } from "$app/environment";
 import { hc } from "hono/client";
-import type { App } from "service";
+import type { App } from "service/index.ts";
 
 // during development, use isolated server for better hot reload
 const baseUrl = import.meta.env.DEV ? "http://localhost:3000/" : "/";

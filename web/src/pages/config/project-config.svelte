@@ -10,7 +10,7 @@
 
   import { toast } from "~/globals.svelte.js";
   import RoleEditor from "~/components/role-editor.svelte";
-  import type { RoleWithId } from "share/schema.ts";
+  import type { RoleWithId } from "share/model/schema.ts";
   import RoleList from "~/components/role-list.svelte";
   import type { Actions, PageData } from "./types.ts";
 

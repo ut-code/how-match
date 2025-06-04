@@ -23,19 +23,14 @@ export const CoerceNumberToBoolean = pipe(
   transform((b: number) => b === 1),
 );
 
+export type Role = InferOutput<typeof Role>;
+export type RoleWithId = InferOutput<typeof RoleWithId>;
+export type RoleWithIdAndPrev = InferOutput<typeof RoleWithIdAndPrev>;
 export const Role = object({
   name: pipe(string(), minLength(1)),
   min: pipe(number(), minValue(0)),
   max: pipe(number(), minValue(1)),
 });
-
-export type Role = InferOutput<typeof Role>;
-export type RoleWithId = InferOutput<typeof RoleWithId>;
-export type RoleWithIdAndPrev = InferOutput<typeof RoleWithIdAndPrev>;
-export type InsertProjectOutput = InferOutput<typeof InsertProject>;
-export type InsertProject = InferInput<typeof InsertProject>;
-export type Preference = InferOutput<typeof Preference>;
-
 export const RoleWithId = object({
   id: pipe(string(), uuid()),
   ...Role.entries,
@@ -46,26 +41,30 @@ export const RoleWithIdAndPrev = object({
   prev: nullable(number()),
 });
 
-export const InsertProject = object({
+export type InsertProject = InferInput<typeof InsertProject>;
+export type SelectProject = InferOutput<typeof SelectProject>;
+const _CommonProject = object({
   name: pipe(string(), minLength(1)),
   description: nullable(string()),
+});
+export const InsertProject = object({
+  ..._CommonProject.entries,
   roles: pipe(array(Role), minLength(1)),
   multipleRoles: pipe(boolean(), CoerceBooleanToNumber),
   dropTooManyRoles: pipe(boolean(), CoerceBooleanToNumber),
 });
 export const SelectProject = object({
   id: pipe(string(), uuid()),
-  name: pipe(string(), minLength(1)),
-  description: nullable(string()),
+  ..._CommonProject.entries,
   roles: pipe(array(RoleWithIdAndPrev), minLength(1)),
   multipleRoles: CoerceNumberToBoolean,
   dropTooManyRoles: CoerceNumberToBoolean,
   closedAt: nullable(string()),
 });
-export type SelectProject = InferOutput<typeof SelectProject>;
 
-export const Preference = object({
-  // browserId: string() -> validation の挟まるレイヤーでは存在しない、cookie からもってくるため
+export type InsertPreference = InferInput<typeof InsertPreference>;
+export type SelectPreference = InferOutput<typeof SelectPreference>;
+export const InsertPreference = object({
   participantName: string(),
   rolesCount: number(),
   ratings: array(
@@ -74,4 +73,8 @@ export const Preference = object({
       score: number(),
     }),
   ),
+});
+export const SelectPreference = object({
+  ...InsertPreference.entries,
+  id: pipe(string(), uuid()),
 });
