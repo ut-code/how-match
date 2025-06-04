@@ -1,6 +1,6 @@
 import { describe, expect, it } from "bun:test";
-import { allocate, type Config } from "./allocate.ts";
-import type { SelectPreference, RoleWithId } from "../../model/schema.ts";
+import { allocate, type Config } from "../allocate.ts";
+import type { SelectPreference, RoleWithId } from "../../../model/schema.ts";
 
 const config: Config = {
   dropTooManyRoles: false,
