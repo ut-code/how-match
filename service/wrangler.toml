@@ -10,4 +10,4 @@ enabled = true
 binding = "DB"
 database_name = "how-match-dev"
 database_id = "9da85303-bfa3-49a8-b8e6-3e15d3a3c151"
-migrations_dir = "./.drizzle"
+migrations_dir = "./.migrations"
