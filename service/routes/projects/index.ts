@@ -12,8 +12,8 @@ import {
 import { getBrowserID } from "service/features/auth/index.ts";
 import type { HonoOptions } from "service/types.ts";
 import { json, param } from "service/validator/hono.ts";
-import { assignRoles } from "share/logic/min-flow/single.ts";
 import { multipleMatch } from "share/logic/min-flow/multiple.ts";
+import { assignRoles } from "share/logic/min-flow/single.ts";
 import {
   CoerceNumberToBoolean,
   InsertProject,
@@ -347,7 +347,7 @@ const route = new Hono<HonoOptions>()
       .from(Participants)
       .where(
         eq(Participants.browserId, browserId) &&
-          eq(Participants.projectId, c.req.param("projectId")),
+          eq(Participants.projectId, projectId),
       );
     if (participant_resp.map((p) => p.isAdmin).includes(1) === false) {
       return c.json({ message: "Unauthorized" }, 401);
@@ -432,7 +432,13 @@ const route = new Hono<HonoOptions>()
         });
       });
 
-      await db(c).insert(Matches).values(result);
+      // HACK: Cloudflare cannot handle too many SQL variables
+      // see more here: <https://zenn.dev/motoi/scraps/92309135b74618>
+      await Promise.all(
+        result.map((dataRow) => {
+          return db(c).insert(Matches).values(dataRow);
+        }),
+      );
     } else {
       // default mode
       const participantsData = await db(c)
@@ -470,16 +476,20 @@ const route = new Hono<HonoOptions>()
         minMaxConstraints,
       );
 
-      await db(c)
-        .insert(Matches)
-        .values(
-          result.map((r) => ({
+      // HACK: Cloudflare cannot handle too many SQL variables
+      // see more here: <https://zenn.dev/motoi/scraps/92309135b74618>
+      await Promise.all(
+        result
+          .map((r) => ({
             id: crypto.randomUUID(),
             projectId: projectId,
             roleId: roleConstraints[r.role]?.id ?? "-",
             participantId: participantIndexIdMap[r.participant] ?? "-",
-          })),
-        );
+          }))
+          .map((dataRow) => {
+            return db(c).insert(Matches).values(dataRow);
+          }),
+      );
     }
     await db(c)
       .update(Projects)
