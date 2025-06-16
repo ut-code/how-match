@@ -8,10 +8,10 @@
   import MdiStopCircle from "~icons/mdi/stop-circle";
   import MdiVote from "~icons/mdi/vote";
 
-  import { toast } from "~/globals.svelte.js";
-  import RoleEditor from "~/components/role-editor.svelte";
   import type { RoleWithId } from "share/schema.ts";
+  import RoleEditor from "~/components/role-editor.svelte";
   import RoleList from "~/components/role-list.svelte";
+  import { toast } from "~/globals.svelte.js";
   import type { Actions, PageData } from "./types.ts";
 
   type Props = {
@@ -174,7 +174,11 @@
           class:btn-disabled={alreadyClosed}
         >
           <MdiVote />
-          参加者として提出する
+          {#if data.prev?.isAdmin}
+            参加者として提出する
+          {:else}
+            更新する
+          {/if}
         </a>
       </div>
     </section>
