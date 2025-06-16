@@ -13,7 +13,7 @@
 {#each ratings as rating, radioIndex (radioIndex)}
   {@const role = rating.role}
   <div class="hm-block">
-    <h2 class="text-xl">役職：{role.name}</h2>
+    <h2 class="text-xl">{role.name}</h2>
     <div class="grid grid-cols-7 justify-items-center gap-2 text-sm">
       <div></div>
       <div class="text-lg text-gray-500">1</div>
