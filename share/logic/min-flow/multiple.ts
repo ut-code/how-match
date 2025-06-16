@@ -338,7 +338,8 @@ function findLeastWantedRole(roles: Role[], participants: Participant[]) {
         (p) => p.roleId === role.id,
       )?.score;
 
-      roleScore += rpScore ?? 0; // Use 0 if no preference found
+      // 10 ^ (rpScore) とすることで、 5 の価値を大きくする
+      roleScore += 10 ** (rpScore ?? 0); // Use 0 if no preference found
     }
 
     if (roleScore < minScore) {
