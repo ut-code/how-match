@@ -54,18 +54,22 @@ const route = new Hono<HonoOptions>()
           message: "failed to insert participant",
         });
 
-      await db(c)
-        .insert(Ratings)
-        .values(
-          body.ratings.map((r) => ({
+      // HACK: Cloudflare cannot handle too many SQL variables
+      // see more here: <https://zenn.dev/motoi/scraps/92309135b74618>
+      await Promise.all(
+        body.ratings
+          .map((r) => ({
             id: crypto.randomUUID(),
             name: body.participantName,
             participantId: participant.id,
             roleId: r.roleId,
             score: r.score,
             projectId: projectId,
-          })),
-        );
+          }))
+          .map(async (dataRow) => {
+            return await db(c).insert(Ratings).values(dataRow);
+          }),
+      );
       return c.json({ ok: true }, 201);
     },
   )
@@ -109,18 +113,23 @@ const route = new Hono<HonoOptions>()
       await db(c)
         .delete(Ratings)
         .where(eq(Ratings.participantId, participant.id));
-      await db(c)
-        .insert(Ratings)
-        .values(
-          body.ratings.map((r) => ({
+
+      // HACK: Cloudflare cannot handle too many SQL variables
+      // see more here: <https://zenn.dev/motoi/scraps/92309135b74618>
+      await Promise.all(
+        body.ratings
+          .map((r) => ({
             id: crypto.randomUUID(),
             name: body.participantName,
             participantId: participant.id,
             roleId: r.roleId,
             score: r.score,
             projectId: projectId,
-          })),
-        );
+          }))
+          .map(async (dataRow) => {
+            return await db(c).insert(Ratings).values(dataRow);
+          }),
+      );
       return c.json({ ok: true }, 200);
     },
   );
