@@ -265,15 +265,13 @@ const route = new Hono<HonoOptions>()
     const project_resp = (
       await db(c)
         .insert(Projects)
-        .values([
-          {
-            id: projectId,
-            name: body.name,
-            description: body.description,
-            multipleRoles: body.multipleRoles,
-            dropTooManyRoles: body.dropTooManyRoles,
-          },
-        ])
+        .values({
+          id: projectId,
+          name: body.name,
+          description: body.description,
+          multipleRoles: body.multipleRoles,
+          dropTooManyRoles: body.dropTooManyRoles,
+        })
         .returning()
     )[0];
     if (!project_resp)
@@ -291,18 +289,21 @@ const route = new Hono<HonoOptions>()
         },
       ]);
 
-    const roles_resp = await db(c)
-      .insert(Roles)
-      .values(
-        body.roles.map((r) => ({
+    // HACK: Cloudflare cannot handle too many SQL variables
+    // see more here: <https://zenn.dev/motoi/scraps/92309135b74618>
+    const roles_resp = await Promise.all(
+      body.roles
+        .map((r) => ({
           id: crypto.randomUUID(),
           name: r.name,
           min: r.min,
           max: r.max,
           projectId: projectId,
-        })),
-      )
-      .returning();
+        }))
+        .map(async (dataRow) => {
+          return await db(c).insert(Roles).values(dataRow).returning();
+        }),
+    );
     return c.json({
       ...project_resp,
       roles: roles_resp,
