@@ -4,12 +4,14 @@
   import { safeParse } from "valibot";
   import { createClient } from "~/api/client";
   import { generateURL } from "~/api/origins.svelte.ts";
+  import { useToast } from "~/lib/messaging/toast/toast-controller.svelte.ts";
   import type { PageProps } from "./$types.ts";
   import RolesSelector from "./roles-selector.svelte";
-  import { toast } from "~/globals.svelte.ts";
 
   const { data }: PageProps = $props();
   const client = createClient({ fetch });
+
+  const toast = useToast();
 
   // TODO: ローディング中の UI を追加
   let participantName = $state<string>(data.prev?.name ?? "");

@@ -1,18 +1,21 @@
 <script lang="ts">
   import { replaceState } from "$app/navigation";
   import { page } from "$app/state";
+  import type { RoleWithId } from "share/schema.ts";
   import { onMount } from "svelte";
   import { generateURL } from "~/api/origins.svelte.ts";
+  import ParticipantList from "~/components/participant-list.svelte";
+  import RoleEditor from "~/components/role-editor.svelte";
+  import RoleList from "~/components/role-list.svelte";
+  import { RoleController } from "~/controllers/role-controller.svelte.ts";
+  import { useToast } from "~/lib/messaging/toast/toast-controller.svelte.ts";
   import MdiGraph from "~icons/mdi/graph";
   import MdiLink from "~icons/mdi/link-variant";
   import MdiStopCircle from "~icons/mdi/stop-circle";
   import MdiVote from "~icons/mdi/vote";
-
-  import type { RoleWithId } from "share/schema.ts";
-  import RoleEditor from "~/components/role-editor.svelte";
-  import RoleList from "~/components/role-list.svelte";
-  import { toast } from "~/globals.svelte.js";
   import type { Actions, PageData } from "./types.ts";
+
+  const toast = useToast();
 
   type Props = {
     getData: () => PageData;
@@ -50,6 +53,8 @@
       replaceState(next, {});
     });
   });
+
+  const rolesController = new RoleController(() => data.project.roles);
 
   const link = $derived(
     generateURL({
@@ -185,7 +190,7 @@
     <section id="roles" class="flex flex-col gap-2">
       <h3 class="text-pale text-sm">役職</h3>
       {#if canEdit}
-        <RoleEditor {roles} projectId={project.id} />
+        <RoleEditor controller={rolesController} onsave={() => {}} />
       {:else}
         <RoleList {roles} />
       {/if}
@@ -300,34 +305,5 @@
       </section>
     {/if}
   </div>
-  <section id="submissions" class="list bg-base-100 rounded-box shadow-md">
-    <h2 class="p-4 pb-2 text-xs tracking-wide opacity-60">提出した人</h2>
-    <ul class="list bg-base-100 rounded-box shadow-md">
-      {#if !participants.length}
-        <li class="list-row">
-          <div
-            class="list-col-grow border-b-base-200 text-xs font-semibold opacity-60"
-          >
-            提出者がいません
-          </div>
-        </li>
-      {:else}
-        {#each participants as participant}
-          <li class="list-row">
-            <div class="border-b-base-200 text-xs font-semibold opacity-60">
-              {participant.name}
-            </div>
-            <div class="list-col-grow border-b-base-200 text-xs opacity-60">
-              {#if project.multipleRoles}
-                wants {participant.rolesCount} roles
-              {/if}
-            </div>
-            {#if participant.isAdmin}
-              <span class="badge badge-soft badge-info"> 管理者 </span>
-            {/if}
-          </li>
-        {/each}
-      {/if}
-    </ul>
-  </section>
+  <ParticipantList {project} {participants} />
 </main>

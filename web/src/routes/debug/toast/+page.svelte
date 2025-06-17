@@ -1,6 +1,10 @@
 <script lang="ts">
-  import { toast } from "~/globals.svelte.ts";
-  import { DEFAULT_TIMEOUT } from "~/providers/toast/toast-control.svelte";
+  import {
+    DEFAULT_TIMEOUT,
+    useToast,
+  } from "~/lib/messaging/toast/toast-controller.svelte";
+
+  const toast = useToast();
 
   let timeout = $state(DEFAULT_TIMEOUT);
 

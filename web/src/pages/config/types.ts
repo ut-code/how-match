@@ -5,7 +5,7 @@ import type { SelectProject } from "share/schema";
 export type PageData = {
   projectId: string;
   project: SelectProject;
-  participants: Omit<SelectParticipant, "projectId" | "browserId">[];
+  participants: Omit<SelectParticipant, "projectId">[];
   prev:
     | {
         id: string;

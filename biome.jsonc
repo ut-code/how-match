@@ -26,6 +26,7 @@
         "noUndeclaredVariables": "off",
         "noUndeclaredDependencies": "off",
         "noUnknownProperty": "off",
+        "useHookAtTopLevel": "off",
       },
       "suspicious": {
         "noConsole": "off",

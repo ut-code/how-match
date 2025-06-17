@@ -64,7 +64,10 @@ export const Matches = sqliteTable("matches", {
 });
 
 export type InsertParticipant = typeof Participants.$inferInsert;
-export type SelectParticipant = typeof Participants.$inferSelect;
+export type SelectParticipant = Omit<
+  typeof Participants.$inferSelect,
+  "projectId" | "browserId"
+>;
 export type InsertAccount = typeof Accounts.$inferInsert;
 export type SelectAccount = typeof Accounts.$inferSelect;
 export type InsertProject = typeof Projects.$inferInsert;

@@ -1,3 +1,5 @@
+import { Context } from "runed";
+
 export type Toast = {
   message: string;
   kind: "success" | "error";
@@ -9,7 +11,8 @@ type InternalToast = Toast & {
 };
 
 export const DEFAULT_TIMEOUT = 2000;
-export class ToastController {
+
+export class ToastServer {
   toasts: InternalToast[] = $state([]);
 
   push(toast: Toast): Promise<void> {
@@ -40,4 +43,21 @@ export class ToastController {
       }, timeout);
     });
   }
+}
+
+export class ToastClient {
+  constructor(private server: ToastServer) {}
+  push(toast: Toast): Promise<void> {
+    return this.server.push(toast);
+  }
+}
+
+const toastContext = new Context<ToastClient>("how-match:toast");
+
+export function setupToast(toast: ToastServer) {
+  toastContext.set(new ToastClient(toast));
+}
+
+export function useToast() {
+  return toastContext.get();
 }

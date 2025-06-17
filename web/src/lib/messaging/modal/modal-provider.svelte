@@ -1,9 +1,13 @@
 <script lang="ts">
-  import type { ModalController } from "./modal-controller.svelte.ts";
+  import type { Snippet } from "svelte";
+  import { ModalServer, setupModal } from "./modal-controller.svelte";
 
-  type Props = { modal: ModalController };
-  const { modal: ctrl }: Props = $props();
+  type Props = { children: Snippet };
+  const { children }: Props = $props();
   let dialog: HTMLDialogElement | undefined = $state();
+
+  const ctrl = new ModalServer();
+  setupModal(ctrl);
 
   $effect(() => {
     if (ctrl.shown) {
@@ -12,6 +16,7 @@
   });
 </script>
 
+{@render children()}
 <dialog
   class="modal"
   bind:this={dialog}

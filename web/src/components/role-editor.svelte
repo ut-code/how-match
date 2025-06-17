@@ -1,84 +1,57 @@
 <script lang="ts">
-  import type { RoleWithId } from "share/schema.ts";
-  import { createClient } from "~/api/client";
-  import { modal, toast } from "~/globals.svelte.ts";
+  import type {
+    RoleController,
+    RoleEditorEntry,
+  } from "~/controllers/role-controller.svelte";
+  import { useModal } from "~/lib/messaging/modal/modal-controller.svelte";
   import IconPlus from "~icons/fe/plus";
   import MdiClose from "~icons/mdi/close";
 
-  const client = createClient({ fetch });
+  type Props = {
+    controller: RoleController;
+    onsave: (() => void) | null;
+  };
+  let { controller, onsave }: Props = $props();
 
-  let {
-    roles = $bindable(),
-    projectId,
-  }: { roles: RoleWithId[]; projectId: string } = $props();
-
-  function rolesToRolesEntry(roles: RoleWithId[]) {
-    return roles.map((role) => ({
-      role: structuredClone($state.snapshot(role)),
-      isNew: false,
-    }));
-  }
-  let newRoles = $state(rolesToRolesEntry(roles));
-  let dirty = $state(false);
-
-  // TODO: make this injectable
-  async function save() {
-    const request = {
-      update: newRoles.filter((role) => !role.isNew).map((r) => r.role),
-      create: newRoles.filter((role) => role.isNew).map((r) => r.role),
-      delete: roles
-        .filter((role) => !newRoles.some((r) => r.role.id === role.id))
-        .map((r) => r.id),
-    };
-    const resp = await client.projects[":projectId"].$patch({
-      param: {
-        projectId,
-      },
-      json: {
-        roles: request,
-      },
-    });
-    if (!resp.ok) return console.error(await resp.text());
-    const json = await resp.json();
-    if (!json.roles) return console.error("It did not return json.roles");
-    newRoles = json.roles.map((role) => ({
-      role,
-      isNew: false,
-    }));
-    roles = json.roles;
-    toast.push({
-      kind: "success",
-      message: "Successfully updated roles!",
-    });
-  }
-  async function onDeleteRoleButtonClick(id: string) {
-    await modal.show({
-      title: "本当に役職を削除しますか？",
-      content: "削除された役職に関する希望提出も同時に削除されます。",
-      buttons: [
-        { text: "キャンセル", class: "" },
-        {
-          text: "削除する",
-          class: "btn-error",
-          onclick: async () => {
-            newRoles = newRoles.filter((r) => r.role.id !== id);
-            console.log("deleting role...");
+  const modal = useModal();
+  async function onDeleteRoleButtonClick(role: RoleEditorEntry) {
+    if ("id" in role) {
+      await modal.show({
+        title: "本当に役職を削除しますか？",
+        content: "削除された役職に関する希望提出も同時に削除されます。",
+        buttons: [
+          { text: "キャンセル", class: "" },
+          {
+            text: "削除する",
+            class: "btn-error",
+            onclick: () => {
+              controller.delete(role);
+            },
           },
-        },
-      ],
-    });
+        ],
+      });
+    } else {
+      controller.delete(role);
+    }
   }
 </script>
 
-<form
-  onsubmit={async (e) => {
-    e.preventDefault();
-    dirty = false;
-    await save();
-  }}
->
+{#if onsave}
+  <form
+    onsubmit={(e) => {
+      e.preventDefault();
+      onsave?.();
+    }}
+  >
+    {@render Inner()}
+  </form>
+{:else}
+  {@render Inner()}
+{/if}
+
+{#snippet Inner()}
   <ul class="list bg-base-100 rounded-box">
-    {#each newRoles as entry}
+    {#each controller.roles as role}
       <li class="list-row">
         <div class="lg:contents">
           <div class="list-col-grow">
@@ -86,10 +59,9 @@
               class="input validator w-full"
               required
               bind:value={
-                () => entry.role.name,
+                () => role.name,
                 (v) => {
-                  entry.role.name = v;
-                  dirty = true;
+                  controller.editRole(role, { ...role, name: v });
                 }
               }
             />
@@ -99,12 +71,11 @@
             <input
               class="input validator w-40"
               type="number"
-              min={Math.max(1, entry.role.min)}
+              min={Math.max(1, role.min)}
               bind:value={
-                () => entry.role.max,
+                () => role.max,
                 (v) => {
-                  entry.role.max = v;
-                  dirty = true;
+                  controller.editRole(role, { ...role, max: v });
                 }
               }
             />
@@ -115,12 +86,11 @@
               class="input validator w-40"
               type="number"
               min={0}
-              max={entry.role.max}
+              max={role.max}
               bind:value={
-                () => entry.role.min,
+                () => role.min,
                 (v) => {
-                  entry.role.min = v;
-                  dirty = true;
+                  controller.editRole(role, { ...role, min: v });
                 }
               }
             />
@@ -128,9 +98,9 @@
           <button
             class="btn max-w-fit p-1"
             type="button"
-            disabled={newRoles.length < 2}
+            disabled={controller.roles.length < 2}
             onclick={() => {
-              onDeleteRoleButtonClick(entry.role.id);
+              onDeleteRoleButtonClick(role);
             }}
           >
             <MdiClose aria-label="Delete role" class="my-auto text-2xl" />
@@ -144,44 +114,37 @@
           class="btn btn-primary"
           type="button"
           aria-label="Create new Role"
-          onclick={() =>
-            newRoles.push({
-              role: {
-                name: "",
-                min: 0,
-                max: 0,
-                id: "",
-              },
-              isNew: true,
-            })}
+          onclick={() => controller.addRole("")}
         >
           <IconPlus />
           Create New Role
         </button>
       </div>
       <span class="list-col-grow"></span>
-      <div>
-        <button
-          class="btn btn-error"
-          disabled={!dirty}
-          type="button"
-          onclick={() => {
-            newRoles = rolesToRolesEntry(roles);
-            dirty = false;
-          }}
-        >
-          Reset
-        </button>
-      </div>
-      <div>
-        <button
-          class="btn btn-primary"
-          disabled={!dirty || newRoles.some((e) => e.role.name.length === 0)}
-          type="submit"
-        >
-          Save
-        </button>
-      </div>
+      {#if onsave}
+        <div>
+          <button
+            class="btn btn-error"
+            disabled={!controller.dirty}
+            type="button"
+            onclick={() => {
+              controller.reset();
+            }}
+          >
+            Reset
+          </button>
+        </div>
+        <div>
+          <button
+            class="btn btn-primary"
+            disabled={!controller.dirty ||
+              controller.roles.some((e) => e.name.length === 0)}
+            type="submit"
+          >
+            Save
+          </button>
+        </div>
+      {/if}
     </li>
   </ul>
-</form>
+{/snippet}
