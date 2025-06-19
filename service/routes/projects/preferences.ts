@@ -8,6 +8,7 @@ import type { HonoOptions } from "service/types";
 import { json, param } from "service/validator/hono.ts";
 import { Preference } from "share/schema";
 import * as v from "valibot";
+import { isAdmin } from "../../features/auth/rules.ts";
 
 const route = new Hono<HonoOptions>()
   .post(
@@ -134,8 +135,11 @@ const route = new Hono<HonoOptions>()
     },
   )
   .get("/", param({ projectId: v.string() }), async (c) => {
-    // TODO: make it only visible to admins
     const { projectId } = c.req.valid("param");
+    if (!isAdmin(c, projectId)) {
+      throw new HTTPException(401, { message: "Unauthorized" });
+    }
+
     const d = db(c);
     const preferences = await d
       .select({

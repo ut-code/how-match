@@ -20,8 +20,11 @@ export type PageData = {
 };
 
 export const toPreferences = (
-  preferences: { participantId: string; roleId: string; score: number }[],
-): Preferences => {
+  preferences:
+    | { participantId: string; roleId: string; score: number }[]
+    | undefined,
+): Preferences | undefined => {
+  if (!preferences) return undefined;
   const result: Preferences = {};
   for (const preference of preferences) {
     result[`${preference.participantId}->${preference.roleId}`] =
