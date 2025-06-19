@@ -183,6 +183,7 @@ export interface Participant {
 
 export interface Role {
   id: string;
+  minimum: number; // 受け入れ最小数
   capacity: number; // 受け入れ最大数
 }
 
@@ -301,37 +302,24 @@ export function multipleMatch(
   let roles = _roles.slice();
   // TODO: もうちょいまともなロジックで減らしたいが、わからないのでここでやる
   if (config.dropTooManyRoles) {
-    const participantCap = participants.reduce(
+    const wantedRolesTotal = participants.reduce(
       (acc, p) => acc + p.rolesCount,
       0,
     );
 
-    while (true) {
+    while (sumRolesMinimumRequired(roles) > wantedRolesTotal) {
       const leastWantedRoleId = findLeastWantedRole(roles, participants);
-      console.log("leastWantedRoleId", leastWantedRoleId);
-      const nextRoles = roles.filter((r) => r.id !== leastWantedRoleId);
-      // よくわからないが、限界未満になる一歩手前で止めると動くようだ。
-      // role の cap と participant の cap がどういう関係にあるのかは不明 (どちらのほうが大きい必要があるなど)
-      if (sumRolesCapacity(nextRoles) < participantCap) {
-        break;
-      }
-      roles = nextRoles;
+      roles = roles.filter((r) => r.id !== leastWantedRoleId);
     }
   }
 
   const { matching } = matchInternsExactlyK(participants, roles);
 
   return matching;
-
-  //   console.log("feasible:", feasible);
-  //   console.log("flow:", totalFlow, "cost:", totalCost);
-  //   for (let m of matching) {
-  //     console.log(`Intern ${m.participantId} => [${m.roleIds.join(", ")}]`);
-  //   }
 }
 
-function sumRolesCapacity(roles: Role[]) {
-  return roles.reduce((acc, r) => acc + r.capacity, 0);
+function sumRolesMinimumRequired(roles: Role[]) {
+  return roles.reduce((acc, r) => acc + r.minimum, 0);
 }
 
 function findLeastWantedRole(roles: Role[], participants: Participant[]) {

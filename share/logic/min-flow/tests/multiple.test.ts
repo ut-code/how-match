@@ -1,6 +1,6 @@
 import { expect, test } from "bun:test";
-import { multipleMatch } from "../multiple.ts";
 import type { Participant, Role } from "../multiple.ts";
+import { multipleMatch } from "../multiple.ts";
 
 test("basic functionality - simple case", () => {
   const participants: Participant[] = [
@@ -25,9 +25,9 @@ test("basic functionality - simple case", () => {
   ];
 
   const roles: Role[] = [
-    { id: "r1", capacity: 1 },
-    { id: "r2", capacity: 2 },
-    { id: "r3", capacity: 1 },
+    { id: "r1", capacity: 1, minimum: 1 },
+    { id: "r2", capacity: 2, minimum: 1 },
+    { id: "r3", capacity: 1, minimum: 1 },
   ];
 
   const result = multipleMatch(participants, roles, {
@@ -65,9 +65,9 @@ test("role dropping - should drop least wanted role", () => {
   ];
 
   const roles: Role[] = [
-    { id: "r1", capacity: 1 },
-    { id: "r2", capacity: 1 },
-    { id: "r3", capacity: 1 }, // This should be dropped as it's least wanted
+    { id: "r1", capacity: 1, minimum: 1 },
+    { id: "r2", capacity: 1, minimum: 1 },
+    { id: "r3", capacity: 1, minimum: 1 }, // This should be dropped as it's least wanted
   ];
 
   const result = multipleMatch(participants, roles, {
@@ -102,8 +102,8 @@ test("overflow handling - should handle when total capacity > total rolesCount",
   ];
 
   const roles: Role[] = [
-    { id: "r1", capacity: 2 }, // Capacity higher than needed
-    { id: "r2", capacity: 2 }, // Capacity higher than needed
+    { id: "r1", capacity: 2, minimum: 1 }, // Capacity higher than needed
+    { id: "r2", capacity: 2, minimum: 1 }, // Capacity higher than needed
   ];
 
   const result = multipleMatch(participants, roles, {
@@ -127,7 +127,7 @@ test("should handle empty preferences", () => {
     },
   ];
 
-  const roles: Role[] = [{ id: "r1", capacity: 1 }];
+  const roles: Role[] = [{ id: "r1", capacity: 1, minimum: 1 }];
 
   const result = multipleMatch(participants, roles, {
     dropTooManyRoles: false,
@@ -161,8 +161,8 @@ test("when participant wants more roles than there is", () => {
   ]; // wants 4 in total, but theres' only 2 roles
 
   const roles: Role[] = [
-    { id: "r1", capacity: 1 },
-    { id: "r2", capacity: 1 },
+    { id: "r1", capacity: 1, minimum: 1 },
+    { id: "r2", capacity: 1, minimum: 1 },
   ];
 
   const result = multipleMatch(participants, roles, {

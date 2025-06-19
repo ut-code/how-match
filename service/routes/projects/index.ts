@@ -408,7 +408,8 @@ const route = new Hono<HonoOptions>()
 
       const roleInput = roleConstraints.map((role) => ({
         id: role.id,
-        capacity: role.max, // multiple mode の場合、max と min は同一
+        capacity: role.max,
+        minimum: role.min,
       }));
 
       const matching = multipleMatch(participantInput, roleInput, {
