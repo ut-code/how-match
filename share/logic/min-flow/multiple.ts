@@ -306,12 +306,19 @@ export function multipleMatch(
       0,
     );
 
-    while (sumRolesCapacity(roles) > participantCap) {
+    while (true) {
       const leastWantedRoleId = findLeastWantedRole(roles, participants);
       console.log("leastWantedRoleId", leastWantedRoleId);
-      roles = roles.filter((r) => r.id !== leastWantedRoleId);
+      const nextRoles = roles.filter((r) => r.id !== leastWantedRoleId);
+      // よくわからないが、限界未満になる一歩手前で止めると動くようだ。
+      // role の cap と participant の cap がどういう関係にあるのかは不明 (どちらのほうが大きい必要があるなど)
+      if (sumRolesCapacity(nextRoles) < participantCap) {
+        break;
+      }
+      roles = nextRoles;
     }
   }
+
   const { matching } = matchInternsExactlyK(participants, roles);
 
   return matching;
