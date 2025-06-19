@@ -500,6 +500,53 @@ const route = new Hono<HonoOptions>()
 
     return c.json({}, 200);
   })
+
+  .put("/:projectId/reopen", param({ projectId: v.string() }), async (c) => {
+    const browserId = await getBrowserID(c);
+    const { projectId } = c.req.valid("param");
+    if (!browserId) {
+      return c.json({ message: "Unauthorized" }, 401);
+    }
+    const participant_resp = await db(c)
+      .select()
+      .from(Participants)
+      .where(
+        and(
+          eq(Participants.browserId, browserId),
+          eq(Participants.projectId, projectId),
+          eq(Participants.isAdmin, 1),
+        ),
+      );
+    if (participant_resp.length === 0) {
+      return c.json({ message: "Unauthorized" }, 401);
+    }
+
+    const projectData = (
+      await db(c).select().from(Projects).where(eq(Projects.id, projectId))
+    )[0];
+
+    if (!projectData) {
+      throw new HTTPException(404, { message: "Project not found" });
+    }
+
+    if (!projectData.closedAt) {
+      throw new HTTPException(409, { message: "Project is not closed" });
+    }
+
+    // Delete existing matches
+    await db(c).delete(Matches).where(eq(Matches.projectId, projectId));
+
+    // Reopen the project by setting closedAt to null
+    await db(c)
+      .update(Projects)
+      .set({
+        closedAt: null,
+      })
+      .where(eq(Projects.id, projectId));
+
+    return c.json({}, 200);
+  })
+
   .get("/:projectId/result", param({ projectId: v.string() }), async (c) => {
     const { projectId } = c.req.valid("param");
     const match_result = await db(c)

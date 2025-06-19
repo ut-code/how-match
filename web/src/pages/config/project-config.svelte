@@ -13,7 +13,6 @@
   import RoleList from "~/components/role-list.svelte";
   import { toast } from "~/globals.svelte.js";
   import type { Actions, PageData } from "./types.ts";
-
   type Props = {
     getData: () => PageData;
     actions: Actions;
@@ -29,6 +28,7 @@
   onMount(() => {
     const newlyCreated = page.url.searchParams.get("created") !== null;
     const justClosed = page.url.searchParams.get("closed") !== null;
+    const justReopened = page.url.searchParams.get("reopened") !== null;
     if (newlyCreated) {
       toast.push({
         kind: "success",
@@ -40,6 +40,13 @@
       toast.push({
         kind: "success",
         message: "提出を締め切りました。",
+        timeout: 2000,
+      });
+    }
+    if (justReopened) {
+      toast.push({
+        kind: "success",
+        message: "締め切りをキャンセルしました。",
         timeout: 2000,
       });
     }
@@ -205,22 +212,29 @@
       </p>
       <div class={["flex justify-end", !canEdit && "invisible"]}>
         <div class="block">
-          <button
-            class="btn btn-primary btn-soft"
-            disabled={!canClose}
-            onclick={async () => {
-              await actions.close(data.projectId);
-            }}
-          >
-            <MdiStopCircle />
-            今すぐ締め切る
-          </button>
+          {#if project.closedAt}
+            <button
+              class="btn btn-primary btn-soft"
+              onclick={async () => {
+                await actions.reopen(data.projectId);
+              }}
+            >
+              <MdiStopCircle />
+              締め切りをキャンセル
+            </button>
+          {:else}
+            <button
+              class="btn btn-primary btn-soft"
+              disabled={!canClose}
+              onclick={async () => {
+                await actions.close(data.projectId);
+              }}
+            >
+              <MdiStopCircle />
+              今すぐ締め切る
+            </button>
+          {/if}
           <p>
-            {#if alreadyClosed}
-              <span class="validator-hint text-error text-sm">
-                既に締め切られています
-              </span>
-            {/if}
             {#if notEnoughPeople}
               <span class="validator-hint text-error text-xs">
                 参加者が不足しています

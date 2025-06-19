@@ -27,5 +27,6 @@ export type Actions = {
     },
   ) => Promise<void>;
   close: (projectId: string) => Promise<void>;
+  reopen: (projectId: string) => Promise<void>;
   deleteProject: (projectId: string) => Promise<void>;
 };
