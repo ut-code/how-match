@@ -62,22 +62,24 @@
             <th class="bg-base-100 sticky left-0 min-w-32 text-left">Name</th>
             {#if adminOnly}
               {#each adminOnly.roles as role}
-                <th class="px-2 text-center font-medium whitespace-nowrap"
-                  >{role.name}</th
-                >
+                <th class="w-12 px-2 text-center text-sm font-medium">
+                  {role.name}
+                </th>
               {/each}
             {/if}
           </tr>
         </thead>
         <tbody>
           {#each participants as participant}
-            <tr>
+            <tr class="h-7">
               <td class="bg-base-100 sticky left-0">
                 <div class="min-w-28">
-                  <div>{participant.name}</div>
                   <div class="text-xs">
+                    <span>{participant.name}</span>
                     {#if multipleRoles}
-                      {participant.rolesCount} roles
+                      <span class="text-gray-400"
+                        >{participant.rolesCount} roles</span
+                      >
                     {/if}
                   </div>
                   {#if participant.isAdmin}
