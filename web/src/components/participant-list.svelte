@@ -62,7 +62,9 @@
             <th class="bg-base-100 sticky left-0 min-w-32 text-left">Name</th>
             {#if adminOnly}
               {#each adminOnly.roles as role}
-                <th class="w-12 px-2 text-center text-sm font-medium">
+                <th
+                  class="w-12 max-w-20 overflow-clip px-2 text-center text-xs font-medium"
+                >
                   {role.name}
                 </th>
               {/each}
@@ -72,14 +74,14 @@
         <tbody>
           {#each participants as participant}
             <tr class="h-7">
-              <td class="bg-base-100 sticky left-0">
+              <td class="bg-base-100 sticky left-0 px-2 py-0">
                 <div class="min-w-28">
                   <div class="text-xs">
                     <span>{participant.name}</span>
                     {#if multipleRoles}
-                      <span class="text-gray-400"
-                        >{participant.rolesCount} roles</span
-                      >
+                      <span class="text-gray-400">
+                        {participant.rolesCount} roles
+                      </span>
                     {/if}
                   </div>
                   {#if participant.isAdmin}
@@ -94,7 +96,7 @@
                 {#each adminOnly.roles as role}
                   {@const prefValue =
                     adminOnly.preferences[`${participant.id}->${role.id}`]}
-                  <td class="px-2 text-center">
+                  <td class="px-2 py-0 text-center">
                     {#if prefValue !== undefined}
                       <span
                         class={[
