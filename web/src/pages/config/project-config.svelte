@@ -90,6 +90,14 @@
     roles.reduce((acc, cur) => acc + cur.max, 0) <
       sumRolesCount(data.participants),
   );
+
+  const canClose = $derived.by(() => {
+    if (!canEdit) return false;
+    if (alreadyClosed) return false;
+    if (overCapacityPeople) return false;
+    if (notEnoughPeople && !project.dropTooManyRoles) return false;
+    return true;
+  });
 </script>
 
 <main class="hm-blocks-container">
@@ -199,7 +207,7 @@
         <div class="block">
           <button
             class="btn btn-primary btn-soft"
-            disabled={alreadyClosed || notEnoughPeople || overCapacityPeople}
+            disabled={!canClose}
             onclick={async () => {
               await actions.close(data.projectId);
             }}
