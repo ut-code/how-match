@@ -1,4 +1,6 @@
 import {
+  type InferInput,
+  type InferOutput,
   array,
   boolean,
   minLength,
@@ -10,8 +12,6 @@ import {
   string,
   transform,
   uuid,
-  type InferInput,
-  type InferOutput,
 } from "valibot";
 
 export const CoerceBooleanToNumber = pipe(

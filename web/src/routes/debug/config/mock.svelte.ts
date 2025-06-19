@@ -1,3 +1,4 @@
+import { randomInt } from "share/lib";
 import type { Actions, PageData } from "~/pages/config/types.ts";
 
 export const mockData: (props: { isAdmin: boolean }) => PageData = ({
@@ -34,6 +35,31 @@ export const mockData: (props: { isAdmin: boolean }) => PageData = ({
     },
   ];
 
+  const participants = [
+    {
+      id: "user1",
+      name: "John Doe",
+      rolesCount: 2,
+      isAdmin: 1,
+    },
+    {
+      id: "user-you",
+      name: "You",
+      rolesCount: 1,
+      isAdmin: isAdmin ? 1 : 0,
+    },
+    {
+      id: "user3",
+      name: "Bob Wilson",
+      rolesCount: 2,
+      isAdmin: 0,
+    },
+  ];
+
+  const preferences = isAdmin
+    ? createRandomPreferences(participants, roles)
+    : undefined;
+
   return {
     projectId: "1",
     project: {
@@ -45,26 +71,9 @@ export const mockData: (props: { isAdmin: boolean }) => PageData = ({
       closedAt: null,
       dropTooManyRoles: true,
     },
-    participants: [
-      {
-        id: "user1",
-        name: "John Doe",
-        rolesCount: 2,
-        isAdmin: 1,
-      },
-      {
-        id: "user-you",
-        name: "You",
-        rolesCount: 1,
-        isAdmin: isAdmin ? 1 : 0,
-      },
-      {
-        id: "user3",
-        name: "Bob Wilson",
-        rolesCount: 2,
-        isAdmin: 0,
-      },
-    ],
+    roles,
+    participants,
+    preferences,
     prev: {
       id: "user-you",
       name: "You",
@@ -87,4 +96,19 @@ export const mockActions: Actions = {
     console.log("deleteProject", projectId);
     await Promise.resolve();
   },
+  reopen: async (projectId) => {
+    console.log("reopen", projectId);
+    await Promise.resolve();
+  },
 };
+
+function createRandomPreferences(
+  participants: { id: string }[],
+  roles: { id: string }[],
+): Record<`${string}->${string}`, number> {
+  return Object.fromEntries(
+    participants.flatMap((p) =>
+      roles.map((r) => [`${p.id}->${r.id}`, randomInt(1, 6)]),
+    ),
+  );
+}

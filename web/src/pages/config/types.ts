@@ -1,11 +1,14 @@
 import type { SelectParticipant } from "service/db/schema";
-import type { SelectProject } from "share/schema";
+import type { RoleWithId, SelectProject } from "share/schema";
 
+export type Preferences = Record<`${string}->${string}`, number>; // ${participant id}->${role id} : number
 // TODO: someone deduplicate this mess please
 export type PageData = {
   projectId: string;
   project: SelectProject;
   participants: Omit<SelectParticipant, "projectId" | "browserId">[];
+  roles: RoleWithId[];
+  preferences?: Preferences;
   prev:
     | {
         id: string;
@@ -14,6 +17,17 @@ export type PageData = {
         isAdmin: number;
       }
     | undefined;
+};
+
+export const toPreferences = (
+  preferences: { participantId: string; roleId: string; score: number }[],
+): Preferences => {
+  const result: Preferences = {};
+  for (const preference of preferences) {
+    result[`${preference.participantId}->${preference.roleId}`] =
+      preference.score;
+  }
+  return result;
 };
 
 export type Actions = {

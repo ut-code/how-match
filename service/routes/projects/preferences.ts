@@ -132,5 +132,22 @@ const route = new Hono<HonoOptions>()
       );
       return c.json({ ok: true }, 200);
     },
-  );
+  )
+  .get("/", param({ projectId: v.string() }), async (c) => {
+    // TODO: make it only visible to admins
+    const { projectId } = c.req.valid("param");
+    const d = db(c);
+    const preferences = await d
+      .select({
+        participantId: Participants.id,
+        roleId: Roles.id,
+        score: Ratings.score,
+      })
+      .from(Participants)
+      .innerJoin(Ratings, eq(Participants.id, Ratings.participantId))
+      .innerJoin(Roles, eq(Roles.id, Ratings.roleId))
+      .where(eq(Participants.projectId, projectId));
+    return c.json(preferences);
+  });
+
 export default route;

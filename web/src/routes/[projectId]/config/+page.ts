@@ -1,5 +1,6 @@
 import { error } from "@sveltejs/kit";
 import { type Client, createClient } from "~/api/client.ts";
+import { toPreferences, type PageData } from "~/pages/config/types.ts";
 import type { PageLoad } from "./$types.ts";
 
 export const load: PageLoad = async ({ params, fetch }) => {
@@ -24,10 +25,20 @@ export const load: PageLoad = async ({ params, fetch }) => {
     })
     .then((it) => it.json());
 
-  const data = {
+  const preferences = client.projects[":projectId"].preferences
+    .$get({
+      param: {
+        projectId,
+      },
+    })
+    .then((it) => it.json());
+
+  const data: PageData = {
     projectId,
     ...(await project),
+    roles: (await project).project.roles,
     participants: await participants,
+    preferences: toPreferences(await preferences),
   };
   return data;
 };

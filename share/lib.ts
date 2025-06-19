@@ -19,3 +19,8 @@ export function at<T>(list: T[], idx: number): T {
     throw new Error(`elemAt: item not found at index ${idx} in list`);
   return elem;
 }
+
+// min is inclusive and max is exclusive
+export function randomInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min)) + min;
+}
