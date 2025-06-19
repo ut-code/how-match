@@ -95,7 +95,9 @@
               {#if adminOnly}
                 {#each adminOnly.roles as role}
                   {@const prefValue =
-                    adminOnly.preferences[`${participant.id}->${role.id}`]}
+                    adminOnly.preferences[
+                      `${participant.id}->scored->${role.id}`
+                    ]}
                   <td class="px-2 py-0 text-center">
                     {#if prefValue !== undefined}
                       <span

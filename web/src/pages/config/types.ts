@@ -1,7 +1,7 @@
 import type { SelectParticipant } from "service/db/schema";
 import type { RoleWithId, SelectProject } from "share/schema";
 
-export type Preferences = Record<`${string}->${string}`, number>; // ${participant id}->${role id} : number
+export type Preferences = Record<`${string}->scored->${string}`, number>; // ${participant id}->scored->${role id} : number
 // TODO: someone deduplicate this mess please
 export type PageData = {
   projectId: string;
@@ -27,7 +27,7 @@ export const toPreferences = (
   if (!preferences) return undefined;
   const result: Preferences = {};
   for (const preference of preferences) {
-    result[`${preference.participantId}->${preference.roleId}`] =
+    result[`${preference.participantId}->scored->${preference.roleId}`] =
       preference.score;
   }
   return result;

@@ -4,7 +4,7 @@ import { getSignedCookie, setSignedCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import type { CookieOptions } from "hono/utils/cookie";
 import { db } from "service/db/client.ts";
-import { type SelectAccount, Accounts } from "service/db/schema.ts";
+import { Accounts, type SelectAccount } from "service/db/schema.ts";
 import { env } from "service/lib.ts";
 
 function GET_COOKIE_SIGN(c: Context): string {

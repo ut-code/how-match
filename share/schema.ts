@@ -50,16 +50,16 @@ export const InsertProject = object({
   name: pipe(string(), minLength(1)),
   description: nullable(string()),
   roles: pipe(array(Role), minLength(1)),
-  multipleRoles: pipe(boolean(), CoerceBooleanToNumber),
-  dropTooManyRoles: pipe(boolean(), CoerceBooleanToNumber),
+  multipleRoles: boolean(),
+  dropTooManyRoles: boolean(),
 });
 export const SelectProject = object({
   id: pipe(string(), uuid()),
   name: pipe(string(), minLength(1)),
   description: nullable(string()),
   roles: pipe(array(RoleWithIdAndPrev), minLength(1)),
-  multipleRoles: CoerceNumberToBoolean,
-  dropTooManyRoles: CoerceNumberToBoolean,
+  multipleRoles: boolean(),
+  dropTooManyRoles: boolean(),
   closedAt: nullable(string()),
 });
 export type SelectProject = InferOutput<typeof SelectProject>;

@@ -105,10 +105,10 @@ export const mockActions: Actions = {
 function createRandomPreferences(
   participants: { id: string }[],
   roles: { id: string }[],
-): Record<`${string}->${string}`, number> {
+): Record<`${string}->scored->${string}`, number> {
   return Object.fromEntries(
     participants.flatMap((p) =>
-      roles.map((r) => [`${p.id}->${r.id}`, randomInt(1, 6)]),
+      roles.map((r) => [`${p.id}->scored->${r.id}`, randomInt(1, 6)]),
     ),
   );
 }
