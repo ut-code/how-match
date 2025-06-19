@@ -1,3 +1,4 @@
+import { DefaultLogger } from "drizzle-orm";
 import { type DrizzleD1Database, drizzle as d1 } from "drizzle-orm/d1";
 import { drizzle as libsql } from "drizzle-orm/libsql";
 import type { Context } from "hono";
@@ -13,5 +14,15 @@ export const db = (c: Context<HonoOptions>): DrizzleD1Database => {
     throw new Error("ERROR: c.env.DB not found");
   }
 
-  return libsql("file:../local.db") as unknown as DrizzleD1Database;
+  const logger = new DefaultLogger({
+    writer: {
+      write: (message) => console.log("[drizzle SQL]", message),
+    },
+  });
+  return libsql({
+    logger,
+    connection: {
+      url: "file:../local.db",
+    },
+  }) as unknown as DrizzleD1Database;
 };
