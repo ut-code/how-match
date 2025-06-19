@@ -6,19 +6,20 @@ import { getBrowserID } from "./index.ts";
 
 export async function isAdmin(c: Context, projectId: string) {
   const browserId = await getBrowserID(c);
-  const isAdmin =
-    (
-      await db(c)
-        .select()
-        .from(Participants)
-        .where(
-          and(
-            eq(Participants.projectId, projectId),
-            eq(Participants.browserId, browserId),
-            eq(Participants.isAdmin, 1),
-          ),
-        )
-        .limit(1)
-    ).length > 0;
-  return isAdmin;
+  const admin = await db(c)
+    .select({
+      id: Participants.id,
+    })
+    .from(Participants)
+    .where(
+      and(
+        eq(Participants.projectId, projectId),
+        eq(Participants.browserId, browserId),
+        eq(Participants.isAdmin, 1),
+      ),
+    )
+    .limit(1);
+
+  console.log(admin);
+  return admin.length > 0;
 }

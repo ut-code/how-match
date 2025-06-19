@@ -136,7 +136,7 @@ const route = new Hono<HonoOptions>()
   )
   .get("/", param({ projectId: v.string() }), async (c) => {
     const { projectId } = c.req.valid("param");
-    if (!isAdmin(c, projectId)) {
+    if (!(await isAdmin(c, projectId))) {
       throw new HTTPException(401, { message: "Unauthorized" });
     }
 
