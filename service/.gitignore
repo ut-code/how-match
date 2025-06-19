@@ -1,8 +1,5 @@
 node_modules
 
-# drizzle
-/.drizzle
-
 # wrangler project
 
 .dev.vars
