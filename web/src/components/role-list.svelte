@@ -1,5 +1,6 @@
 <script lang="ts">
-  let { roles }: { roles: RoleWithId[] } = $props();
+  import type { SelectRole } from "share/schema.ts";
+  let { roles }: { roles: SelectRole[] } = $props();
 </script>
 
 <ul class="list bg-base-100 rounded-box">

@@ -2,15 +2,22 @@
   import type { SelectRole } from "share/schema.ts";
   import { Client } from "~/data/client.ts";
   import { modal, toast } from "~/globals.svelte.ts";
+  import { proxify } from "~/lib/svutils.svelte.ts";
   import IconPlus from "~icons/fe/plus";
   import MdiClose from "~icons/mdi/close";
-ojectId: string } = $props();
+  type Props = {
+    roles: SelectRole[];
+    projectId: string;
+  };
+  const { roles, projectId }: Props = $props();
 
-  function rolesToRolesEntry(roles: RoleWithId[]) {
-    return roles.map((role) => ({
-      role: structuredClone($state.snapshot(role)),
-      isNew: false,
-    }));
+  function rolesToRolesEntry(roles: SelectRole[]) {
+    return proxify(
+      roles.map((role) => ({
+        role,
+        isNew: false,
+      })),
+    );
   }
   let newRoles = $state(rolesToRolesEntry(roles));
   let dirty = $state(false);
@@ -26,12 +33,7 @@ ojectId: string } = $props();
     };
     try {
       const client = new Client(fetch);
-      const updatedRoles = await client.updateRoles(projectId, request);
-      newRoles = updatedRoles.map((role) => ({
-        role,
-        isNew: false,
-      }));
-      roles = updatedRoles;
+      await client.updateRoles(projectId, request);
       toast.push({
         kind: "success",
         message: "Successfully updated roles!",
@@ -55,6 +57,7 @@ ojectId: string } = $props();
           class: "btn-error",
           onclick: async () => {
             newRoles = newRoles.filter((r) => r.role.id !== id);
+            dirty = true;
             console.log("deleting role...");
           },
         },
@@ -144,6 +147,7 @@ ojectId: string } = $props();
                 min: 0,
                 max: 0,
                 id: "",
+                projectId,
               },
               isNew: true,
             })}

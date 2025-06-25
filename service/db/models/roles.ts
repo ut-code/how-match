@@ -1,16 +1,17 @@
 import { and, eq } from "drizzle-orm";
 import type { Context } from "hono";
 import type { HonoOptions } from "service/types";
-import { db, preparedQueries } from "../client.ts";
+import type { InsertRole, SelectRole } from "share/schema.ts";
+import { db } from "../client.ts";
 import { Roles } from "../schema.ts";
 
 export function getRoles(c: Context<HonoOptions>, projectId: string) {
-  return preparedQueries(c).getRolesByProject.execute({ projectId });
+  return db(c).select().from(Roles).where(eq(Roles.projectId, projectId));
 }
 
 type Patches = {
-  create?: Role[];
-  update?: RoleWithId[];
+  create?: InsertRole[];
+  update?: SelectRole[];
   delete?: string[];
 };
 export async function applyPatchesToRoles(

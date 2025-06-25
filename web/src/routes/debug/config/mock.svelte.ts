@@ -1,37 +1,39 @@
 import { randomInt } from "share/lib";
+import type { Ratings, SelectAdmins, SelectRole } from "share/schema";
 import type { Actions, PageData } from "~/pages/config/types.ts";
 
+const projectId = "project-1";
 export const mockData: (props: { isAdmin: boolean }) => PageData = ({
   isAdmin,
 }): PageData => {
-  const roles = [
+  const roles: SelectRole[] = [
     {
       id: "role1",
       name: "Frontend Developer",
       min: 2,
       max: 4,
-      prev: 2,
+      projectId,
     },
     {
       id: "role2",
       name: "Backend Developer",
       min: 1,
       max: 3,
-      prev: 1,
+      projectId,
     },
     {
       id: "role3",
       name: "UI/UX Designer",
       min: 1,
       max: 2,
-      prev: 1,
+      projectId,
     },
     {
       id: "role4",
       name: "Project Manager",
       min: 1,
       max: 1,
-      prev: 1,
+      projectId,
     },
   ];
 
@@ -40,45 +42,53 @@ export const mockData: (props: { isAdmin: boolean }) => PageData = ({
       id: "user1",
       name: "John Doe",
       rolesCount: 2,
-      isAdmin: 1,
     },
     {
       id: "user-you",
       name: "You",
       rolesCount: 1,
-      isAdmin: isAdmin ? 1 : 0,
     },
     {
       id: "user3",
       name: "Bob Wilson",
       rolesCount: 2,
-      isAdmin: 0,
     },
   ];
+  const admins: SelectAdmins = [
+    {
+      id: "user1",
+      name: "John Doe",
+      browserId: "user1",
+    },
+    ...(isAdmin
+      ? [{ id: "user-you", name: "You", browserId: "user-you" }]
+      : []),
+  ];
 
-  const preferences = isAdmin
-    ? createRandomPreferences(participants, roles)
-    : undefined;
+  const preferences = createRandomPreferences(participants, roles);
 
   return {
-    projectId: "1",
+    projectId,
     project: {
-      id: "1",
+      id: projectId,
       name: "Project 1",
       description: "Description 1",
-      roles,
       multipleRoles: true,
-      closedAt: null,
       dropTooManyRoles: true,
+      closedAt: null,
     },
     roles,
     participants,
-    preferences,
+    admin: isAdmin ? { preferences } : undefined,
+    admins,
     prev: {
-      id: "user-you",
-      name: "You",
-      rolesCount: 2,
-      isAdmin: isAdmin ? 1 : 0,
+      submission: {
+        id: "user-you",
+        name: "You",
+        rolesCount: 2,
+        isAdmin,
+      },
+      ratings: preferences["user-you"],
     },
   };
 };
@@ -103,12 +113,13 @@ export const mockActions: Actions = {
 };
 
 function createRandomPreferences(
-  participants: { id: string }[],
-  roles: { id: string }[],
-): Record<`${string}->scored->${string}`, number> {
+  participants: { id: string; name: string }[],
+  roles: SelectRole[],
+): Record<string, Ratings> {
   return Object.fromEntries(
-    participants.flatMap((p) =>
-      roles.map((r) => [`${p.id}->scored->${r.id}`, randomInt(1, 6)]),
-    ),
+    participants.map((p) => [
+      p.id,
+      Object.fromEntries(roles.map((r) => [r.id, randomInt(1, 6)])),
+    ]),
   );
 }

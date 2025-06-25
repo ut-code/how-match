@@ -8,10 +8,12 @@
   import MdiStopCircle from "~icons/mdi/stop-circle";
   import MdiVote from "~icons/mdi/vote";
 
+  import { SelectParticipants } from "share/schema.ts";
   import ParticipantList from "~/components/participant-list.svelte";
   import RoleEditor from "~/components/role-editor.svelte";
   import RoleList from "~/components/role-list.svelte";
   import { toast } from "~/globals.svelte.js";
+  import { proxify } from "~/lib/svutils.svelte.ts";
   import type { Actions, PageData } from "./types.ts";
   type Props = {
     getData: () => PageData;
@@ -19,11 +21,7 @@
   };
   const { getData, actions }: Props = $props();
 
-  // why svelte? why not make $derived as reactive as $state?
-  let data = $state($state.snapshot(getData()));
-  $effect(() => {
-    data = getData();
-  });
+  let data = $derived(proxify(getData()));
 
   onMount(() => {
     const newlyCreated = page.url.searchParams.get("created") !== null;
@@ -66,20 +64,12 @@
 
   const project = $derived(data.project);
   const participants = $derived(data.participants);
-  const canEdit = $derived(!!data.prev?.isAdmin);
-  let roles = $derived<RoleWithId[]>(data.project.roles);
+  const canEdit = $derived(!!data.prev?.submission?.isAdmin);
   let projectName = $derived<string>(project.name);
   let projectDescription = $derived<string | null>(project.description ?? null);
   let copied = $state(false);
 
-  function sumRolesCount(
-    participants: {
-      id: string;
-      name: string;
-      isAdmin: number;
-      rolesCount: number | null;
-    }[],
-  ) {
+  function sumRolesCount(participants: SelectParticipants) {
     let sum = 0;
     for (const participant of participants) {
       sum += participant.rolesCount ?? 1; // if null, it means multipleRoles is not enabled
@@ -90,11 +80,11 @@
   const alreadyClosed = $derived(project.closedAt !== null);
   const notEnoughPeople = $derived(
     data.participants.length === 0 || // would error
-      roles.reduce((acc, cur) => acc + cur.min, 0) >
+      data.roles.reduce((acc, cur) => acc + cur.min, 0) >
         sumRolesCount(data.participants),
   );
   const overCapacityPeople = $derived(
-    roles.reduce((acc, cur) => acc + cur.max, 0) <
+    data.roles.reduce((acc, cur) => acc + cur.max, 0) <
       sumRolesCount(data.participants),
   );
 
@@ -112,11 +102,11 @@
     {@render HeaderSection()}
     {@render SubmitSection()}
     <section id="roles" class="flex flex-col gap-2">
-      <h3 class="text-pale text-sm">役職 ({roles.length})</h3>
+      <h3 class="text-pale text-sm">役職 ({data.roles.length})</h3>
       {#if canEdit}
-        <RoleEditor {roles} projectId={project.id} />
+        <RoleEditor roles={data.roles} projectId={project.id} />
       {:else}
-        <RoleList {roles} />
+        <RoleList roles={data.roles} />
       {/if}
     </section>
     {@render ControlsSection()}
@@ -208,7 +198,7 @@
         class:btn-disabled={alreadyClosed}
       >
         <MdiVote />
-        {#if data.prev?.isAdmin}
+        {#if data.prev?.submission?.isAdmin}
           参加者として提出する
         {:else}
           更新する
@@ -343,9 +333,10 @@
     </h2>
     <ParticipantList
       {participants}
-      adminOnly={data.preferences && {
-        roles: project.roles,
-        preferences: data.preferences,
+      admins={data.admins}
+      roles={data.roles}
+      adminOnly={data.admin?.preferences && {
+        preferences: data.admin.preferences,
       }}
       multipleRoles={project.multipleRoles}
     />

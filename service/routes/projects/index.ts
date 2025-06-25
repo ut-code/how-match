@@ -19,20 +19,22 @@ import {
   applyPatchToProject,
   createProject,
   deleteProject,
+  getMyProjects,
   getProject,
-  getSubmittedProjects,
 } from "../../db/models/projects.ts";
 import { applyPatchesToRoles, getRoles } from "../../db/models/roles.ts";
 import { isAdmin } from "../../features/auth/rules.ts";
+import adminRoutes from "./admins.ts";
 import participantRoutes from "./participants.ts";
 import preferenceRoutes from "./preferences.ts";
 
 const route = new Hono<HonoOptions>()
   .route("/:projectId/participants", participantRoutes)
   .route("/:projectId/preferences", preferenceRoutes)
+  .route("/:projectId/admins", adminRoutes)
 
   .get("/mine", async (c) => {
-    const projects = await getSubmittedProjects(c);
+    const projects = await getMyProjects(c);
     return c.json(projects);
   })
 
@@ -104,8 +106,9 @@ const route = new Hono<HonoOptions>()
 
   .post("/", json(InsertProject), async (c) => {
     const json = c.req.valid("json");
-    await createProject(c, json);
-    return c.json({ ok: true }, 200);
+    const projectId = await createProject(c, json);
+
+    return c.json({ ok: true, projectId }, 200);
   })
   .delete(
     "/:projectId",

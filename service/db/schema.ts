@@ -8,14 +8,23 @@ export const Participants = sqliteTable("participants", {
   projectId: text("project_id")
     .references(() => Projects.id, { onDelete: "cascade" })
     .notNull(),
-  isAdmin: integer("is_admin").notNull(),
   rolesCount: integer("roles_count").notNull(),
 });
 
-export const Accounts = sqliteTable("accounts", {
+// TODO: implement authentication
+export const Users = sqliteTable("users", {
   id: text().notNull().primaryKey(),
-  browserId: text("browser_id").notNull().unique(),
   name: text().notNull(),
+  browserId: text("browser_id").notNull().unique(),
+});
+
+export const Admins = sqliteTable("admins", {
+  id: text().notNull().primaryKey(),
+  name: text().notNull(),
+  projectId: text("project_id")
+    .references(() => Projects.id, { onDelete: "cascade" })
+    .notNull(),
+  browserId: text("browser_id").notNull(),
 });
 
 export const Projects = sqliteTable("projects", {
@@ -64,21 +73,30 @@ export const Matches = sqliteTable("matches", {
     .notNull(),
 });
 
+export const AdminsRelations = relations(Admins, ({ one }) => ({
+  project: one(Projects, {
+    fields: [Admins.projectId],
+    references: [Projects.id],
+  }),
+}));
 export const ParticipantsRelations = relations(Participants, ({ many }) => ({
   roles: many(Roles),
   ratings: many(Ratings),
   matches: many(Matches),
+  admins: many(Admins),
 }));
 export const RolesRelations = relations(Roles, ({ many }) => ({
   participants: many(Participants),
   ratings: many(Ratings),
   matches: many(Matches),
+  admins: many(Admins),
 }));
 export const ProjectsRelations = relations(Projects, ({ many }) => ({
   participants: many(Participants),
   roles: many(Roles),
   ratings: many(Ratings),
   matches: many(Matches),
+  admins: many(Admins),
 }));
 export const RatingsRelations = relations(Ratings, ({ one }) => ({
   participant: one(Participants, {

@@ -1,23 +1,31 @@
 <script lang="ts">
-  type Participant = {
-    id: string;
-    name: string;
-    rolesCount: number;
-    isAdmin: number;
-  };
+  import type {
+    Ratings,
+    SelectAdmins,
+    SelectParticipants,
+    SelectRole,
+  } from "share/schema.ts";
   type Props = {
-    participants: Participant[];
+    participants: SelectParticipants;
+    admins: SelectAdmins;
+    roles: SelectRole[];
     multipleRoles: boolean;
     adminOnly?: {
-      roles: RoleWithId[];
-      preferences: Record<string, number>;
+      preferences: Record<string, Ratings>;
     };
   };
 
-  const { participants, multipleRoles, adminOnly }: Props = $props();
+  const { participants, admins, roles, multipleRoles, adminOnly }: Props =
+    $props();
 
   $inspect(adminOnly?.preferences);
 </script>
+
+<ul>
+  {#each admins as admin}
+    <li>{admin.name}</li>
+  {/each}
+</ul>
 
 {#if adminOnly}
   {@render ParticipantTable()}
@@ -34,9 +42,6 @@
           <span class="list-col-grow text-xs text-gray-400"
             >wants {participant.rolesCount} roles</span
           >
-        {/if}
-        {#if participant.isAdmin}
-          <span class="badge badge-secondary badge-xs text-xs">Admin</span>
         {/if}
       </li>
     {/each}
@@ -59,7 +64,7 @@
           <tr>
             <th class="bg-base-100 sticky left-0 min-w-32 text-left">Name</th>
             {#if adminOnly}
-              {#each adminOnly.roles as role}
+              {#each roles as role}
                 <th
                   class="w-12 max-w-20 overflow-clip px-2 text-center text-xs font-medium"
                 >
@@ -82,20 +87,13 @@
                       </span>
                     {/if}
                   </div>
-                  {#if participant.isAdmin}
-                    <div class="badge badge-secondary badge-xs text-xs">
-                      Admin
-                    </div>
-                  {/if}
                 </div>
               </td>
 
               {#if adminOnly}
-                {#each adminOnly.roles as role}
+                {#each roles as role}
                   {@const prefValue =
-                    adminOnly.preferences[
-                      `${participant.id}->scored->${role.id}`
-                    ]}
+                    adminOnly.preferences[participant.id][role.id]}
                   <td class="px-2 py-0 text-center">
                     {#if prefValue !== undefined}
                       <span

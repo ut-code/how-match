@@ -4,14 +4,16 @@ import { HTTPException } from "hono/http-exception";
 import type { HonoOptions } from "service/types";
 import {
   type InsertProjectOutput,
-  InsertProjectPartial,
+  type InsertProjectPartial,
   SelectProject,
 } from "share/schema.ts";
 import * as v from "valibot";
 import { getBrowserID } from "../../features/auth/index.ts";
-import { db, preparedQueries } from "../client.ts";
-import { Participants, Projects } from "../schema.ts";
+import { isAdmin } from "../../features/auth/rules.ts";
+import { db } from "../client.ts";
+import { Admins, Participants, Projects } from "../schema.ts";
 
+const SelectProjects = v.array(SelectProject);
 export async function createProject(
   c: Context<HonoOptions>,
   project: InsertProjectOutput,
@@ -23,30 +25,29 @@ export async function createProject(
     id: randomId,
     closedAt: null,
   });
+  return randomId;
 }
-export async function getProject(c: Context<HonoOptions>, projectId: string) {
-  const projects = await preparedQueries(c).getProjectById.execute({
-    id: projectId,
-  });
+export async function getProject(
+  c: Context<HonoOptions>,
+  projectId: string,
+): Promise<SelectProject> {
+  const projects = await db(c)
+    .select()
+    .from(Projects)
+    .where(eq(Projects.id, projectId));
   if (!projects[0])
     throw new HTTPException(404, { message: "project not found" });
-  return projects[0];
+  return v.parse(SelectProject, projects[0]);
 }
 
-export async function getSubmittedProjects(
+export async function getMyProjects(
   c: Context<HonoOptions>,
-): Promise<SelectProject[]> {
+): Promise<{ participated: SelectProject[]; admin: SelectProject[] }> {
   const d = db(c);
   const browserId = await getBrowserID(c);
-  const projects = await d
-    .select({
-      id: Projects.id,
-      name: Projects.name,
-      description: Projects.description,
-      closedAt: Projects.closedAt,
-      multipleRoles: Projects.multipleRoles,
-      dropTooManyRoles: Projects.dropTooManyRoles,
-    })
+
+  const participatedProjects = await d
+    .select()
     .from(Projects)
     .where(
       exists(
@@ -62,7 +63,27 @@ export async function getSubmittedProjects(
       ),
     );
 
-  return projects.map((p) => v.parse(SelectProject, p));
+  const adminProjects = await d
+    .select()
+    .from(Projects)
+    .where(
+      exists(
+        d
+          .select()
+          .from(Admins)
+          .where(
+            and(
+              eq(Admins.browserId, browserId),
+              eq(Admins.projectId, Projects.id),
+            ),
+          ),
+      ),
+    );
+
+  return {
+    participated: v.parse(SelectProjects, participatedProjects),
+    admin: v.parse(SelectProjects, adminProjects),
+  };
 }
 
 export async function applyPatchToProject(
@@ -70,24 +91,17 @@ export async function applyPatchToProject(
   projectId: string,
   patch: InsertProjectPartial,
 ) {
+  if (!(await isAdmin(c, projectId))) {
+    throw new HTTPException(401, { message: "Forbidden" });
+  }
+
   if (
     patch.name ||
     patch.description ||
     patch.dropTooManyRoles !== undefined ||
     patch.multipleRoles !== undefined
   ) {
-    await db(c)
-      .update(Projects)
-      .set(patch)
-      .where(eq(Projects.id, projectId))
-      .returning({
-        id: Projects.id,
-        name: Projects.name,
-        description: Projects.description,
-        multipleRoles: Projects.multipleRoles,
-        dropTooManyRoles: Projects.dropTooManyRoles,
-        closedAt: Projects.closedAt,
-      });
+    await db(c).update(Projects).set(patch).where(eq(Projects.id, projectId));
   }
 }
 
@@ -95,23 +109,10 @@ export async function deleteProject(
   c: Context<HonoOptions>,
   projectId: string,
 ) {
-  const browserId = await getBrowserID(c);
-  const d = db(c);
+  if (!(await isAdmin(c, projectId))) {
+    throw new HTTPException(401, { message: "Forbidden" });
+  }
 
-  await d.delete(Projects).where(
-    and(
-      eq(Projects.id, projectId),
-      exists(
-        d
-          .select()
-          .from(Participants)
-          .where(
-            and(
-              eq(Participants.browserId, browserId),
-              eq(Participants.isAdmin, 1),
-            ),
-          ),
-      ),
-    ),
-  );
+  const d = db(c);
+  await d.delete(Projects).where(eq(Projects.id, projectId));
 }

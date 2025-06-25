@@ -1,9 +1,9 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { safeParse } from "valibot";
   import { generateURL } from "~/api/origins.svelte.ts";
   import { Client } from "~/data/client.ts";
   import { toast } from "~/globals.svelte.ts";
+  import { proxify } from "~/lib/svutils.svelte.ts";
   import type { PageProps } from "./$types.ts";
   import RolesSelector from "./roles-selector.svelte";
 
@@ -12,42 +12,25 @@
   // TODO: ローディング中の UI を追加
   let participantName = $state<string>(data.prev?.name ?? "");
   let rolesCount = $state<number>(data.prev?.rolesCount || 1); // including 0
-  let ratings = $state(
-    data.roles.map((role) => {
-      const score =
-        data.prev?.ratings[`${data.prev?.id}->scored->${role.id}`] ?? undefined;
-      return { role, score };
-    }),
-  );
-
-  const prev_data = data.prev != null;
+  let formState = $state<"ready" | "submitting" | "error" | "done">("ready");
+  let ratings = $derived(proxify(data.prev?.ratings ?? {}));
+  const prevDataExists = data.prev != null;
   const formVerb = $derived.by(() => {
-    if (!prev_data) return "送信";
+    if (!prevDataExists) return "送信";
     if (!data.prev?.name) return "送信"; // admin & has not submitted
     return "更新";
   });
+
   async function postPreference() {
     formState = "submitting";
     try {
-      const projectId = data.project.id;
-      const preference = safeParse(Preference, {
+      const client = new Client(fetch);
+      const preference = {
         participantName,
         rolesCount,
-        ratings: ratings.map((rating) => ({
-          roleId: rating.role.id,
-          score: rating.score,
-        })),
-      });
-      // TODO: handle it better
-      if (!preference.success) {
-        console.error(preference.issues);
-        throw new Error("failed to validate preference");
-      }
-
-      const client = new Client(fetch);
-      await client.putPreference(projectId, preference.output);
-      goto(`/${projectId}/config`);
-      formState = "done";
+      };
+      await client.submit(data.project.id, preference, ratings);
+      await goto(`/${data.project.id}/config`);
     } catch (err) {
       console.error(err);
       formState = "error";
@@ -61,7 +44,6 @@
     }
   }
 
-  let formState = $state<"ready" | "submitting" | "error" | "done">("ready");
   const isClosed = $derived.by(() => {
     if (data.project.closedAt === null) return false;
     return new Date(data.project.closedAt).getTime() < Date.now();
@@ -133,19 +115,19 @@
                 step="1"
               />
               <div class="mt-2 flex justify-between px-2.5 text-xs">
-                {#each { length: maxRoles } as _}
+                {#each { length: maxRoles }}
                   <span class="select-none">|</span>
                 {/each}
               </div>
               <div class="mt-2 flex justify-between px-2.5 text-xs">
-                {#each Array.from( { length: maxRoles }, ).map((_, i) => i + 1) as val}
-                  <span class="select-none">{val}</span>
+                {#each { length: maxRoles }, idx}
+                  <span class="select-none">{idx}</span>
                 {/each}
               </div>
             </div>
           </div>
         {/if}
-        <RolesSelector bind:ratings closed={isClosed} />
+        <RolesSelector bind:ratings closed={isClosed} roles={data.roles} />
         <div class="flex justify-end">
           <button
             type="submit"

@@ -2,7 +2,11 @@ import { and, eq, exists } from "drizzle-orm";
 import type { Context } from "hono";
 import { HTTPException } from "hono/http-exception";
 import type { HonoOptions } from "service/types.ts";
-import { InsertRatings, type Ratings, SelectRatings } from "share/schema.ts";
+import {
+  type InsertRatings,
+  type Ratings,
+  SelectRatings,
+} from "share/schema.ts";
 import * as v from "valibot";
 import { getBrowserID } from "../../features/auth/index.ts";
 import { isAdmin } from "../../features/auth/rules.ts";
@@ -64,23 +68,18 @@ export async function getAllRatings(
   return Object.fromEntries(ratingsByParticipant);
 }
 
-/**
- * Rating is `roleId`: score here, NOT `roleId->participantId`. fuck somebody's going to stumble upon this.
- */
-type Rating = Record<string, number>;
 export async function insertBulkRatings(
   c: Context<HonoOptions>,
   projectId: string,
   name: string,
-  personalRatings: v.InferInput<typeof InsertRatings>,
+  personalRatings: v.InferOutput<typeof InsertRatings>,
 ) {
   const participantId = await getParticipantIdOrInsert(c, name, projectId);
 
-  const dbRatings = v.parse(InsertRatings, personalRatings);
   await db(c)
     .insert(RatingsTable)
     .values(
-      dbRatings.map((r) => ({
+      personalRatings.map((r) => ({
         id: crypto.randomUUID(),
         projectId,
         participantId,

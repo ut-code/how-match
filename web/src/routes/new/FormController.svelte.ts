@@ -75,8 +75,8 @@ export class FormController {
         throw error;
       }
       const client = new Client(fetch);
-      const project = await client.createProject(postForm);
-      goto(`/${project.id}/config?created`);
+      const { projectId } = await client.createProject(postForm);
+      goto(`/${projectId}/config?created`);
       this.formState = "done";
     } catch (err) {
       console.error(err);

@@ -74,6 +74,7 @@ export const InsertRole = object({
 export type SelectRole = InferOutput<typeof SelectRole>;
 export const SelectRole = object({
   id: pipe(string(), uuid()),
+  projectId: pipe(string(), uuid()),
   ...InsertRole.entries,
 });
 
@@ -97,4 +98,38 @@ export const SelectProject = object({
   multipleRoles: CoerceNumberToBoolean,
   dropTooManyRoles: CoerceNumberToBoolean,
   closedAt: nullable(string()),
+});
+
+export type SelectParticipants = InferOutput<typeof SelectParticipants>;
+export const SelectParticipants = array(
+  object({
+    id: pipe(string(), uuid()),
+    name: pipe(string(), minLength(1)),
+    rolesCount: number(),
+  }),
+);
+
+export type SelectAdmins = InferOutput<typeof SelectAdmins>;
+export const SelectAdmins = array(
+  object({
+    id: pipe(string(), uuid()),
+    name: pipe(string(), minLength(1)),
+    browserId: pipe(string(), uuid()),
+  }),
+);
+
+export type SelectMatch = InferOutput<typeof SelectMatch>;
+export const SelectMatch = object({
+  id: pipe(string(), uuid()),
+  projectId: pipe(string(), uuid()),
+  roleId: pipe(string(), uuid()),
+  participantId: pipe(string(), uuid()),
+});
+
+// TODO: implement auth
+export type SelectAccount = InferOutput<typeof SelectAccount>;
+export const SelectAccount = object({
+  id: pipe(string(), uuid()),
+  name: pipe(string(), minLength(1)),
+  browserId: pipe(string(), uuid()),
 });

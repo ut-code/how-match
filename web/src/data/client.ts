@@ -3,10 +3,10 @@ import { error } from "@sveltejs/kit";
 import { hc } from "hono/client";
 import type { App } from "service";
 import type {
+  InsertPreference,
   InsertProject,
   InsertRole,
-  SelectPreference,
-  SelectProject,
+  Ratings,
   SelectRole,
 } from "share/schema";
 
@@ -50,11 +50,25 @@ export class Client {
     const res = await this.client.projects[":projectId"].participants.$get({
       param: { projectId },
     });
+    if (!res.ok) badStatus(res);
+    return await res.json();
+  }
+  async getAdmins(projectId: string) {
+    const res = await this.client.projects[":projectId"].admins.$get({
+      param: { projectId },
+    });
+    if (!res.ok) badStatus(res);
     return await res.json();
   }
 
-  async getPreferences(projectId: string) {
-    const res = await this.client.projects[":projectId"].preferences.$get({
+  async getPreviousSubmission(projectId: string) {
+    const res = await this.client.projects[":projectId"].preferences.mine.$get({
+      param: { projectId },
+    });
+    return res.ok ? await res.json() : undefined;
+  }
+  async getAllPreferences(projectId: string) {
+    const res = await this.client.projects[":projectId"].preferences.all.$get({
       param: { projectId },
     });
     return res.ok ? await res.json() : undefined;
@@ -113,9 +127,13 @@ export class Client {
     return await res.json();
   }
 
-  async putPreference(projectId: string, preference: SelectPreference) {
+  async submit(
+    projectId: string,
+    preference: InsertPreference,
+    ratings: Ratings,
+  ) {
     const res = await this.client.projects[":projectId"].preferences.$put({
-      json: preference,
+      json: { preference, ratings },
       param: { projectId },
     });
     if (!res.ok) {
@@ -149,9 +167,7 @@ export class Client {
     return res.json();
   }
 
-  async getMyProjects(options?: {
-    signal: AbortSignal;
-  }): Promise<SelectProject[]> {
+  async getMyProjects(options?: { signal: AbortSignal }) {
     const res = await this.client.projects.mine.$get(options);
     if (!res.ok) {
       throw new Error(

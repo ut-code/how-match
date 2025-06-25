@@ -3,12 +3,12 @@
   import { onMount } from "svelte";
   import MdiCog from "virtual:icons/mdi/cog";
   import MdiGraph from "virtual:icons/mdi/graph";
-  import MdiVote from "virtual:icons/mdi/vote";
   import MdiWrench from "virtual:icons/mdi/wrench";
   import { Client } from "~/data/client.ts";
 
   const client = new Client(fetch);
 
+  // TODO: separate admin and participated projects
   let projects = $state<SelectProject[] | null>(null);
 
   onMount(() => {
@@ -16,7 +16,7 @@
     client
       .getMyProjects({ signal: ctrl.signal })
       .then((data) => {
-        projects = data;
+        projects = [...data.admin, ...data.participated];
       })
       .catch(console.error);
 
@@ -50,15 +50,7 @@
             {#each projects as project}
               <li class="list-row flex items-center">
                 <span class="h-full flex-1">{project.name}</span>
-                {#if project.prev?.isAdmin}
-                  <a
-                    class="btn btn-primary btn-outline"
-                    href="/{project.id}/config"
-                  >
-                    <MdiCog />
-                    管理
-                  </a>
-                {:else if project.closedAt !== null && new Date(project.closedAt).getTime() < new Date().getTime()}
+                {#if project.closedAt !== null && new Date(project.closedAt).getTime() < new Date().getTime()}
                   <!-- 締切済み -->
                   <a class="btn btn-primary" href="/{project.id}/result">
                     <MdiGraph />
@@ -66,7 +58,7 @@
                   </a>
                 {:else}
                   <a class="btn btn-primary" href="/{project.id}/config">
-                    <MdiVote />
+                    <MdiCog />
                     確認
                   </a>
                 {/if}

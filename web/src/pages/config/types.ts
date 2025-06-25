@@ -1,36 +1,31 @@
-import type { SelectParticipant } from "service/db/schema";
-import type { SelectProject } from "share/schema";
+import type {
+  Ratings,
+  SelectAdmins,
+  SelectParticipants,
+  SelectProject,
+  SelectRole,
+} from "share/schema";
 
-export type Preferences = Record<`${string}->scored->${string}`, number>; // ${participant id}->scored->${role id} : number
-// TODO: someone deduplicate this mess please
 export type PageData = {
   projectId: string;
   project: SelectProject;
-  participants: Omit<SelectParticipant, "projectId" | "browserId">[];
-  roles: RoleWithId[];
-  preferences?: Preferences;
+  participants: SelectParticipants;
+  admins: SelectAdmins;
+  roles: SelectRole[];
+  admin?: {
+    preferences?: Record<string, Ratings>;
+  };
   prev:
     | {
-        id: string;
-        name: string;
-        rolesCount: number;
-        isAdmin: number;
+        submission?: {
+          id: string;
+          name: string;
+          rolesCount: number;
+          isAdmin: boolean;
+        };
+        ratings?: Ratings;
       }
     | undefined;
-};
-
-export const toPreferences = (
-  preferences:
-    | { participantId: string; roleId: string; score: number }[]
-    | undefined,
-): Preferences | undefined => {
-  if (!preferences) return undefined;
-  const result: Preferences = {};
-  for (const preference of preferences) {
-    result[`${preference.participantId}->scored->${preference.roleId}`] =
-      preference.score;
-  }
-  return result;
 };
 
 export type Actions = {

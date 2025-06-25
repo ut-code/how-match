@@ -1,16 +1,15 @@
 <script lang="ts">
+  import type { Ratings, SelectRole } from "share/schema";
+
   type Props = {
-    ratings: {
-      role: Role;
-      score: number | undefined;
-    }[];
+    roles: SelectRole[];
+    ratings: Ratings;
     closed: boolean;
   };
-  const { ratings = $bindable(), closed }: Props = $props();
+  const { roles, ratings = $bindable(), closed }: Props = $props();
 </script>
 
-{#each ratings as rating, radioIndex (radioIndex)}
-  {@const role = rating.role}
+{#each roles as role}
   <div class="hm-block">
     <h2 class="text-xl">{role.name}</h2>
     <div class="grid grid-cols-7 justify-items-center gap-2 text-sm">
@@ -45,7 +44,7 @@
               class="radio radio-lg"
               id="{role.name}-{radioIndex}"
               value={radioIndex}
-              bind:group={rating.score}
+              bind:group={ratings[role.id]}
               disabled={closed}
             />
             <span
