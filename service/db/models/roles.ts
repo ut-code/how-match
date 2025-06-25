@@ -1,12 +1,11 @@
 import { and, eq } from "drizzle-orm";
 import type { Context } from "hono";
 import type { HonoOptions } from "service/types";
-import type { Role, RoleWithId } from "share/schema.ts";
-import { db } from "../client.ts";
+import { db, preparedQueries } from "../client.ts";
 import { Roles } from "../schema.ts";
 
 export function getRoles(c: Context<HonoOptions>, projectId: string) {
-  return db(c).select().from(Roles).where(eq(Roles.projectId, projectId));
+  return preparedQueries(c).getRolesByProject.execute({ projectId });
 }
 
 type Patches = {

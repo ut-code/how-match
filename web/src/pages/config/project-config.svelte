@@ -8,7 +8,6 @@
   import MdiStopCircle from "~icons/mdi/stop-circle";
   import MdiVote from "~icons/mdi/vote";
 
-  import type { RoleWithId } from "share/schema.ts";
   import ParticipantList from "~/components/participant-list.svelte";
   import RoleEditor from "~/components/role-editor.svelte";
   import RoleList from "~/components/role-list.svelte";

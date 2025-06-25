@@ -1,16 +1,10 @@
 <script lang="ts">
-  import type { RoleWithId } from "share/schema.ts";
-  import { createClient } from "~/api/client";
+  import type { SelectRole } from "share/schema.ts";
+  import { Client } from "~/data/client.ts";
   import { modal, toast } from "~/globals.svelte.ts";
   import IconPlus from "~icons/fe/plus";
   import MdiClose from "~icons/mdi/close";
-
-  const client = createClient({ fetch });
-
-  let {
-    roles = $bindable(),
-    projectId,
-  }: { roles: RoleWithId[]; projectId: string } = $props();
+ojectId: string } = $props();
 
   function rolesToRolesEntry(roles: RoleWithId[]) {
     return roles.map((role) => ({
@@ -30,26 +24,25 @@
         .filter((role) => !newRoles.some((r) => r.role.id === role.id))
         .map((r) => r.id),
     };
-    const resp = await client.projects[":projectId"].$patch({
-      param: {
-        projectId,
-      },
-      json: {
-        roles: request,
-      },
-    });
-    if (!resp.ok) return console.error(await resp.text());
-    const json = await resp.json();
-    if (!json.roles) return console.error("It did not return json.roles");
-    newRoles = json.roles.map((role) => ({
-      role,
-      isNew: false,
-    }));
-    roles = json.roles;
-    toast.push({
-      kind: "success",
-      message: "Successfully updated roles!",
-    });
+    try {
+      const client = new Client(fetch);
+      const updatedRoles = await client.updateRoles(projectId, request);
+      newRoles = updatedRoles.map((role) => ({
+        role,
+        isNew: false,
+      }));
+      roles = updatedRoles;
+      toast.push({
+        kind: "success",
+        message: "Successfully updated roles!",
+      });
+    } catch (error) {
+      console.error(error);
+      toast.push({
+        kind: "error",
+        message: "Failed to update roles",
+      });
+    }
   }
   async function onDeleteRoleButtonClick(id: string) {
     await modal.show({

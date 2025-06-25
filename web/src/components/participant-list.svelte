@@ -1,6 +1,4 @@
 <script lang="ts">
-  import type { RoleWithId } from "share/schema";
-
   type Participant = {
     id: string;
     name: string;

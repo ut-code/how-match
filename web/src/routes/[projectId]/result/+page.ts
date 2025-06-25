@@ -1,27 +1,18 @@
 import { error } from "@sveltejs/kit";
-import { type Client, createClient } from "~/api/client.ts";
+import { Client } from "~/data/client.ts";
 import type { PageLoad } from "./$types.ts";
 
-export const load: PageLoad = ({ params, fetch }) => {
+export const load: PageLoad = async ({ params, fetch }) => {
   if (!params.projectId) error(404, "not found");
-  const client: Client = createClient({ fetch });
-  const stream = client.projects[":projectId"].result
-    .$get({
-      param: {
-        projectId: params.projectId,
-      },
-    })
-    .then(async (res) => {
-      if (res.ok) return { ok: true, data: await res.json() } as const;
-      return {
-        ok: false,
-        code: res.status,
-        message: await res.text(),
-      } as const;
-    });
+  const client = new Client(fetch);
+  const result = await client.getResult(params.projectId);
+  const roles = await client.getRoles(params.projectId);
+  const participants = await client.getParticipants(params.projectId);
 
   return {
     projectId: params.projectId,
-    stream,
+    roles,
+    result,
+    participants,
   };
 };

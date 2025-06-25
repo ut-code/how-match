@@ -1,3 +1,4 @@
+import { relations } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 
 export const Participants = sqliteTable("participants", {
@@ -63,13 +64,39 @@ export const Matches = sqliteTable("matches", {
     .notNull(),
 });
 
-export type InsertParticipant = typeof Participants.$inferInsert;
-export type SelectParticipant = typeof Participants.$inferSelect;
-export type InsertAccount = typeof Accounts.$inferInsert;
-export type SelectAccount = typeof Accounts.$inferSelect;
-export type InsertProject = typeof Projects.$inferInsert;
-export type SelectProject = typeof Projects.$inferInsert;
-export type InsertRole = typeof Roles.$inferInsert;
-export type SelectRole = typeof Roles.$inferSelect;
-export type InsertMatch = typeof Matches.$inferInsert;
-export type SelectMatch = typeof Matches.$inferSelect;
+export const ParticipantsRelations = relations(Participants, ({ many }) => ({
+  roles: many(Roles),
+  ratings: many(Ratings),
+  matches: many(Matches),
+}));
+export const RolesRelations = relations(Roles, ({ many }) => ({
+  participants: many(Participants),
+  ratings: many(Ratings),
+  matches: many(Matches),
+}));
+export const ProjectsRelations = relations(Projects, ({ many }) => ({
+  participants: many(Participants),
+  roles: many(Roles),
+  ratings: many(Ratings),
+  matches: many(Matches),
+}));
+export const RatingsRelations = relations(Ratings, ({ one }) => ({
+  participant: one(Participants, {
+    fields: [Ratings.participantId],
+    references: [Participants.id],
+  }),
+  role: one(Roles, {
+    fields: [Ratings.roleId],
+    references: [Roles.id],
+  }),
+}));
+export const MatchesRelations = relations(Matches, ({ one }) => ({
+  participant: one(Participants, {
+    fields: [Matches.participantId],
+    references: [Participants.id],
+  }),
+  role: one(Roles, {
+    fields: [Matches.roleId],
+    references: [Roles.id],
+  }),
+}));

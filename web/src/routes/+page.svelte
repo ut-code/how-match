@@ -1,32 +1,20 @@
 <script lang="ts">
+  import type { SelectProject } from "share/schema.ts";
   import { onMount } from "svelte";
   import MdiCog from "virtual:icons/mdi/cog";
   import MdiGraph from "virtual:icons/mdi/graph";
   import MdiVote from "virtual:icons/mdi/vote";
   import MdiWrench from "virtual:icons/mdi/wrench";
-  import { type Client, createClient } from "~/api/client.ts";
+  import { Client } from "~/data/client.ts";
 
-  const client: Client = createClient({ fetch });
-  async function getMyProjects(options?: { signal: AbortSignal }) {
-    const res = await client.projects.mine.$get(options);
-    if (!res.ok) {
-      return null;
-    }
-    return await res.json();
-  }
+  const client = new Client(fetch);
 
-  type Project = {
-    id: string;
-    name: string;
-    description: string | null;
-    closedAt: string | null;
-    isAdmin: number;
-  };
-  let projects = $state<Project[] | null>(null);
+  let projects = $state<SelectProject[] | null>(null);
 
   onMount(() => {
     const ctrl = new AbortController();
-    getMyProjects({ signal: ctrl.signal })
+    client
+      .getMyProjects({ signal: ctrl.signal })
       .then((data) => {
         projects = data;
       })
@@ -62,7 +50,7 @@
             {#each projects as project}
               <li class="list-row flex items-center">
                 <span class="h-full flex-1">{project.name}</span>
-                {#if project.isAdmin}
+                {#if project.prev?.isAdmin}
                   <a
                     class="btn btn-primary btn-outline"
                     href="/{project.id}/config"

@@ -4,21 +4,25 @@ import { HTTPException } from "hono/http-exception";
 import { Projects } from "service/db/schema.ts";
 import type { HonoOptions } from "service/types.ts";
 import { json, param } from "service/validator/hono.ts";
-import { InsertProject, Role, RoleWithId } from "share/schema.ts";
+import {
+  InsertProject,
+  InsertProjectPartial,
+  InsertRole,
+  SelectRole,
+} from "share/schema.ts";
 import * as v from "valibot";
+import { db } from "../../db/client.ts";
+import { assignAndSave } from "../../db/kit/assign.ts";
+import { deleteAllMatches, getMatches } from "../../db/models/matches.ts";
+import { getPreviousSubmission } from "../../db/models/participants.ts";
 import {
   applyPatchToProject,
   createProject,
   deleteProject,
   getProject,
   getSubmittedProjects,
-} from "../..//db/data/projects.ts";
-import { db } from "../../db/client.ts";
-import { deleteAllMatches, getMatches } from "../../db/data/matches.ts";
-import { getPreviousSubmission } from "../../db/data/participants.ts";
-import { getPreviousRatings } from "../../db/data/ratings.ts";
-import { applyPatchesToRoles } from "../../db/data/roles.ts";
-import { assignAndSave } from "../../db/kit/assign.ts";
+} from "../../db/models/projects.ts";
+import { applyPatchesToRoles, getRoles } from "../../db/models/roles.ts";
 import { isAdmin } from "../../features/auth/rules.ts";
 import participantRoutes from "./participants.ts";
 import preferenceRoutes from "./preferences.ts";
@@ -42,12 +46,23 @@ const route = new Hono<HonoOptions>()
 
       const project = getProject(c, projectId);
       const prev = getPreviousSubmission(c, projectId);
-      const roles = getPreviousRatings(c, projectId);
+      const roles = getRoles(c, projectId);
       return c.json({
         project: await project,
         roles: await roles,
         prev: await prev,
       });
+    },
+  )
+  .get(
+    "/:projectId/roles",
+    param({
+      projectId: v.string(),
+    }),
+    async (c) => {
+      const { projectId } = c.req.valid("param");
+      const roles = await getRoles(c, projectId);
+      return c.json(roles);
     },
   )
 
@@ -58,11 +73,11 @@ const route = new Hono<HonoOptions>()
     }),
     json(
       v.object({
-        project: v.optional(v.partial(InsertProject)),
+        project: v.optional(InsertProjectPartial),
         roles: v.optional(
           v.object({
-            create: v.optional(v.array(Role)),
-            update: v.optional(v.array(RoleWithId)),
+            create: v.optional(v.array(InsertRole)),
+            update: v.optional(v.array(SelectRole)),
             delete: v.optional(v.array(v.string())),
           }),
         ),

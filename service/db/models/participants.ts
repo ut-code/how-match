@@ -1,11 +1,16 @@
 import { and, eq, exists, or } from "drizzle-orm";
 import type { Context } from "hono";
+import type { InsertPreference, Ratings } from "share/schema.ts";
 import { getBrowserID } from "../../features/auth/index.ts";
 import type { HonoOptions } from "../../types.ts";
 import { db } from "../client.ts";
-import { Participants, Ratings } from "../schema.ts";
+import { Participants, Ratings as RatingsTable } from "../schema.ts";
 import { structureParticipants } from "../transformers/matches.ts";
+import { getPreviousRatings } from "./ratings.ts";
 
+/**
+ * this is a superset of getPreviousRatings
+ */
 export async function getPreviousSubmission(
   c: Context<HonoOptions>,
   projectId: string,
@@ -15,6 +20,7 @@ export async function getPreviousSubmission(
       name: string;
       rolesCount: number;
       isAdmin: number;
+      ratings: Ratings;
     }
   | undefined
 > {
@@ -36,11 +42,14 @@ export async function getPreviousSubmission(
 
   const prev = prevSubmission[0];
   if (!prev) return undefined;
+
+  const ratings = await getPreviousRatings(c, projectId);
   return {
     id: prev.id,
     name: prev.name,
     rolesCount: prev.rolesCount,
     isAdmin: prev.isAdmin,
+    ratings,
   };
 }
 
@@ -52,15 +61,15 @@ export async function getParticipantsWithPreferences(
     .select({
       id: Participants.id,
       rolesCount: Participants.rolesCount,
-      score: Ratings.score,
-      roleId: Ratings.roleId,
+      score: RatingsTable.score,
+      roleId: RatingsTable.roleId,
     })
     .from(Participants)
     .innerJoin(
-      Ratings,
+      RatingsTable,
       and(
-        eq(Participants.id, Ratings.participantId),
-        eq(Participants.projectId, Ratings.projectId),
+        eq(Participants.id, RatingsTable.participantId),
+        eq(Participants.projectId, RatingsTable.projectId),
       ),
     )
     .where(eq(Participants.projectId, projectId));
@@ -89,9 +98,9 @@ export async function getSubmittedParticipants(
           eq(Participants.isAdmin, 0), // PERF: skip ratings check if !participants.isAdmin, because it will always exist
           exists(
             d
-              .select({ id: Ratings.id })
-              .from(Ratings)
-              .where(eq(Ratings.participantId, Participants.id)),
+              .select({ id: RatingsTable.id })
+              .from(RatingsTable)
+              .where(eq(RatingsTable.participantId, Participants.id)),
           ),
         ),
       ),
@@ -126,4 +135,25 @@ export async function getParticipantIdOrInsert(
     })
     .returning();
   return inserted[0].id;
+}
+
+export async function insertParticipant(
+  c: Context<HonoOptions>,
+  projectId: string,
+  data: InsertPreference,
+) {
+  const browserId = await getBrowserID(c);
+
+  const inserted = await db(c)
+    .insert(Participants)
+    .values({
+      id: crypto.randomUUID(),
+      browserId,
+      name: data.participantName,
+      projectId,
+      rolesCount: data.rolesCount,
+      isAdmin: 0,
+    })
+    .returning();
+  return inserted[0];
 }

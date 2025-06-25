@@ -1,22 +1,21 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { Preference } from "share/schema.ts";
   import { safeParse } from "valibot";
-  import { createClient } from "~/api/client";
   import { generateURL } from "~/api/origins.svelte.ts";
+  import { Client } from "~/data/client.ts";
+  import { toast } from "~/globals.svelte.ts";
   import type { PageProps } from "./$types.ts";
   import RolesSelector from "./roles-selector.svelte";
-  import { toast } from "~/globals.svelte.ts";
 
   const { data }: PageProps = $props();
-  const client = createClient({ fetch });
 
   // TODO: ローディング中の UI を追加
   let participantName = $state<string>(data.prev?.name ?? "");
   let rolesCount = $state<number>(data.prev?.rolesCount || 1); // including 0
   let ratings = $state(
-    data.project.roles.map((role) => {
-      const score = role.prev ?? undefined;
+    data.roles.map((role) => {
+      const score =
+        data.prev?.ratings[`${data.prev?.id}->scored->${role.id}`] ?? undefined;
       return { role, score };
     }),
   );
@@ -45,29 +44,8 @@
         throw new Error("failed to validate preference");
       }
 
-      if (prev_data) {
-        // PUT
-        console.log("doing a PUT");
-        const res = await client.projects[":projectId"].preferences.$put({
-          json: preference.output,
-          param: { projectId },
-        });
-        if (!res.ok)
-          throw new Error(
-            `Failed to submit: got ${res.status} with text ${await res.text()}`,
-          );
-      } else {
-        // POST
-        console.log("doing a POST");
-        const res = await client.projects[":projectId"].preferences.$post({
-          json: preference.output,
-          param: { projectId },
-        });
-        if (!res.ok)
-          throw new Error(
-            `Failed to submit: got ${res.status} with text ${await res.json()}`,
-          );
-      }
+      const client = new Client(fetch);
+      await client.putPreference(projectId, preference.output);
       goto(`/${projectId}/config`);
       formState = "done";
     } catch (err) {
@@ -88,7 +66,7 @@
     if (data.project.closedAt === null) return false;
     return new Date(data.project.closedAt).getTime() < Date.now();
   });
-  const maxRoles = $derived(data.project.roles.length);
+  const maxRoles = $derived(data.roles.length);
 
   const resultLink = $derived(
     generateURL({
@@ -142,7 +120,7 @@
               type="number"
               class="input validator text-base"
               bind:value={rolesCount}
-              max={data.project.roles.length}
+              max={maxRoles}
               disabled={isClosed}
             />
             <div class="w-full max-w-xs">

@@ -7,9 +7,9 @@ import { assignRoles } from "share/logic/min-flow/single.ts";
 import { isAdmin } from "../../features/auth/rules.ts";
 import type { HonoOptions } from "../../types.ts";
 import { db } from "../client.ts";
-import { deleteAllMatches } from "../data/matches.ts";
-import { getParticipantsWithPreferences } from "../data/participants.ts";
-import { getProject } from "../data/projects.ts";
+import { deleteAllMatches } from "../models/matches.ts";
+import { getParticipantsWithPreferences } from "../models/participants.ts";
+import { getProject } from "../models/projects.ts";
 import { Matches, Projects, Ratings, Roles } from "../schema.ts";
 import { flattenMatchingResult } from "../transformers/matches.ts";
 

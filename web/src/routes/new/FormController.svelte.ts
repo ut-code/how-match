@@ -2,9 +2,7 @@ import { goto } from "$app/navigation";
 import { panic } from "share/lib";
 import { InsertProject } from "share/schema";
 import { safeParse } from "valibot";
-import { createClient } from "~/api/client";
-
-const client = createClient({ fetch });
+import { Client } from "~/data/client.ts";
 
 export type Form = {
   name: string;
@@ -76,18 +74,8 @@ export class FormController {
         console.error(error, val.issues);
         throw error;
       }
-      const res = await client.projects.$post({
-        json: postForm,
-      });
-      if (!res.ok) {
-        throw new Error(
-          `[FormController] failed to create project:
-          got status ${res.status}
-          with text ${await res.text()}`,
-        );
-      }
-
-      const project = await res.json();
+      const client = new Client(fetch);
+      const project = await client.createProject(postForm);
       goto(`/${project.id}/config?created`);
       this.formState = "done";
     } catch (err) {

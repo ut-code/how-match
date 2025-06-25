@@ -1,5 +1,5 @@
 import type { SelectParticipant } from "service/db/schema";
-import type { RoleWithId, SelectProject } from "share/schema";
+import type { SelectProject } from "share/schema";
 
 export type Preferences = Record<`${string}->scored->${string}`, number>; // ${participant id}->scored->${role id} : number
 // TODO: someone deduplicate this mess please

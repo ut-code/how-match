@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import type { HonoOptions } from "service/types.ts";
 import * as v from "valibot";
-import { getSubmittedParticipants } from "../../db/data/participants.ts";
+import { getSubmittedParticipants } from "../../db/models/participants.ts";
 import { param } from "../../validator/hono.ts";
 
 const route = new Hono<HonoOptions>().get(
