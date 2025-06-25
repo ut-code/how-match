@@ -3,10 +3,15 @@ import { type DrizzleD1Database, drizzle as d1 } from "drizzle-orm/d1";
 import { drizzle as libsql } from "drizzle-orm/libsql";
 import type { Context } from "hono";
 import type { HonoOptions } from "service/types.ts";
+import * as schema from "./schema.ts";
 
-export const db = (c: Context<HonoOptions>): DrizzleD1Database => {
+export const db = (
+  c: Context<HonoOptions>,
+): DrizzleD1Database<typeof schema> => {
   if (c.env?.DB) {
-    return d1(c.env.DB);
+    return d1(c.env.DB, {
+      schema,
+    });
   }
 
   // if it's running on Cloudflare
@@ -20,9 +25,10 @@ export const db = (c: Context<HonoOptions>): DrizzleD1Database => {
     },
   });
   return libsql({
+    schema,
     logger,
     connection: {
       url: "file:../local.db",
     },
-  }) as unknown as DrizzleD1Database;
+  }) as unknown as DrizzleD1Database<typeof schema>;
 };
