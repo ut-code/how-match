@@ -8,7 +8,9 @@ import {
   nullable,
   number,
   object,
+  partial,
   pipe,
+  record,
   string,
   transform,
   uuid,
@@ -23,55 +25,111 @@ export const CoerceNumberToBoolean = pipe(
   transform((b: number) => b === 1),
 );
 
-export const Role = object({
+export type Ratings = InferOutput<typeof Ratings>;
+export const Ratings = record(pipe(string(), uuid()), number());
+export type RatingsRepository = InferOutput<typeof RatingsRepository>;
+export const RatingsRepository = array(
+  object({
+    roleId: pipe(string(), uuid()),
+    score: number(),
+  }),
+);
+export type SelectRatings = InferOutput<typeof SelectRatings>;
+export const SelectRatings = pipe(
+  RatingsRepository,
+  transform(
+    (r) =>
+      <Ratings>(
+        Object.fromEntries(r.map(({ roleId, score }) => [roleId, score]))
+      ),
+  ),
+);
+export const InsertRatings = pipe(
+  Ratings,
+  transform(
+    (r) =>
+      <RatingsRepository>(
+        Object.entries(r).map(([roleId, score]) => ({ roleId, score }))
+      ),
+  ),
+);
+
+export type SelectPreference = InferOutput<typeof SelectPreference>;
+export const SelectPreference = object({
+  participantName: string(),
+  rolesCount: number(),
+});
+export type InsertPreference = InferInput<typeof InsertPreference>;
+export const InsertPreference = object({
+  participantName: string(),
+  rolesCount: number(),
+});
+
+export type InsertRole = InferOutput<typeof InsertRole>;
+export const InsertRole = object({
   name: pipe(string(), minLength(1)),
   min: pipe(number(), minValue(0)),
   max: pipe(number(), minValue(1)),
 });
+export type SelectRole = InferOutput<typeof SelectRole>;
+export const SelectRole = object({
+  id: pipe(string(), uuid()),
+  projectId: pipe(string(), uuid()),
+  ...InsertRole.entries,
+});
 
-export type Role = InferOutput<typeof Role>;
-export type RoleWithId = InferOutput<typeof RoleWithId>;
-export type RoleWithIdAndPrev = InferOutput<typeof RoleWithIdAndPrev>;
-export type InsertProjectOutput = InferOutput<typeof InsertProject>;
 export type InsertProject = InferInput<typeof InsertProject>;
-export type Preference = InferOutput<typeof Preference>;
-
-export const RoleWithId = object({
-  id: pipe(string(), uuid()),
-  ...Role.entries,
-});
-export const RoleWithIdAndPrev = object({
-  id: pipe(string(), uuid()),
-  ...Role.entries,
-  prev: nullable(number()),
-});
-
+export type InsertProjectOutput = InferOutput<typeof InsertProject>;
 export const InsertProject = object({
   name: pipe(string(), minLength(1)),
   description: nullable(string()),
-  roles: pipe(array(Role), minLength(1)),
-  multipleRoles: pipe(boolean(), CoerceBooleanToNumber),
-  dropTooManyRoles: pipe(boolean(), CoerceBooleanToNumber),
+  roles: pipe(array(InsertRole), minLength(1)),
+  multipleRoles: CoerceBooleanToNumber,
+  dropTooManyRoles: CoerceBooleanToNumber,
 });
+export type InsertProjectPartial = InferOutput<typeof InsertProjectPartial>;
+export const InsertProjectPartial = partial(InsertProject);
+export type SelectProjectInput = InferInput<typeof SelectProject>;
+export type SelectProject = InferOutput<typeof SelectProject>;
 export const SelectProject = object({
   id: pipe(string(), uuid()),
   name: pipe(string(), minLength(1)),
   description: nullable(string()),
-  roles: pipe(array(RoleWithIdAndPrev), minLength(1)),
   multipleRoles: CoerceNumberToBoolean,
   dropTooManyRoles: CoerceNumberToBoolean,
   closedAt: nullable(string()),
 });
-export type SelectProject = InferOutput<typeof SelectProject>;
 
-export const Preference = object({
-  // browserId: string() -> validation の挟まるレイヤーでは存在しない、cookie からもってくるため
-  participantName: string(),
-  rolesCount: number(),
-  ratings: array(
-    object({
-      roleId: string(),
-      score: number(),
-    }),
-  ),
+export type SelectParticipants = InferOutput<typeof SelectParticipants>;
+export const SelectParticipants = array(
+  object({
+    id: pipe(string(), uuid()),
+    name: pipe(string(), minLength(1)),
+    rolesCount: number(),
+  }),
+);
+
+export type SelectAdmins = InferOutput<typeof SelectAdmins>;
+export const SelectAdmins = array(
+  object({
+    id: pipe(string(), uuid()),
+    name: pipe(string(), minLength(1)),
+    browserId: pipe(string(), uuid()),
+  }),
+);
+
+export type SelectMatch = InferOutput<typeof SelectMatch>;
+export const SelectMatch = object({
+  id: pipe(string(), uuid()),
+  projectId: pipe(string(), uuid()),
+  roleId: pipe(string(), uuid()),
+  participantId: pipe(string(), uuid()),
+});
+
+// TODO: implement auth
+export type SelectAccount = InferOutput<typeof SelectAccount>;
+export const SelectAccount = object({
+  id: pipe(string(), uuid()),
+  name: pipe(string(), minLength(1)),
+  browserId: pipe(string(), uuid()),
 });

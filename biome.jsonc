@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.0.5/schema.json",
   "vcs": {
     "enabled": true,
     "clientKind": "git",
@@ -7,7 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["service/worker-configuration.d.ts"],
+    "includes": ["**", "!**/service/worker-configuration.d.ts"],
   },
   "formatter": {
     "enabled": false, // HTML-ish support when?
@@ -15,13 +15,10 @@
     "indentStyle": "space",
     "indentWidth": 2,
   },
-  "organizeImports": {
-    "enabled": true,
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
     "enabled": true,
     "rules": {
-      "all": true,
       "correctness": {
         "noUndeclaredVariables": "off",
         "noUndeclaredDependencies": "off",
@@ -29,20 +26,31 @@
       },
       "suspicious": {
         "noConsole": "off",
-        "noConsoleLog": "off",
         "noEmptyInterface": "off",
         "noEmptyBlockStatements": "off",
       },
       "style": {
         "useNamingConvention": "off",
         "noDefaultExport": "off",
-        "noNamespaceImport": "off",
         "useBlockStatements": "off",
         "noParameterProperties": "off",
+        "noParameterAssign": "error",
+        "useAsConstAssertion": "error",
+        "useDefaultParameterLast": "error",
+        "useEnumInitializers": "error",
+        "useSelfClosingElements": "error",
+        "useSingleVarDeclarator": "error",
+        "noUnusedTemplateLiteral": "error",
+        "useNumberNamespace": "error",
+        "noInferrableTypes": "error",
+        "noUselessElse": "error",
       },
       "complexity": {
         "noExcessiveCognitiveComplexity": "off",
         "noForEach": "off",
+      },
+      "performance": {
+        "noNamespaceImport": "off",
       },
     },
   },
@@ -53,7 +61,7 @@
   },
   "overrides": [
     {
-      "include": ["*.jsonc", "tsconfig.json"],
+      "includes": ["**/*.jsonc", "**/tsconfig.json"],
       "json": {
         "parser": {
           "allowTrailingCommas": true,
@@ -67,7 +75,7 @@
       },
     },
     {
-      "include": ["*.svelte"],
+      "includes": ["**/*.svelte"],
       "linter": {
         "rules": {
           "style": {

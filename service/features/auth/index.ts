@@ -4,8 +4,9 @@ import { getSignedCookie, setSignedCookie } from "hono/cookie";
 import { HTTPException } from "hono/http-exception";
 import type { CookieOptions } from "hono/utils/cookie";
 import { db } from "service/db/client.ts";
-import { type SelectAccount, Accounts } from "service/db/schema.ts";
+import { Users } from "service/db/schema.ts";
 import { env } from "service/lib.ts";
+import type { SelectAccount } from "share/schema.ts";
 
 function GET_COOKIE_SIGN(c: Context): string {
   return env(c, "COOKIE_SIGN");
@@ -44,7 +45,7 @@ export async function signup(
   }
   const account = (
     await db(c)
-      .insert(Accounts)
+      .insert(Users)
       .values({
         id: crypto.randomUUID(),
         browserId,
@@ -113,8 +114,8 @@ async function _findAccount(
     case "none": {
       const accountsResult = await db(c)
         .select()
-        .from(Accounts)
-        .where(eq(Accounts.name, auth.info.name))
+        .from(Users)
+        .where(eq(Users.name, auth.info.name))
         .limit(1);
       return accountsResult[0]; // findUnique をしたかった
     }

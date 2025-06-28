@@ -1,7 +1,5 @@
-import { createClient } from "~/api/client";
+import { Client } from "~/data/client.ts";
 import { modal, toast } from "~/globals.svelte";
-
-const client = createClient({ fetch });
 
 function invalidate() {
   // TODO: implement a proper reloading
@@ -22,11 +20,8 @@ export async function close(projectId: string) {
         class: "btn-primary",
         text: "締め切る",
         onclick: async () => {
-          await client.projects[":projectId"].finalize.$put({
-            param: {
-              projectId,
-            },
-          });
+          const client = new Client(fetch);
+          await client.finalizeProject(projectId);
           invalidate();
         },
       },
@@ -48,11 +43,8 @@ export async function reopen(projectId: string) {
         class: "btn-warning",
         text: "締め切りをキャンセル",
         onclick: async () => {
-          await client.projects[":projectId"].reopen.$put({
-            param: {
-              projectId,
-            },
-          });
+          const client = new Client(fetch);
+          await client.reopenProject(projectId);
           invalidate();
         },
       },
@@ -60,7 +52,7 @@ export async function reopen(projectId: string) {
   });
 }
 
-export async function deleteProject(projectId: string) {
+export async function deleteProjectAction(projectId: string) {
   await modal.show({
     title: "プロジェクトを削除しますか？",
     content: "削除すると、参加者の提出やマッチング結果も消去されます。",
@@ -70,11 +62,8 @@ export async function deleteProject(projectId: string) {
         text: "削除",
         class: "btn-error",
         onclick: async () => {
-          const resp = await client.projects[":projectId"].$delete({
-            param: {
-              projectId: projectId,
-            },
-          });
+          const client = new Client(fetch);
+          const resp = await client.deleteProject(projectId);
           if (resp.ok) {
             toast.push({
               message: "プロジェクトを削除しました。",
@@ -94,7 +83,7 @@ export async function deleteProject(projectId: string) {
   });
 }
 
-export async function updateProject(
+export async function updateProjectAction(
   projectId: string,
   name: string,
   description: string | null,
@@ -104,24 +93,13 @@ export async function updateProject(
   },
 ) {
   try {
-    const resp = await client.projects[":projectId"].$patch({
-      param: {
-        projectId: projectId,
-      },
-      json: {
-        project: {
-          name,
-          description: description ?? undefined,
-          dropTooManyRoles: options?.dropTooManyRoles ?? undefined,
-          multipleRoles: options?.multipleRoles ?? undefined,
-        },
-      },
+    const client = new Client(fetch);
+    await client.updateProject(projectId, {
+      name,
+      description: description ?? undefined,
+      dropTooManyRoles: options?.dropTooManyRoles ?? undefined,
+      multipleRoles: options?.multipleRoles ?? undefined,
     });
-    if (!resp.ok) {
-      throw new Error(
-        `Got response status ${resp.status} with text ${await resp.text()}`,
-      );
-    }
     toast.push({ kind: "success", message: "更新に成功しました" });
   } catch (_err) {
     toast.push({ kind: "error", message: "更新に失敗しました" });

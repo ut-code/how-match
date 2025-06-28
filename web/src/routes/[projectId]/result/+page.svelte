@@ -1,36 +1,31 @@
 <script lang="ts">
   const { data } = $props();
+
+  const result = $derived(data.result);
+
+  const resultKeys = $derived(Object.keys(data.result.role_participants));
+  const roles = $derived(
+    data.roles.filter((role) => resultKeys.includes(role.id)),
+  );
 </script>
 
 <div>
   <div class="hm-blocks-container">
-    {#await data.stream}
-      <span class="loading loading-xl"> </span>
-    {:then res}
-      {#if !res.ok}
-        failed to load result. code: {res.code}
-        message: {res.message}
-      {:else}
-        {@const result = res.data}
-        {@const matches = Object.entries(result.participantsOnEachRole)}
+    {#if !roles.length}
+      役職のある人はいません。
+    {:else}
+      {#each roles as role}
         <div class="hm-block">
-          <h2 class="text-xl">{result.projectName}</h2>
-          <p>{result.projectDesc}</p>
-        </div>
-        {#if !matches.length}
-          役職のある人はいません。
-        {:else}
-          {#each matches as [_roleId, role]}
-            <div class="hm-block">
-              <h2 class="text-xl">{role.roleName}</h2>
-              {#each role.participants as participant}
-                <p>{participant.participantName} さん</p>
-              {/each}
-            </div>
+          <h2 class="text-xl">{role.name}</h2>
+          {#each result.role_participants[role.id] as participantId}
+            {@const p = data.participants.find((p) => p.id === participantId)}
+            <p>
+              {p ? `${p.name} さん` : "参加者が見つかりません"}
+            </p>
           {/each}
-        {/if}
-      {/if}
-    {/await}
+        </div>
+      {/each}
+    {/if}
     <div class="flex justify-end">
       <a href="/" class="btn btn-primary">ホームに戻る</a>
     </div>

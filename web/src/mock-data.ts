@@ -1,9 +1,9 @@
 import type {
   SelectMatch,
-  SelectParticipant,
+  SelectParticipants,
   SelectProject,
   SelectRole,
-} from "service/db/schema";
+} from "share/schema.ts";
 
 export const mockRoles: SelectRole[] = [
   {
@@ -40,21 +40,30 @@ export const mockProjects: SelectProject[] = [
   {
     id: "2025-spring",
     name: "2025年春プロジェクト発足回",
-    multipleRoles: 1,
+    multipleRoles: true,
+    dropTooManyRoles: false,
+    description: null,
+    closedAt: null,
   },
   // 他の Mock はこれ (2025-winter) 用に作られてる。
   {
     id: "2025-winter",
     name: "2025年冬プロジェクト発足回",
-    multipleRoles: 1,
+    multipleRoles: true,
+    dropTooManyRoles: false,
+    description: null,
+    closedAt: null,
   },
   {
     id: "2024-winter",
     name: "2024年冬大忘年会",
-    multipleRoles: 9,
+    multipleRoles: true,
+    dropTooManyRoles: false,
+    description: null,
+    closedAt: null,
   },
 ];
 
-export const mockParticipants: SelectParticipant[] = [];
+export const mockParticipants: SelectParticipants = [];
 export const mockRatings: SelectRole[] = [];
 export const mockMatches: SelectMatch[] = [];

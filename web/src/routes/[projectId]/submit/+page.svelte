@@ -1,75 +1,36 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { Preference } from "share/schema.ts";
-  import { safeParse } from "valibot";
-  import { createClient } from "~/api/client";
   import { generateURL } from "~/api/origins.svelte.ts";
+  import { Client } from "~/data/client.ts";
+  import { toast } from "~/globals.svelte.ts";
+  import { proxify } from "~/lib/svutils.svelte.ts";
   import type { PageProps } from "./$types.ts";
   import RolesSelector from "./roles-selector.svelte";
-  import { toast } from "~/globals.svelte.ts";
 
   const { data }: PageProps = $props();
-  const client = createClient({ fetch });
 
   // TODO: ローディング中の UI を追加
   let participantName = $state<string>(data.prev?.name ?? "");
   let rolesCount = $state<number>(data.prev?.rolesCount || 1); // including 0
-  let ratings = $state(
-    data.project.roles.map((role) => {
-      const score = role.prev ?? undefined;
-      return { role, score };
-    }),
-  );
-
-  const prev_data = data.prev != null;
+  let formState = $state<"ready" | "submitting" | "error" | "done">("ready");
+  let ratings = $derived(proxify(data.prev?.ratings ?? {}));
+  const prevDataExists = data.prev != null;
   const formVerb = $derived.by(() => {
-    if (!prev_data) return "送信";
+    if (!prevDataExists) return "送信";
     if (!data.prev?.name) return "送信"; // admin & has not submitted
     return "更新";
   });
+
   async function postPreference() {
     formState = "submitting";
     try {
-      const projectId = data.project.id;
-      const preference = safeParse(Preference, {
+      const client = new Client(fetch);
+      const preference = {
         participantName,
         rolesCount,
-        ratings: ratings.map((rating) => ({
-          roleId: rating.role.id,
-          score: rating.score,
-        })),
-      });
-      // TODO: handle it better
-      if (!preference.success) {
-        console.error(preference.issues);
-        throw new Error("failed to validate preference");
-      }
-
-      if (prev_data) {
-        // PUT
-        console.log("doing a PUT");
-        const res = await client.projects[":projectId"].preferences.$put({
-          json: preference.output,
-          param: { projectId },
-        });
-        if (!res.ok)
-          throw new Error(
-            `Failed to submit: got ${res.status} with text ${await res.text()}`,
-          );
-      } else {
-        // POST
-        console.log("doing a POST");
-        const res = await client.projects[":projectId"].preferences.$post({
-          json: preference.output,
-          param: { projectId },
-        });
-        if (!res.ok)
-          throw new Error(
-            `Failed to submit: got ${res.status} with text ${await res.json()}`,
-          );
-      }
-      goto(`/${projectId}/config`);
-      formState = "done";
+      };
+      await client.submit(data.project.id, preference, ratings);
+      await goto(`/${data.project.id}/config`);
     } catch (err) {
       console.error(err);
       formState = "error";
@@ -83,12 +44,11 @@
     }
   }
 
-  let formState = $state<"ready" | "submitting" | "error" | "done">("ready");
   const isClosed = $derived.by(() => {
     if (data.project.closedAt === null) return false;
     return new Date(data.project.closedAt).getTime() < Date.now();
   });
-  const maxRoles = $derived(data.project.roles.length);
+  const maxRoles = $derived(data.roles.length);
 
   const resultLink = $derived(
     generateURL({
@@ -142,7 +102,7 @@
               type="number"
               class="input validator text-base"
               bind:value={rolesCount}
-              max={data.project.roles.length}
+              max={maxRoles}
               disabled={isClosed}
             />
             <div class="w-full max-w-xs">
@@ -155,19 +115,19 @@
                 step="1"
               />
               <div class="mt-2 flex justify-between px-2.5 text-xs">
-                {#each { length: maxRoles } as _}
+                {#each { length: maxRoles }}
                   <span class="select-none">|</span>
                 {/each}
               </div>
               <div class="mt-2 flex justify-between px-2.5 text-xs">
-                {#each Array.from( { length: maxRoles }, ).map((_, i) => i + 1) as val}
-                  <span class="select-none">{val}</span>
+                {#each { length: maxRoles }, idx}
+                  <span class="select-none">{idx}</span>
                 {/each}
               </div>
             </div>
           </div>
         {/if}
-        <RolesSelector bind:ratings closed={isClosed} />
+        <RolesSelector bind:ratings closed={isClosed} roles={data.roles} />
         <div class="flex justify-end">
           <button
             type="submit"
