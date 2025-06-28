@@ -1,34 +1,25 @@
 import { DefaultLogger } from "drizzle-orm";
-import { type DrizzleD1Database, drizzle as d1 } from "drizzle-orm/d1";
-import { drizzle as libsql } from "drizzle-orm/libsql";
+import { type LibSQLDatabase, drizzle } from "drizzle-orm/libsql";
 import type { Context } from "hono";
 import type { HonoOptions } from "service/types.ts";
 import * as schema from "./schema.ts";
+import { env } from "../lib.ts";
 
-export const db = (
-  c: Context<HonoOptions>,
-): DrizzleD1Database<typeof schema> => {
-  if (c.env?.DB) {
-    return d1(c.env.DB, {
-      schema,
-    });
-  }
-
-  // if it's running on Cloudflare
-  if (typeof process === "undefined") {
-    throw new Error("ERROR: c.env.DB not found");
-  }
+export const db = (c: Context<HonoOptions>): LibSQLDatabase<typeof schema> => {
+  const DATABASE_URL = env(c, "DATABASE_URL");
+  const DATABASE_TOKEN = env(c, "DATABASE_TURSO_TOKEN");
 
   const logger = new DefaultLogger({
     writer: {
       write: (message) => console.log("[drizzle SQL]", message),
     },
   });
-  return libsql({
+  return drizzle({
     schema,
     logger,
     connection: {
-      url: "file:../local.db",
+      url: DATABASE_URL,
+      authToken: DATABASE_TOKEN,
     },
-  }) as unknown as DrizzleD1Database<typeof schema>;
+  });
 };

@@ -19,6 +19,9 @@ in
 
       # wrangler # can't build for now
 
+      # Database
+      turso-cli # Turso database CLI
+
       # Nix
       alejandra # formatter
       nil # langserver

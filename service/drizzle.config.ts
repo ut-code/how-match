@@ -6,10 +6,11 @@ export default defineConfig({
 
   dbCredentials: {
     url: process_env("DATABASE_URL"),
+    authToken: process_env("DATABASE_TOKEN"),
   },
 
   verbose: true,
   strict: true,
-  dialect: "sqlite",
+  dialect: "turso",
   out: "./.drizzle",
 });
