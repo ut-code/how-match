@@ -114,7 +114,7 @@ export const SelectAdmins = array(
   object({
     id: pipe(string(), uuid()),
     name: pipe(string(), minLength(1)),
-    browserId: pipe(string(), uuid()),
+    userId: pipe(string(), uuid()),
   }),
 );
 
@@ -126,10 +126,13 @@ export const SelectMatch = object({
   participantId: pipe(string(), uuid()),
 });
 
-// TODO: implement auth
 export type SelectAccount = InferOutput<typeof SelectAccount>;
 export const SelectAccount = object({
   id: pipe(string(), uuid()),
   name: pipe(string(), minLength(1)),
-  browserId: pipe(string(), uuid()),
+  email: pipe(string(), minLength(1)),
+  emailVerified: boolean(),
+  image: nullable(string()),
+  createdAt: string(),
+  updatedAt: string(),
 });

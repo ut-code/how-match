@@ -58,11 +58,9 @@ export const mockData: (props: { isAdmin: boolean }) => PageData = ({
     {
       id: "user1",
       name: "John Doe",
-      browserId: "user1",
+      userId: "user1",
     },
-    ...(isAdmin
-      ? [{ id: "user-you", name: "You", browserId: "user-you" }]
-      : []),
+    ...(isAdmin ? [{ id: "user-you", name: "You", userId: "user-you" }] : []),
   ];
 
   const preferences = createRandomPreferences(participants, roles);

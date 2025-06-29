@@ -13,6 +13,7 @@ import {
 import * as v from "valibot";
 import { db } from "../../db/client.ts";
 import { assignAndSave } from "../../db/kit/assign.ts";
+import { addAdmin } from "../../db/models/admins.ts";
 import { deleteAllMatches, getMatches } from "../../db/models/matches.ts";
 import { getPreviousSubmission } from "../../db/models/participants.ts";
 import {
@@ -23,6 +24,7 @@ import {
   getProject,
 } from "../../db/models/projects.ts";
 import { applyPatchesToRoles, getRoles } from "../../db/models/roles.ts";
+import { createAuth } from "../../features/auth/better-auth.ts";
 import { isAdmin } from "../../features/auth/rules.ts";
 import adminRoutes from "./admins.ts";
 import participantRoutes from "./participants.ts";
@@ -107,6 +109,16 @@ const route = new Hono<HonoOptions>()
   .post("/", json(InsertProject), async (c) => {
     const json = c.req.valid("json");
     const projectId = await createProject(c, json);
+
+    const auth = createAuth(c);
+    const session = await auth.api.getSession({
+      headers: c.req.raw.headers,
+    });
+    if (!session?.user) {
+      return c.json({ message: "Unauthorized" }, 401);
+    }
+
+    await addAdmin(c, projectId, session.user.id, session.user.name);
 
     return c.json({ ok: true, projectId }, 200);
   })
