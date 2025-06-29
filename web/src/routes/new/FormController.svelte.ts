@@ -34,6 +34,18 @@ export class FormController {
   deleteRoleButtonDisabled = $derived(this.form.roles.length <= 1);
   formState = $state<"ready" | "submitting" | "error" | "done">("ready");
 
+  setBulkMax = (value: number) => {
+    this.form.roles.forEach((role) => {
+      role.max = value;
+    });
+  };
+
+  setBulkMin = (value: number) => {
+    this.form.roles.forEach((role) => {
+      role.min = value;
+    });
+  };
+
   addRole = () => {
     this.form.roles.push({
       localId: localIdSeq++,
