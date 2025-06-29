@@ -7,7 +7,17 @@ import { env } from "../lib.ts";
 
 export const db = (c: Context<HonoOptions>): LibSQLDatabase<typeof schema> => {
   const DATABASE_URL = env(c, "DATABASE_URL");
-  const DATABASE_TOKEN = env(c, "DATABASE_TURSO_TOKEN");
+  if (DATABASE_URL.startsWith("libsql:")) {
+    // needs token (also disables logger)
+    const DATABASE_TOKEN = env(c, "DATABASE_TURSO_TOKEN");
+    return drizzle({
+      schema,
+      connection: {
+        url: DATABASE_URL,
+        authToken: DATABASE_TOKEN,
+      },
+    });
+  }
 
   const logger = new DefaultLogger({
     writer: {
@@ -19,7 +29,6 @@ export const db = (c: Context<HonoOptions>): LibSQLDatabase<typeof schema> => {
     logger,
     connection: {
       url: DATABASE_URL,
-      authToken: DATABASE_TOKEN,
     },
   });
 };

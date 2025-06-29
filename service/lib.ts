@@ -6,7 +6,7 @@ export function env(
   ctx: Context,
   name: string,
   options: { fallback?: string } = {},
-) {
+): string {
   return (
     _env(ctx)?.[name] ??
     options.fallback ??
