@@ -8,6 +8,9 @@
     ctl: FormController;
   };
   const { ctl }: Props = $props();
+
+  let bulkMax = $state<number | undefined>(undefined);
+  let bulkMin = $state<number | undefined>(undefined);
 </script>
 
 <div class="hm-block">
@@ -50,6 +53,33 @@
       </button>
     </div>
   {/each}
+  {#if ctl.form.roles.length >= 2}
+    <div class="flex justify-end gap-2">
+      <p class="grow-1 self-center text-right text-gray-400">一括入力</p>
+      <input
+        type="number"
+        class="input validator"
+        placeholder="最大人数"
+        min={1}
+        bind:value={bulkMax}
+        oninput={() => {
+          if (bulkMax === undefined || bulkMax < 1) return;
+          ctl.setBulkMax(bulkMax);
+        }}
+      />
+      <input
+        type="number"
+        class="input validator mr-12"
+        placeholder="最小人数"
+        min="0"
+        bind:value={bulkMin}
+        oninput={() => {
+          if (bulkMin === undefined || bulkMin < 0) return;
+          ctl.setBulkMin(bulkMin);
+        }}
+      />
+    </div>
+  {/if}
   <button
     type="button"
     class="btn btn-primary btn-soft flex justify-center"
