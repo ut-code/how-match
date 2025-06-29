@@ -1,6 +1,7 @@
 <script lang="ts">
-  import ConfigMenu from "~/pages/config/project-config.svelte";
-  import { mockData, mockActions } from "./mock.svelte.ts";
+  import ConfigMenu from "~/pages/config/page.svelte";
+  import { mockActions, mockData } from "./mock.svelte.ts";
+
   let isAdmin = $state(true);
   const getData = () => mockData({ isAdmin });
 </script>

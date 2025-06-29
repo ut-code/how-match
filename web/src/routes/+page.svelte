@@ -1,9 +1,9 @@
 <script lang="ts">
-  import type { SelectProject } from "share/schema.ts";
-  import { onMount } from "svelte";
   import MdiCog from "virtual:icons/mdi/cog";
   import MdiGraph from "virtual:icons/mdi/graph";
   import MdiWrench from "virtual:icons/mdi/wrench";
+  import type { SelectProject } from "share/schema.ts";
+  import { onMount } from "svelte";
   import { Client } from "~/data/client.ts";
 
   const client = new Client(fetch);

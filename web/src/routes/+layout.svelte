@@ -6,6 +6,7 @@
   import Header from "~/components/header.svelte";
   import { modal, toast } from "~/globals.svelte";
   import Modal from "~/providers/modal/modal.svelte";
+
   const { children } = $props();
 </script>
 

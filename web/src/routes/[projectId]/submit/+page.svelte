@@ -1,8 +1,8 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
-  import { generateURL } from "~/api/origins.svelte.ts";
   import { Client } from "~/data/client.ts";
   import { toast } from "~/globals.svelte.ts";
+  import { generateURL } from "~/lib/origins.svelte.ts";
   import { proxify } from "~/lib/svutils.svelte.ts";
   import type { PageProps } from "./$types.ts";
   import RolesSelector from "./roles-selector.svelte";

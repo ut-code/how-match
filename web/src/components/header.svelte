@@ -10,6 +10,7 @@
     ["done", "希望の提出"],
     ["config", "管理"],
     ["new", "作成"],
+    ["table", "テーブル"],
   ]);
 
   function getTitle() {

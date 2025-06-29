@@ -64,6 +64,22 @@ export const mockProjects: SelectProject[] = [
   },
 ];
 
-export const mockParticipants: SelectParticipants = [];
+export const mockParticipants: SelectParticipants = [
+  {
+    id: "user1",
+    name: "John Doe",
+    rolesCount: 2,
+  },
+  {
+    id: "user-you",
+    name: "You",
+    rolesCount: 1,
+  },
+  {
+    id: "user3",
+    name: "Bob Wilson",
+    rolesCount: 2,
+  },
+];
 export const mockRatings: SelectRole[] = [];
 export const mockMatches: SelectMatch[] = [];

@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { SelectRole } from "share/schema.ts";
+
   let { roles }: { roles: SelectRole[] } = $props();
 </script>
 

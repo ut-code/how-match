@@ -1,8 +1,9 @@
 <script lang="ts">
   // components
-  import ProjectTitle from "./_components/title.svelte";
+
   import ProjectDescription from "./_components/description.svelte";
   import RolesList from "./_components/roles-list.svelte";
+  import ProjectTitle from "./_components/title.svelte";
   import { FormController } from "./FormController.svelte.ts";
 
   const ctl = new FormController();

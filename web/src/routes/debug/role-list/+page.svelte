@@ -1,6 +1,6 @@
 <script lang="ts">
-  import RoleList from "../../../components/role-list.svelte";
   import { mockRoles } from "~/mock-data.ts";
+  import RoleList from "../../../components/role-list.svelte";
 </script>
 
 <div class="hm-block mt-20">

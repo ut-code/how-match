@@ -5,6 +5,7 @@
   import { proxify } from "~/lib/svutils.svelte.ts";
   import IconPlus from "~icons/fe/plus";
   import MdiClose from "~icons/mdi/close";
+
   type Props = {
     roles: SelectRole[];
     projectId: string;

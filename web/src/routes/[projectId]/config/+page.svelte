@@ -1,10 +1,10 @@
 <script lang="ts">
-  import ConfigMenu from "~/pages/config/project-config.svelte";
+  import ConfigMenu from "~/pages/config/page.svelte";
   import type { PageProps } from "./$types.ts";
   import {
     close,
-    reopen,
     deleteProjectAction,
+    reopen,
     updateProjectAction,
   } from "./actions.ts";
 

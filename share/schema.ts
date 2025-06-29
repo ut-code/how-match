@@ -1,8 +1,8 @@
 import {
-  type InferInput,
-  type InferOutput,
   array,
   boolean,
+  type InferInput,
+  type InferOutput,
   minLength,
   minValue,
   nullable,

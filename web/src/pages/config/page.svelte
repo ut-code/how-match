@@ -1,20 +1,22 @@
 <script lang="ts">
   import { replaceState } from "$app/navigation";
   import { page } from "$app/state";
-  import { onMount } from "svelte";
-  import { generateURL } from "~/api/origins.svelte.ts";
-  import MdiGraph from "~icons/mdi/graph";
-  import MdiLink from "~icons/mdi/link-variant";
-  import MdiStopCircle from "~icons/mdi/stop-circle";
-  import MdiVote from "~icons/mdi/vote";
-
   import { SelectParticipants } from "share/schema.ts";
+  import { onMount } from "svelte";
+  import AdminList from "~/components/admin-list.svelte";
   import ParticipantList from "~/components/participant-list.svelte";
   import RoleEditor from "~/components/role-editor.svelte";
   import RoleList from "~/components/role-list.svelte";
   import { toast } from "~/globals.svelte.js";
+  import { generateURL } from "~/lib/origins.svelte.ts";
   import { proxify } from "~/lib/svutils.svelte.ts";
+  import MdiGraph from "~icons/mdi/graph";
+  import MdiLink from "~icons/mdi/link-variant";
+  import MdiStopCircle from "~icons/mdi/stop-circle";
+  import MdiTable from "~icons/mdi/table";
+  import MdiVote from "~icons/mdi/vote";
   import type { Actions, PageData } from "./types.ts";
+
   type Props = {
     getData: () => PageData;
     actions: Actions;
@@ -325,20 +327,32 @@
     </section>
   {/if}
 {/snippet}
-
 {#snippet ParticipantListSection()}
-  <section id="submissions" class="list bg-base-100 rounded-box shadow-md">
-    <h2 class="p-4 pb-2 text-xs tracking-wide opacity-60">
-      提出した人 ({participants.length})
-    </h2>
-    <ParticipantList
-      {participants}
-      admins={data.admins}
-      roles={data.roles}
-      adminOnly={data.admin?.preferences && {
-        preferences: data.admin.preferences,
-      }}
-      multipleRoles={project.multipleRoles}
-    />
+  <section id="submissions" class="flex gap-4">
+    <div class="flex-1">
+      <div class="bg-base-100 rounded-md shadow-md">
+        <h2 class="p-4 pb-2 text-xs tracking-wide opacity-60">
+          管理者 ({data.admins.length})
+        </h2>
+        <AdminList admins={data.admins} />
+      </div>
+    </div>
+    <div class="flex-1">
+      <div class="bg-base-100 rounded-md shadow-md">
+        <div class="flex justify-between">
+          <h2 class="p-4 pb-2 text-xs tracking-wide opacity-60">
+            提出した人 ({participants.length})
+          </h2>
+          <a
+            href={`/${data.projectId}/table`}
+            class="btn btn-primary btn-sm m-2"
+          >
+            <MdiTable />
+            テーブル
+          </a>
+        </div>
+        <ParticipantList {participants} multipleRoles={project.multipleRoles} />
+      </div>
+    </div>
   </section>
 {/snippet}

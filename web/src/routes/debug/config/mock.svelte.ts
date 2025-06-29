@@ -112,7 +112,7 @@ export const mockActions: Actions = {
   },
 };
 
-function createRandomPreferences(
+export function createRandomPreferences(
   participants: { id: string; name: string }[],
   roles: SelectRole[],
 ): Record<string, Ratings> {

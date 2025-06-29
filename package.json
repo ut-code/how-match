@@ -18,8 +18,8 @@
     "check:style": "biome lint . && bun prettier --check .",
     "fix": "bun fix:style",
     "fix:style": "bun prettier --write . && biome lint . --fix --unsafe",
-    "db": "cd service; rm ../local.db; DATABASE_URL=file:../local.db bun db",
-    "db:dev": "cd service; rm ../local.db; DATABASE_TOKEN=1 DATABASE_URL=file:../local.db bun db push --force",
+    "db": "cd service; bun db",
+    "db:dev": "rm ../local.db; DATABASE_TOKEN=1 DATABASE_URL=file:../local.db bun db push --force",
     "build": "(cd service && bun run build) && (cd web && bun run build)",
     "test": "cd share; bun run test",
     "clean": "rm -r node_modules; rm -r **/node_modules; rm -r web/.svelte-kit; rm -r service/.drizzle; true"
