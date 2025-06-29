@@ -16,3 +16,17 @@ export async function getAdmins(
 
   return admins;
 }
+
+export async function addAdmin(
+  c: Context<HonoOptions>,
+  projectId: string,
+  userId: string,
+  name: string,
+) {
+  await db(c).insert(Admins).values({
+    id: crypto.randomUUID(),
+    name,
+    projectId,
+    userId,
+  });
+}

@@ -2,6 +2,7 @@
   import { page } from "$app/state";
   import ThemeToggle from "~/components/theme-toggle.svelte";
   import MdiWrench from "~icons/mdi/wrench";
+  import HeaderAuthIndicator from "./auth/header-auth-indicator.svelte";
 
   const titles = new Map([
     ["", ""],
@@ -11,6 +12,8 @@
     ["config", "管理"],
     ["new", "作成"],
     ["table", "テーブル"],
+    ["login", "ログイン"],
+    ["register", "登録"],
   ]);
 
   function getTitle() {
@@ -50,6 +53,10 @@
       </a>
     {/if}
     <span class="hidden sm:inline sm:flex-1"></span>
-    <ThemeToggle />
+
+    <div class="flex items-center gap-4">
+      <HeaderAuthIndicator />
+      <ThemeToggle />
+    </div>
   </div>
 </header>

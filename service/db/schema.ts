@@ -4,18 +4,13 @@ import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 export const Participants = sqliteTable("participants", {
   id: text().notNull().primaryKey(),
   name: text().notNull(),
-  browserId: text("browser_id").notNull(),
+  userId: text("user_id")
+    .references(() => Users.id, { onDelete: "cascade" })
+    .notNull(),
   projectId: text("project_id")
     .references(() => Projects.id, { onDelete: "cascade" })
     .notNull(),
   rolesCount: integer("roles_count").notNull(),
-});
-
-// TODO: implement authentication
-export const Users = sqliteTable("users", {
-  id: text().notNull().primaryKey(),
-  name: text().notNull(),
-  browserId: text("browser_id").notNull().unique(),
 });
 
 export const Admins = sqliteTable("admins", {
@@ -24,7 +19,9 @@ export const Admins = sqliteTable("admins", {
   projectId: text("project_id")
     .references(() => Projects.id, { onDelete: "cascade" })
     .notNull(),
-  browserId: text("browser_id").notNull(),
+  userId: text("user_id")
+    .references(() => Users.id, { onDelete: "cascade" })
+    .notNull(),
 });
 
 export const Projects = sqliteTable("projects", {
@@ -71,6 +68,61 @@ export const Matches = sqliteTable("matches", {
   projectId: text("project_id")
     .references(() => Projects.id, { onDelete: "cascade" })
     .notNull(),
+});
+
+// Better-auth tables
+export const Users = sqliteTable("user", {
+  id: text().notNull().primaryKey(),
+  name: text().notNull(),
+  email: text().notNull().unique(),
+  emailVerified: integer("emailVerified", { mode: "boolean" })
+    .notNull()
+    .default(false),
+  image: text(),
+  createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
+});
+
+export const accounts = sqliteTable("account", {
+  id: text().notNull().primaryKey(),
+  accountId: text().notNull(),
+  providerId: text().notNull(),
+  userId: text()
+    .notNull()
+    .references(() => Users.id, { onDelete: "cascade" }),
+  accessToken: text(),
+  refreshToken: text(),
+  idToken: text(),
+  accessTokenExpiresAt: integer("accessTokenExpiresAt", { mode: "timestamp" }),
+  refreshTokenExpiresAt: integer("refreshTokenExpiresAt", {
+    mode: "timestamp",
+  }),
+  scope: text(),
+  password: text(),
+  createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
+});
+
+export const session = sqliteTable("session", {
+  id: text().notNull().primaryKey(),
+  expiresAt: integer("expiresAt", { mode: "timestamp" }).notNull(),
+  token: text().notNull().unique(),
+  createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
+  ipAddress: text(),
+  userAgent: text(),
+  userId: text()
+    .notNull()
+    .references(() => Users.id, { onDelete: "cascade" }),
+});
+
+export const verification = sqliteTable("verification", {
+  id: text().notNull().primaryKey(),
+  identifier: text().notNull(),
+  value: text().notNull(),
+  expiresAt: integer("expiresAt", { mode: "timestamp" }).notNull(),
+  createdAt: integer("createdAt", { mode: "timestamp" }),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }),
 });
 
 export const AdminsRelations = relations(Admins, ({ one }) => ({

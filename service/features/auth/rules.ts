@@ -2,16 +2,16 @@ import { and, eq } from "drizzle-orm";
 import type { Context } from "hono";
 import { db } from "../../db/client.ts";
 import { Admins } from "../../db/schema.ts";
-import { getBrowserID } from "./index.ts";
+import { getCurrentUserId } from "./index.ts";
 
 export async function isAdmin(c: Context, projectId: string) {
-  const browserId = await getBrowserID(c);
+  const userId = await getCurrentUserId(c);
+  if (!userId) return false;
+
   const admin = await db(c)
     .select()
     .from(Admins)
-    .where(
-      and(eq(Admins.browserId, browserId), eq(Admins.projectId, projectId)),
-    )
+    .where(and(eq(Admins.userId, userId), eq(Admins.projectId, projectId)))
     .limit(1);
 
   return admin.length > 0;

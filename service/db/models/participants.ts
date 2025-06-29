@@ -7,7 +7,7 @@ import {
   SelectParticipants,
 } from "share/schema.ts";
 import * as v from "valibot";
-import { getBrowserID } from "../../features/auth/index.ts";
+import { getCurrentUserId, requireAuth } from "../../features/auth/index.ts";
 import { isAdmin } from "../../features/auth/rules.ts";
 import type { HonoOptions } from "../../types.ts";
 import { db } from "../client.ts";
@@ -31,7 +31,9 @@ export async function getPreviousSubmission(
     }
   | undefined
 > {
-  const browserId = await getBrowserID(c);
+  const userId = await getCurrentUserId(c);
+  if (!userId) return undefined;
+
   const prevSubmission = await db(c)
     .select({
       id: Participants.id,
@@ -42,7 +44,7 @@ export async function getPreviousSubmission(
     .where(
       and(
         eq(Participants.projectId, projectId),
-        eq(Participants.browserId, browserId),
+        eq(Participants.userId, userId),
       ),
     );
 
@@ -105,14 +107,16 @@ export async function getParticipantId(
   c: Context<HonoOptions>,
   projectId: string,
 ) {
-  const browserId = await getBrowserID(c);
+  const userId = await getCurrentUserId(c);
+  if (!userId) return undefined;
+
   const participant = await db(c)
     .select({ id: Participants.id })
     .from(Participants)
     .where(
       and(
         eq(Participants.projectId, projectId),
-        eq(Participants.browserId, browserId),
+        eq(Participants.userId, userId),
       ),
     );
   return participant[0]?.id;
@@ -122,14 +126,14 @@ export async function getParticipantIdOrInsert(
   name: string,
   projectId: string,
 ) {
-  const browserId = await getBrowserID(c);
+  const userId = await requireAuth(c);
   const participant = await db(c)
     .select({ id: Participants.id })
     .from(Participants)
     .where(
       and(
         eq(Participants.projectId, projectId),
-        eq(Participants.browserId, browserId),
+        eq(Participants.userId, userId),
       ),
     );
   if (participant[0]) return participant[0].id;
@@ -137,7 +141,7 @@ export async function getParticipantIdOrInsert(
     .insert(Participants)
     .values({
       id: crypto.randomUUID(),
-      browserId,
+      userId,
       name,
       projectId,
       rolesCount: 1,
@@ -151,13 +155,13 @@ export async function insertParticipant(
   projectId: string,
   submission: InsertPreference,
 ) {
-  const browserId = await getBrowserID(c);
+  const userId = await requireAuth(c);
 
   const inserted = await db(c)
     .insert(Participants)
     .values({
       id: crypto.randomUUID(),
-      browserId,
+      userId,
       name: submission.participantName,
       projectId,
       rolesCount: submission.rolesCount,
@@ -172,8 +176,22 @@ export async function deleteParticipant(
   projectId: string,
   participantId: string,
 ) {
+  const userId = await getCurrentUserId(c);
+  if (!userId) {
+    throw new HTTPException(401, { message: "Authentication required" });
+  }
+
   const is_admin = await isAdmin(c, projectId);
-  const is_self = (await getBrowserID(c)) === participantId;
+
+  // Check if user owns this participant record
+  const participant = await db(c)
+    .select({ userId: Participants.userId })
+    .from(Participants)
+    .where(eq(Participants.id, participantId))
+    .limit(1);
+
+  const is_self = participant[0]?.userId === userId;
+
   if (!(is_admin || is_self)) {
     throw new HTTPException(401, { message: "Forbidden" });
   }

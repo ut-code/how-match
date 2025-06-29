@@ -8,7 +8,7 @@ import {
   SelectRatings,
 } from "share/schema.ts";
 import * as v from "valibot";
-import { getBrowserID } from "../../features/auth/index.ts";
+import { getCurrentUserId } from "../../features/auth/index.ts";
 import { isAdmin } from "../../features/auth/rules.ts";
 import { db } from "../client.ts";
 import { Participants, Ratings as RatingsTable } from "../schema.ts";
@@ -18,7 +18,10 @@ export async function getPreviousRatings(
   c: Context<HonoOptions>,
   projectId: string,
 ): Promise<Ratings> {
-  const browserId = await getBrowserID(c);
+  const userId = await getCurrentUserId(c);
+  if (!userId) {
+    return {};
+  }
 
   const scores: v.InferInput<typeof SelectRatings> = await db(c)
     .select({
@@ -31,7 +34,7 @@ export async function getPreviousRatings(
     .where(
       and(
         eq(RatingsTable.projectId, projectId),
-        eq(Participants.browserId, browserId),
+        eq(Participants.userId, userId),
       ),
     );
 
@@ -93,7 +96,8 @@ export async function deletePreviousRatings(
   c: Context<HonoOptions>,
   projectId: string,
 ) {
-  const browserId = await getBrowserID(c);
+  const userId = await getCurrentUserId(c);
+  if (!userId) return;
 
   await db(c)
     .delete(RatingsTable)
@@ -107,7 +111,7 @@ export async function deletePreviousRatings(
             .where(
               and(
                 eq(RatingsTable.participantId, Participants.id),
-                eq(Participants.browserId, browserId),
+                eq(Participants.userId, userId),
                 eq(Participants.projectId, projectId),
               ),
             ),
