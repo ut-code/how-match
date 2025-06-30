@@ -4,12 +4,14 @@
   import { toast } from "~/globals.svelte.ts";
   import { generateURL } from "~/lib/origins.svelte.ts";
   import { proxify } from "~/lib/svutils.svelte.ts";
+  import { useAuth } from "~/lib/auth-utils.svelte.ts";
   import type { PageProps } from "./$types.ts";
   import RolesSelector from "./roles-selector.svelte";
 
   const { data }: PageProps = $props();
 
   // TODO: ローディング中の UI を追加
+  const auth = useAuth();
   let participantName = $state<string>(data.prev?.name ?? "");
   let rolesCount = $state<number>(data.prev?.rolesCount || 1); // including 0
   let formState = $state<"ready" | "submitting" | "error" | "done">("ready");
@@ -48,6 +50,8 @@
     if (data.project.closedAt === null) return false;
     return new Date(data.project.closedAt).getTime() < Date.now();
   });
+  const isLoggedIn = $derived(auth.user !== null);
+  const canSubmit = $derived(isLoggedIn && !isClosed && formState === "ready");
   const maxRoles = $derived(data.roles.length);
 
   const resultLink = $derived(
@@ -62,6 +66,11 @@
     <div role="alert" class="alert alert-error m-6">
       既に締め切られています
       <a class="btn btn-primary" href={resultLink}> 結果を見る </a>
+    </div>
+  {:else if !isLoggedIn}
+    <div role="alert" class="alert alert-warning m-6">
+      提出するにはログインが必要です
+      <a class="btn btn-primary" href="/signin"> ログイン </a>
     </div>
   {/if}
   {#if data.project === null}
@@ -92,7 +101,7 @@
             required
             minlength="1"
             bind:value={participantName}
-            disabled={isClosed}
+            disabled={!canSubmit}
           />
         </div>
         {#if p.multipleRoles}
@@ -103,7 +112,7 @@
               class="input validator text-base"
               bind:value={rolesCount}
               max={maxRoles}
-              disabled={isClosed}
+              disabled={!canSubmit}
             />
             <div class="w-full max-w-xs">
               <input
@@ -113,6 +122,7 @@
                 min="1"
                 max={maxRoles}
                 step="1"
+                disabled={!canSubmit}
               />
               <div class="mt-2 flex justify-between px-2.5 text-xs">
                 {#each { length: maxRoles }}
@@ -127,14 +137,12 @@
             </div>
           </div>
         {/if}
-        <RolesSelector bind:ratings closed={isClosed} roles={data.roles} />
+        <RolesSelector bind:ratings closed={!canSubmit} roles={data.roles} />
         <div class="flex justify-end">
-          <button
-            type="submit"
-            class="btn btn-primary"
-            disabled={isClosed || formState !== "ready"}
-          >
-            {#if isClosed}
+          <button type="submit" class="btn btn-primary" disabled={!canSubmit}>
+            {#if !isLoggedIn}
+              ログインが必要です
+            {:else if isClosed}
               既に締め切られています
             {:else if formState === "ready"}
               {formVerb}
