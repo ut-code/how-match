@@ -1,7 +1,8 @@
 <script lang="ts">
+  import { page } from "$app/state";
   import type { SelectProject, SelectRole } from "share/schema";
   import { toast } from "~/globals.svelte.ts";
-  import { useAuth } from "~/lib/auth-utils.svelte.ts";
+  import { googleLogin, useAuth } from "~/lib/auth-utils.svelte.ts";
   import { generateURL } from "~/lib/origins.svelte.ts";
   import { proxify } from "~/lib/svutils.svelte.ts";
   import RolesSelector from "~/routes/[projectId]/submit/roles-selector.svelte";
@@ -82,7 +83,17 @@
   {:else if !isLoggedIn}
     <div role="alert" class="alert alert-warning m-6">
       提出するにはログインが必要です
-      <a class="btn btn-primary" href="/signin"> ログイン </a>
+      <button
+        class="btn btn-primary"
+        disabled={googleLogin.processing}
+        onclick={async () => {
+          await googleLogin.run({
+            callbackURL: page.url.pathname,
+          });
+        }}
+      >
+        サインイン
+      </button>
     </div>
   {/if}
 

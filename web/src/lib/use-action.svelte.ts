@@ -1,28 +1,32 @@
 export function useAction<T, Args extends unknown[]>(
   fn: (...args: Args) => Promise<T>,
 ) {
-  let processing = $state(false);
-  let error = $state<string | null>(null);
-
-  return {
-    processing,
-    error,
+  const state = $state<{
+    processing: boolean;
+    error: string | null;
+    run: (...args: Args) => Promise<T | undefined>;
+    reset: () => void;
+  }>({
+    processing: false,
+    error: null,
     run: async (...args: Args) => {
-      if (processing) return;
-      processing = true;
-      error = null;
+      if (state.processing) return;
+      state.processing = true;
+      state.error = null;
       try {
         return await fn(...args);
       } catch (e) {
-        error = e instanceof Error ? e.message : "Unknown error";
+        state.error = e instanceof Error ? e.message : "Unknown error";
         throw e;
       } finally {
-        processing = false;
+        state.processing = false;
       }
     },
     reset: () => {
-      processing = false;
-      error = null;
+      state.processing = false;
+      state.error = null;
     },
-  };
+  });
+
+  return state;
 }

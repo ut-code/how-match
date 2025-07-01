@@ -115,7 +115,7 @@ const route = new Hono<HonoOptions>()
       headers: c.req.raw.headers,
     });
     if (!session?.user) {
-      return c.json({ message: "Unauthorized" }, 401);
+      throw new HTTPException(401, { message: "Unauthorized" });
     }
 
     await addAdmin(c, projectId, session.user.id, session.user.name);
