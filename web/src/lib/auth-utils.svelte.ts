@@ -36,9 +36,11 @@ export function useAuth() {
   return current;
 }
 
-export const googleLogin = useAction(async () => {
-  await signIn.social({
-    provider: "google",
-    callbackURL: "/",
-  });
-});
+export const googleLogin = useAction(
+  async ({ callbackURL }: { callbackURL: string }) => {
+    await signIn.social({
+      provider: "google",
+      callbackURL,
+    });
+  },
+);

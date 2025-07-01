@@ -9,6 +9,7 @@
   <div>
     <a class="btn btn-primary" href="/debug/config">/config</a>
     <a class="btn btn-primary" href="/debug/new">/new</a>
+    <a class="btn btn-primary" href="/debug/submit">/submit</a>
     <a class="btn btn-primary" href="/debug/table">/table</a>
   </div>
 </main>
