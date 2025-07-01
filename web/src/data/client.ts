@@ -10,7 +10,7 @@ import type {
   SelectRole,
 } from "share/schema";
 
-const baseUrl = import.meta.env.DEV ? "http://localhost:3000/" : "/";
+const baseUrl = import.meta.env.DEV ? "http://localhost:3000" : "";
 console.log(`[log] hono/client: baseUrl = ${baseUrl}`);
 
 export type HonoClient = ReturnType<typeof hc<App>>["api"];

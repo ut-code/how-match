@@ -8,7 +8,7 @@ import {
   SelectProject,
 } from "share/schema.ts";
 import * as v from "valibot";
-import { getBrowserID } from "../../features/auth/index.ts";
+import { getCurrentUserId } from "../../features/auth/index.ts";
 import { isAdmin } from "../../features/auth/rules.ts";
 import { db } from "../client.ts";
 import { Admins, Participants, Projects } from "../schema.ts";
@@ -44,7 +44,11 @@ export async function getMyProjects(
   c: Context<HonoOptions>,
 ): Promise<{ participated: SelectProject[]; admin: SelectProject[] }> {
   const d = db(c);
-  const browserId = await getBrowserID(c);
+  const userId = await getCurrentUserId(c);
+
+  if (!userId) {
+    return { participated: [], admin: [] };
+  }
 
   const participatedProjects = await d
     .select()
@@ -57,7 +61,7 @@ export async function getMyProjects(
           .where(
             and(
               eq(Participants.projectId, Projects.id),
-              eq(Participants.browserId, browserId),
+              eq(Participants.userId, userId),
             ),
           ),
       ),
@@ -72,10 +76,7 @@ export async function getMyProjects(
           .select()
           .from(Admins)
           .where(
-            and(
-              eq(Admins.browserId, browserId),
-              eq(Admins.projectId, Projects.id),
-            ),
+            and(eq(Admins.userId, userId), eq(Admins.projectId, Projects.id)),
           ),
       ),
     );
